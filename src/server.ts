@@ -39,11 +39,20 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://static.cloudflareinsights.com"], // allow local script and Cloudflare Insights
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://static.cloudflareinsights.com",
+          "https://www.googletagmanager.com"
+        ], // allow local script, Cloudflare, and Google Analytics
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // inline styles and Google Fonts
-        imgSrc: ["'self'", "data:"], // data: URIs used in SVG <image> elements
+        imgSrc: ["'self'", "data:", "https://www.google-analytics.com", "https://analytics.google.com"], // allow Google Analytics tracking pixels
         fontSrc: ["'self'", "https://fonts.gstatic.com"], // local and Google Fonts
-        connectSrc: ["'self'"], // allow client-side fetch/XHR to own endpoints (e.g. metrics)
+        connectSrc: [
+          "'self'",
+          "https://www.google-analytics.com",
+          "https://analytics.google.com"
+        ], // allow client-side fetch/XHR to own endpoints and Google Analytics
         objectSrc: ["'none'"],
         frameSrc: ["'none'"],
         baseUri: ["'self'"],
