@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Helpers - Stats Generator | CreativeCode</title>
+    <meta
+      name="description"
+      content="Generador en tiempo real de tarjetas de estadísticas y lenguajes para tu perfil de GitHub y archivos README."
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Ambient background blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container">
+      <header class="app-header">
+        <div class="header-top-row">
+          <div class="logo">
+            <svg
+              class="logo-icon"
+              viewBox="0 0 24 24"
+              width="36"
+              height="36"
+              fill="none"
+              stroke="url(#logo-grad)"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <defs>
+                <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#a855f7" />
+                </linearGradient>
+              </defs>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <h1>GitHub <span class="accent-text">Helpers</span></h1>
+          </div>
+          <button
+            id="btn-theme-toggle"
+            class="theme-toggle-btn"
+            aria-label="Cambiar tema claro/oscuro"
+          >
+            <!-- Sun Icon -->
+            <svg
+              class="sun-icon"
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <!-- Moon Icon -->
+            <svg
+              class="moon-icon hidden"
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+        </div>
+        <p class="subtitle">
+          Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente
+          para tu README.md.
+        </p>
+
+        <!-- Live Metrics counter -->
+        <div class="metrics-badge hidden" id="metrics-badge">
+          <span class="pulse-dot"></span>
+          <span>Tarjetas generadas: <strong id="metrics-count">0</strong></span>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- Left Panel: Input & Settings -->
+        <section class="settings-panel glass-card">
+          <h2 class="section-title">Configuración</h2>
+
+          <!-- Step 1: Username & Optional Repo -->
+          <div class="input-group">
+            <label for="username-input" class="input-label">Usuario de GitHub</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">@</span>
+              <input
+                type="text"
+                id="username-input"
+                placeholder="ej. github"
+                autocomplete="off"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="repo-input" class="input-label">Repositorio Específico (Opcional)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  style="margin-right: 4px"
+                >
+                  <path
+                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="repo-input"
+                placeholder="ej. github-helpers (o el más popular)"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <button
+            id="btn-generate"
+            class="primary-btn full-width-btn"
+            style="margin-bottom: 24px; width: 100%"
+          >
+            Generar Tarjetas
+          </button>
+
+          <!-- Step 2: Themes -->
+          <div class="themes-group">
+            <span class="input-label">Selecciona un Estilo</span>
+            <div class="themes-grid" id="themes-container">
+              <button class="theme-option active" data-theme="dark" id="theme-dark">
+                <span class="theme-name">Dark</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: #0d1117"></span>
+                  <span class="color-dot" style="background: #58a6ff"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="light" id="theme-light">
+                <span class="theme-name">Light</span>
+                <span class="theme-colors">
+                  <span
+                    class="color-dot"
+                    style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1)"
+                  ></span>
+                  <span class="color-dot" style="background: #0969da"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="neon" id="theme-neon">
+                <span class="theme-name">Neon</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: #050505"></span>
+                  <span class="color-dot" style="background: #00ff66"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="glassmorphism" id="theme-glassmorphism">
+                <span class="theme-name">Glass</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: rgba(30, 41, 59, 0.7)"></span>
+                  <span class="color-dot" style="background: #38bdf8"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="solarized" id="theme-solarized">
+                <span class="theme-name">Solarized</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: #002b36"></span>
+                  <span class="color-dot" style="background: #2aa198"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="radical" id="theme-radical">
+                <span class="theme-name">Radical</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: #141321"></span>
+                  <span class="color-dot" style="background: #fe428e"></span>
+                </span>
+              </button>
+              <button class="theme-option" data-theme="tokyonight" id="theme-tokyonight">
+                <span class="theme-name">Tokyo</span>
+                <span class="theme-colors">
+                  <span class="color-dot" style="background: #1a1b26"></span>
+                  <span class="color-dot" style="background: #79dac8"></span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Panel: Live Preview & Code -->
+        <section class="preview-panel">
+          <!-- Live Preview -->
+          <div class="preview-card glass-card">
+            <h2 class="section-title">Vista Previa</h2>
+
+            <div class="cards-preview-container">
+              <!-- Stats Card Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Tarjeta de Estadísticas</h3>
+                <div class="image-frame" id="stats-frame">
+                  <img id="stats-img" alt="Estadísticas de GitHub" class="hidden preview-img" />
+                  <div class="placeholder-card" id="stats-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                      </svg>
+                    </div>
+                    <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Languages Card Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Tarjeta de Lenguajes</h3>
+                <div class="image-frame" id="languages-frame">
+                  <img
+                    id="languages-img"
+                    alt="Lenguajes de programación más usados"
+                    class="hidden preview-img"
+                  />
+                  <div class="placeholder-card" id="languages-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="16 18 22 12 16 6" />
+                        <polyline points="8 6 2 12 8 18" />
+                      </svg>
+                    </div>
+                    <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Featured Repo Card Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Tarjeta de Repositorio Destacado</h3>
+                <div class="image-frame" id="repo-frame" style="aspect-ratio: 495 / 150">
+                  <img id="repo-img" alt="Repositorio Destacado" class="hidden preview-img" />
+                  <div class="placeholder-card" id="repo-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v3H6.5a1.5 1.5 0 0 0 0 3H20v2H6.5A2.5 2.5 0 0 1 4 22.5v-3z"
+                        />
+                        <path d="M6 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V3A1 1 0 0 1 5 2h1z" />
+                      </svg>
+                    </div>
+                    <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Developer Rank Card Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Tarjeta de Rango y Colaboración</h3>
+                <div class="image-frame" id="rank-frame" style="aspect-ratio: 495 / 150">
+                  <img id="rank-img" alt="Rango de Desarrollador" class="hidden preview-img" />
+                  <div class="placeholder-card" id="rank-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                      </svg>
+                    </div>
+                    <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Markdown Code Output -->
+          <div class="hidden code-output-card glass-card" id="code-section">
+            <h2 class="section-title">Código Markdown para tu Readme.md</h2>
+
+            <!-- Code Block 1: Stats -->
+            <div class="code-block-wrapper">
+              <span class="code-label">Estadísticas Generales</span>
+              <div class="code-container">
+                <pre><code id="markdown-stats-code">Cargando...</code></pre>
+                <button
+                  class="copy-btn"
+                  id="btn-copy-stats"
+                  aria-label="Copiar markdown de estadísticas"
+                >
+                  <svg
+                    class="icon-copy"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  <svg
+                    class="hidden icon-check"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span class="copy-text">Copiar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Code Block 2: Languages -->
+            <div class="code-block-wrapper">
+              <span class="code-label">Lenguajes más Usados</span>
+              <div class="code-container">
+                <pre><code id="markdown-languages-code">Cargando...</code></pre>
+                <button
+                  class="copy-btn"
+                  id="btn-copy-languages"
+                  aria-label="Copiar markdown de lenguajes"
+                >
+                  <svg
+                    class="icon-copy"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  <svg
+                    class="hidden icon-check"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span class="copy-text">Copiar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Code Block 3: Featured Repo -->
+            <div class="code-block-wrapper">
+              <span class="code-label">Repositorio Destacado</span>
+              <div class="code-container">
+                <pre><code id="markdown-repo-code">Cargando...</code></pre>
+                <button
+                  class="copy-btn"
+                  id="btn-copy-repo"
+                  aria-label="Copiar markdown de repositorio destacado"
+                >
+                  <svg
+                    class="icon-copy"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  <svg
+                    class="hidden icon-check"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span class="copy-text">Copiar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Code Block 4: Developer Rank -->
+            <div class="code-block-wrapper">
+              <span class="code-label">Rango y Colaboración</span>
+              <div class="code-container">
+                <pre><code id="markdown-rank-code">Cargando...</code></pre>
+                <button
+                  class="copy-btn"
+                  id="btn-copy-rank"
+                  aria-label="Copiar markdown de rango de desarrollador"
+                >
+                  <svg
+                    class="icon-copy"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  <svg
+                    class="hidden icon-check"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span class="copy-text">Copiar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <p>
+          © 2026 Powered by
+          <a
+            href="https://creativecode.com.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >CreativeCode.com.co</a
+          >. Todos los derechos reservados.
+        </p>
+        <p class="footer-version">
+          <span class="version-badge">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            v1.0.0
+          </span>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/creativecodeco/github-helpers/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="footer-link">Changelog</a>
+        </p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+# ─── Dependencies ────────────────────────────────────────────
+node_modules
+
+# ─── Build output ─────────────────────────────────────────────
+dist
+
+# ─── Environment & secrets ────────────────────────────────────
+.env
+.env.*
+
+# ─── Version control ──────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ─── Editor & OS ──────────────────────────────────────────────
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# ─── Linting & formatting config (not needed at runtime) ──────
+.eslintrc.json
+.eslintignore
+.prettierrc
+.prettierignore
+
+# ─── Testing ──────────────────────────────────────────────────
+tests
+coverage
+.nyc_output
+
+# ─── AI agent skills & workspace tooling ──────────────────────
+.agents
+
+# ─── Release & changelog tooling ──────────────────────────────
+.release-it.json
+CHANGELOG.md
+
+# ─── CI/CD ────────────────────────────────────────────────────
+.github
+
+# ─── Release scripts (not part of runtime) ────────────────────
+scripts
+
+# ─── Local SQLite data (mounted via Docker volume at runtime) ──
+data
+
+# ─── Documentation ────────────────────────────────────────────
+README.md
+
+# ─── Logs ─────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*

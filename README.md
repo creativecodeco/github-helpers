@@ -1,0 +1,140 @@
+# GitHub Helpers - Stats Generator & Live API
+
+Este proyecto es un microservicio y cliente web desarrollado en **Node.js con TypeScript** que permite consultar las estadísticas y los lenguajes de programación más utilizados por cualquier usuario de GitHub en tiempo real, devolviendo imágenes en formato **SVG** listas para ser incrustadas directamente en el archivo `README.md` de tus proyectos.
+
+Desarrollado y mantenido por **[CreativeCode.com.co](https://creativecode.com.co)**.
+
+---
+
+## ⚡ Características Principales
+
+1. **API en Vivo (Hot Rendering):** Generación de tarjetas SVG al vuelo a través de endpoints con cabeceras `Content-Type: image/svg+xml`.
+2. **Caché en Memoria (2 horas):** Minimiza las llamadas a la API de GitHub para evitar bloqueos por límite de tasa (Rate Limits).
+3. **Imágenes Autocontenidas (Base64 Bypass):** Las fotos de perfil se descargan y se convierten a Base64 en el servidor, garantizando que el proxy de imágenes de GitHub (`camo.githubusercontent.com`) las muestre sin problemas.
+4. **Métricas Clave de Visibilidad:**
+   - **Estadísticas Generales:** Commits totales, estrellas obtenidas, pull requests, issues y seguidores.
+   - **Lenguajes más Usados:** Gráfica de distribución de lenguajes (calculada por peso de bytes) con leyenda estructurada.
+5. **Múltiples Temas Estéticos:** Dark, Light, Neon, Solarized, Radical, Tokyonight y Glassmorphism.
+6. **Panel Web Premium (Glassmorphism):** Una interfaz web elegante construida en CSS puro con vista previa en tiempo real y copiador de enlaces Markdown automático.
+7. **Pruebas Unitarias Integradas:** Implementadas utilizando **Vitest**.
+8. **Listo para Docker y Coolify:** Dockerfile de construcción en múltiples etapas (multi-stage) optimizado para producción.
+
+---
+
+## 🚀 Comenzar (Desarrollo Local)
+
+### Requisitos previos
+- Node.js v18 o superior.
+- (Opcional) Un token de acceso personal (PAT) de GitHub para aumentar el límite de peticiones de la API.
+
+### Instalación
+
+1. Clona e ingresa al repositorio.
+2. Instala las dependencias estables usando `pnpm`:
+   ```bash
+   pnpm install
+   ```
+3. Copia el archivo de configuración de entorno:
+   ```bash
+   cp .env.example .env
+   ```
+4. Abre el archivo `.env` y configura las siguientes variables clave:
+   - `GITHUB_TOKEN`: Tu token de acceso personal de GitHub para evitar límites de tasa.
+   - `METRICS_KEY`: Clave secreta obligatoria para poder acceder a los endpoints de analíticas (`/api/metrics`).
+   - `TRUST_PROXY`: Número de saltos del proxy (por defecto `1`), útil para que el rate limit identifique correctamente las IPs detrás de Cloudflare, Nginx, etc.
+
+### Scripts de Desarrollo
+
+- **Modo Desarrollo (auto-reload):**
+  ```bash
+  pnpm dev
+  ```
+- **Ejecutar Pruebas Unitarias (Vitest):**
+  ```bash
+  pnpm test
+  ```
+- **Compilar para Producción:**
+  ```bash
+  pnpm build
+  ```
+- **Iniciar Servidor Compilado:**
+  ```bash
+  pnpm start
+  ```
+- **Gestionar Versiones y Releases (release-it):**
+  ```bash
+  pnpm release
+  ```
+
+Una vez ejecutado, el panel de configuración estará disponible en:  
+👉 **http://localhost:3000**
+
+### 📦 Gestión de Versiones y Changelog
+Este proyecto utiliza `release-it` junto con la especificación de [Conventional Commits](https://www.conventionalcommits.org/) para automatizar los lanzamientos de versión.
+
+Cuando ejecutas `pnpm release`:
+1. Analiza el historial de commits desde la última versión.
+2. Calcula el incremento de versión correspondiente (Major, Minor, Patch).
+3. Actualiza la versión en `package.json` y genera/actualiza el archivo `CHANGELOG.md`.
+4. Realiza un commit con los cambios, crea la etiqueta (git tag) y sube todo a GitHub.
+5. Crea un Release oficial en GitHub con el log de cambios automático.
+
+
+---
+
+## 📡 Endpoints de la API
+
+Las tarjetas se pueden incrustar en cualquier archivo Markdown usando la siguiente sintaxis:
+
+### 1. Tarjeta de Estadísticas Generales
+```markdown
+![Estadísticas de GitHub](http://tu-servidor.com/api/stats?username=tu-usuario&theme=neon)
+```
+- **Parámetros:**
+  - `username` (Obligatorio): Nombre de usuario en GitHub.
+  - `theme` (Opcional): `dark` (por defecto), `light`, `neon`, `glassmorphism`, `solarized`, `radical`, `tokyonight`.
+
+### 2. Tarjeta de Lenguajes más Usados
+```markdown
+![Lenguajes de GitHub](http://tu-servidor.com/api/languages?username=tu-usuario&theme=tokyonight)
+```
+- **Parámetros:**
+  - `username` (Obligatorio): Nombre de usuario en GitHub.
+  - `theme` (Opcional): Mismos temas que la tarjeta de estadísticas.
+
+---
+
+## 🔒 Seguridad (Alineación OWASP)
+
+Este microservicio implementa las siguientes medidas de seguridad para entornos de producción:
+* **Cabeceras Seguras (Helmet)**: Configurado con políticas de recursos de origen cruzado (`cross-origin`) para permitir incrustar de forma segura las tarjetas en READMEs externos.
+* **Rate Limiting**: Límite de 100 peticiones cada 15 minutos por dirección IP. En caso de bloqueo, responde con un SVG legible para evitar errores de renderizado de imágenes.
+* **Validación de Parámetros**: Validación por expresiones regulares en `username` y `repo` para evitar ataques de SSRF o inyección de rutas.
+* **Secure by Default**: Los endpoints de métricas se bloquean por defecto con error `403` si no se configura la variable `METRICS_KEY`.
+
+---
+
+## 🐳 Despliegue en Docker y Coolify
+
+Este proyecto incluye un `Dockerfile` optimizado con builds en multi-etapa y configuración para correr bajo el usuario no root `node`.
+
+### Pruebas Locales con Docker
+Para evitar perder el histórico de métricas (base de datos SQLite) cuando se recrea o actualiza el contenedor, debes montar un volumen persistente apuntando al directorio `/usr/src/app/data`:
+
+1. Construir la imagen:
+   ```bash
+   docker build -t github-helpers .
+   ```
+2. Ejecutar el contenedor con volumen persistente:
+   ```bash
+   docker run -d -p 3000:3000 --name github-helpers-app -v github-helpers-db:/usr/src/app/data --env-file .env github-helpers
+   ```
+
+### Despliegue en Coolify
+1. Crea un nuevo recurso de tipo **Application** en tu panel de Coolify.
+2. Selecciona **GitHub Repository** como fuente y apunta a este repositorio.
+3. En la configuración de construcción, selecciona **Dockerfile**.
+4. Configura el puerto de exposición en el puerto `3000`.
+5. **Persistencia**: En la pestaña **Storages**, crea un volumen para montar en la ruta `/usr/src/app/data` (ej. `db-data:/usr/src/app/data`). Esto asegurará que tu base de datos SQLite no se pierda en cada despliegue.
+6. Agrega las variables de entorno en la pestaña `Environment Variables` (ej. `GITHUB_TOKEN`, `METRICS_KEY`).
+7. Haz clic en **Deploy**. Coolify leerá el `Dockerfile`, construirá el contenedor seguro de producción y lo pondrá en marcha con SSL automático.
