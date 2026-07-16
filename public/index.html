@@ -353,6 +353,32 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Streak Stats Card Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Tarjeta de Racha de Contribuciones</h3>
+                <div class="image-frame" id="streak-frame" style="aspect-ratio: 495 / 195">
+                  <img id="streak-img" alt="Racha de contribuciones GitHub" class="hidden preview-img" />
+                  <div class="placeholder-card" id="streak-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                      </svg>
+                    </div>
+                    <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -495,6 +521,48 @@
                   class="copy-btn"
                   id="btn-copy-rank"
                   aria-label="Copiar markdown de rango de desarrollador"
+                >
+                  <svg
+                    class="icon-copy"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  <svg
+                    class="hidden icon-check"
+                    viewBox="0 0 24 24"
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span class="copy-text">Copiar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Code Block 5: Streak Stats -->
+            <div class="code-block-wrapper">
+              <span class="code-label">Racha de Contribuciones</span>
+              <div class="code-container">
+                <pre><code id="markdown-streak-code">Cargando...</code></pre>
+                <button
+                  class="copy-btn"
+                  id="btn-copy-streak"
+                  aria-label="Copiar markdown de racha de contribuciones"
                 >
                   <svg
                     class="icon-copy"

@@ -303,6 +303,152 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
   }
 }
 
+export interface StreakStats {
+  username: string;
+  totalContributions: number;
+  currentStreak: number;
+  longestStreak: number;
+  currentStreakStart: string; // ISO date string, e.g. "2026-07-14"
+  currentStreakEnd: string;
+  longestStreakStart: string;
+  longestStreakEnd: string;
+  firstContributionDate: string;
+}
+
+const streakCache = new Map<string, CacheEntry<StreakStats>>();
+
+/**
+ * Fetch contribution streak stats by scraping GitHub's public contributions page.
+ * No authentication required — the page is public for any user.
+ */
+export async function getUserStreak(username: string): Promise<StreakStats> {
+  const cacheKey = username.toLowerCase();
+  const cached = streakCache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+
+  const url = `https://github.com/users/${username}/contributions`;
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'github-helpers-stats',
+      Accept: 'text/html'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub contributions page error (${response.status}) for user: ${username}`);
+  }
+
+  const html = await response.text();
+
+  // Extract all contribution days: date and level from <td> elements
+  const tdRegex = /data-date="(\d{4}-\d{2}-\d{2})"[^>]*data-level="(\d)"/g;
+  const contributions: { date: string; level: number }[] = [];
+
+  let match: RegExpExecArray | null;
+  while ((match = tdRegex.exec(html)) !== null) {
+    contributions.push({ date: match[1], level: Number.parseInt(match[2], 10) });
+  }
+
+  // Sort by date ascending
+  contributions.sort((a, b) => a.date.localeCompare(b.date));
+
+  if (contributions.length === 0) {
+    throw new Error(`No contribution data found for user: ${username}`);
+  }
+
+  // Calculate total contributions (count days with level > 0)
+  const totalContributions = contributions.filter((c) => c.level > 0).length;
+
+  // Determine first contribution date
+  const firstContribEntry = contributions.find((c) => c.level > 0);
+  const firstContributionDate = firstContribEntry ? firstContribEntry.date : contributions[0].date;
+
+  // Helper: parse ISO date string into a Date object (UTC)
+  function parseDate(d: string): Date {
+    return new Date(d + 'T00:00:00Z');
+  }
+
+  // Helper: add days to a date
+  function addDays(d: Date, n: number): Date {
+    const copy = new Date(d);
+    copy.setUTCDate(copy.getUTCDate() + n);
+    return copy;
+  }
+
+  // Helper: format Date back to YYYY-MM-DD
+  function fmt(d: Date): string {
+    return d.toISOString().slice(0, 10);
+  }
+
+  // Build a lookup set of dates with contributions
+  const activeDays = new Set(contributions.filter((c) => c.level > 0).map((c) => c.date));
+
+  // Compute longest streak
+  let longestStreak = 0;
+  let longestStreakStart = '';
+  let longestStreakEnd = '';
+  let streak = 0;
+  let streakStart = '';
+
+  for (const { date, level } of contributions) {
+    if (level > 0) {
+      if (streak === 0) streakStart = date;
+      streak++;
+      if (streak > longestStreak) {
+        longestStreak = streak;
+        longestStreakStart = streakStart;
+        longestStreakEnd = date;
+      }
+    } else {
+      streak = 0;
+    }
+  }
+
+  // Compute current streak (working backwards from today)
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const todayStr = fmt(today);
+  const yesterdayStr = fmt(addDays(today, -1));
+
+  let currentStreak = 0;
+  let currentStreakStart = '';
+  let currentStreakEnd = '';
+
+  // Start from today; if today has no contribution, try yesterday (same as streak-stats behaviour)
+  let cursor = activeDays.has(todayStr)
+    ? today
+    : activeDays.has(yesterdayStr)
+      ? addDays(today, -1)
+      : null;
+
+  if (cursor) {
+    currentStreakEnd = fmt(cursor);
+    while (activeDays.has(fmt(cursor))) {
+      currentStreak++;
+      currentStreakStart = fmt(cursor);
+      cursor = addDays(cursor, -1);
+    }
+  }
+
+  const data: StreakStats = {
+    username,
+    totalContributions,
+    currentStreak,
+    longestStreak,
+    currentStreakStart,
+    currentStreakEnd,
+    longestStreakStart,
+    longestStreakEnd,
+    firstContributionDate
+  };
+
+  streakCache.set(cacheKey, { data, timestamp: Date.now() });
+  return data;
+}
+
 export interface RepoStats {
   name: string;
   owner: string;

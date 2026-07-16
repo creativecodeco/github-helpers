@@ -8,6 +8,7 @@ interface Metrics {
   languagesRenders: number;
   repoRenders: number;
   rankRenders: number;
+  streakRenders: number;
 }
 
 const DB_DIR = path.join(__dirname, '../data');
@@ -34,7 +35,7 @@ db.serialize(() => {
   `);
 
   // Initialize global counters
-  const keys = ['totalRenders', 'statsRenders', 'languagesRenders', 'repoRenders', 'rankRenders'];
+  const keys = ['totalRenders', 'statsRenders', 'languagesRenders', 'repoRenders', 'rankRenders', 'streakRenders'];
   const insertStmt = db.prepare(
     'INSERT OR IGNORE INTO global_metrics (metric_key, metric_value) VALUES (?, 0)'
   );
@@ -53,9 +54,15 @@ db.serialize(() => {
       repo_github INTEGER DEFAULT 0,
       rank_web INTEGER DEFAULT 0,
       rank_github INTEGER DEFAULT 0,
+      streak_web INTEGER DEFAULT 0,
+      streak_github INTEGER DEFAULT 0,
       last_updated TEXT
     );
   `);
+
+  // Migrate existing databases: add streak columns if they don't exist yet
+  db.run('ALTER TABLE user_metrics ADD COLUMN streak_web INTEGER DEFAULT 0', () => { /* ignore if already exists */ });
+  db.run('ALTER TABLE user_metrics ADD COLUMN streak_github INTEGER DEFAULT 0', () => { /* ignore if already exists */ });
 
   // Table 3: Request Event Logs for detailed temporal analytics
   db.run(`
@@ -78,7 +85,8 @@ const globalMetricsCache: Metrics = {
   statsRenders: 0,
   languagesRenders: 0,
   repoRenders: 0,
-  rankRenders: 0
+  rankRenders: 0,
+  streakRenders: 0
 };
 
 // Load global metrics into cache on boot
@@ -107,7 +115,7 @@ export interface HitContext {
 }
 
 // Record a render hit and save stats to database
-export function recordHit(type: 'stats' | 'languages' | 'repo' | 'rank', context?: HitContext) {
+export function recordHit(type: 'stats' | 'languages' | 'repo' | 'rank' | 'streak', context?: HitContext) {
   const username = context?.username || 'unknown';
   const userAgent = context?.userAgent || '';
   const referer = context?.referer || '';

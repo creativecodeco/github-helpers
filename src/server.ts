@@ -4,11 +4,12 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
-import { getUserStats, getUserLanguages, getFeaturedRepo } from './github';
+import { getUserStats, getUserLanguages, getFeaturedRepo, getUserStreak } from './github';
 import { renderStatsCard } from './renderer/statsCard';
 import { renderLanguagesCard } from './renderer/languagesCard';
 import { renderRepoCard } from './renderer/repoCard';
 import { renderRankCard } from './renderer/rankCard';
+import { renderStreakCard } from './renderer/streakCard';
 import { recordHit, getMetrics, getAllUserMetrics } from './metrics';
 
 dotenv.config();
@@ -79,7 +80,8 @@ app.use('/api/stats', publicCardsCors);
 app.use('/api/languages', publicCardsCors);
 app.use('/api/repo', publicCardsCors);
 app.use('/api/rank', publicCardsCors);
-// /api/metrics routes intentionally have no CORS middleware → browser cross-origin
+app.use('/api/streak', publicCardsCors);
+// /api/metrics routes intentionally have no CORS middleware — browser cross-origin
 // requests are blocked by default (same-origin policy), which is the desired behaviour.
 
 app.use(express.json());
@@ -282,6 +284,37 @@ app.get('/api/rank', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/rank for ${username}:`, error);
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
+  }
+});
+
+// Route for Streak Stats Card SVG
+app.get('/api/streak', async (req: Request, res: Response) => {
+  const { username, theme } = req.query;
+
+  if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+  }
+
+  try {
+    const streak = await getUserStreak(username);
+    const overrides = extractThemeOverrides(req.query);
+    const svg = renderStreakCard(streak, theme as string, overrides);
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=7200');
+    recordHit('streak', {
+      username,
+      userAgent: req.headers['user-agent'],
+      referer: req.headers['referer'],
+      ip: req.ip
+    });
+    return res.status(200).send(svg);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error(`Error in /api/streak for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
     return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
   }

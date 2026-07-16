@@ -18,16 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const rankImg = document.getElementById('rank-img');
   const rankPlaceholder = document.getElementById('rank-placeholder');
 
+  const streakImg = document.getElementById('streak-img');
+  const streakPlaceholder = document.getElementById('streak-placeholder');
+
   const codeSection = document.getElementById('code-section');
   const markdownStatsCode = document.getElementById('markdown-stats-code');
   const markdownLanguagesCode = document.getElementById('markdown-languages-code');
   const markdownRepoCode = document.getElementById('markdown-repo-code');
   const markdownRankCode = document.getElementById('markdown-rank-code');
+  const markdownStreakCode = document.getElementById('markdown-streak-code');
 
   const btnCopyStats = document.getElementById('btn-copy-stats');
   const btnCopyLanguages = document.getElementById('btn-copy-languages');
   const btnCopyRepo = document.getElementById('btn-copy-repo');
   const btnCopyRank = document.getElementById('btn-copy-rank');
+  const btnCopyStreak = document.getElementById('btn-copy-streak');
 
   // Theme Toggle Elements
   const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -123,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsUrl = `${origin}/api/stats?username=${currentUsername}&theme=${currentTheme}`;
     const languagesUrl = `${origin}/api/languages?username=${currentUsername}&theme=${currentTheme}`;
     const rankUrl = `${origin}/api/rank?username=${currentUsername}&theme=${currentTheme}`;
+    const streakUrl = `${origin}/api/streak?username=${currentUsername}&theme=${currentTheme}`;
 
     let repoUrl = `${origin}/api/repo?username=${currentUsername}&theme=${currentTheme}`;
     if (currentRepo) {
@@ -134,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showImageLoading(languagesImg, languagesPlaceholder);
     showImageLoading(repoImg, repoPlaceholder);
     showImageLoading(rankImg, rankPlaceholder);
+    showImageLoading(streakImg, streakPlaceholder);
 
     // 2. Set image sources with cache buster to force rendering updates in preview
     const cacheBuster = `&t=${Date.now()}`;
@@ -141,17 +148,20 @@ document.addEventListener('DOMContentLoaded', () => {
     languagesImg.src = languagesUrl + cacheBuster;
     repoImg.src = repoUrl + cacheBuster;
     rankImg.src = rankUrl + cacheBuster;
+    streakImg.src = streakUrl + cacheBuster;
 
     // 3. Update Markdown Codes
     const markdownStats = `![GitHub Stats](${statsUrl})`;
     const markdownLanguages = `![Lenguajes más usados](${languagesUrl})`;
     const markdownRepo = `![Repositorio Destacado](${repoUrl})`;
     const markdownRank = `![Rango de Desarrollador](${rankUrl})`;
+    const markdownStreak = `![Racha de Contribuciones](${streakUrl})`;
 
     markdownStatsCode.textContent = markdownStats;
     markdownLanguagesCode.textContent = markdownLanguages;
     markdownRepoCode.textContent = markdownRepo;
     markdownRankCode.textContent = markdownRank;
+    markdownStreakCode.textContent = markdownStreak;
 
     // Reveal code output section
     codeSection.classList.remove('hidden');
@@ -189,9 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       svgIcon = `
         <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <line x1="9" y1="9" x2="15" y2="15" />
-          <line x1="15" y1="9" x2="9" y2="15" />
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
       `;
     }
@@ -266,11 +274,28 @@ document.addEventListener('DOMContentLoaded', () => {
     rankPlaceholder.querySelector('p').textContent = 'Error al cargar rango.';
   });
 
+  streakImg.addEventListener('load', () => {
+    streakPlaceholder.classList.add('hidden');
+    streakImg.classList.remove('hidden');
+  });
+
+  streakImg.addEventListener('error', () => {
+    streakPlaceholder.querySelector('.pulse-icon').innerHTML = `
+      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    `;
+    streakPlaceholder.querySelector('p').textContent = 'Error al cargar racha de contribuciones.';
+  });
+
   // Setup Clipboard Copy handlers
   setupCopyButton(btnCopyStats, markdownStatsCode);
   setupCopyButton(btnCopyLanguages, markdownLanguagesCode);
   setupCopyButton(btnCopyRepo, markdownRepoCode);
   setupCopyButton(btnCopyRank, markdownRankCode);
+  setupCopyButton(btnCopyStreak, markdownStreakCode);
 
   function setupCopyButton(button, codeElement) {
     button.addEventListener('click', async () => {
