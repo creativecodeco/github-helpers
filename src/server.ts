@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import type { ParsedQs } from 'qs';
 import cors from 'cors';
 import path from 'node:path';
 import dotenv from 'dotenv';
@@ -120,8 +119,7 @@ function renderErrorCard(message: string): string {
   `.trim();
 }
 
-// Helper to extract custom styling overrides from URL query params
-function extractThemeOverrides(query: ParsedQs): Record<string, string> {
+function extractThemeOverrides(query: Record<string, any>): Record<string, string> {
   const overrides: Record<string, string> = {};
   const keys = ['bg', 'text', 'title', 'accent', 'secondary', 'border', 'bgGradient'];
   for (const key of keys) {
