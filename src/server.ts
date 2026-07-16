@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
+import type { ParsedQs } from 'qs';
 import cors from 'cors';
-import path from 'path';
+import path from 'node:path';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
@@ -22,29 +23,64 @@ if (trustProxy === 'true') {
   app.set('trust proxy', true);
 } else if (trustProxy === 'false') {
   app.set('trust proxy', false);
-} else if (!isNaN(Number(trustProxy))) {
+} else if (!Number.isNaN(Number(trustProxy))) {
   app.set('trust proxy', Number(trustProxy));
 } else {
   app.set('trust proxy', trustProxy);
 }
 
 // Helmet security headers (configured for card embedding support)
+// CSP fetch directives are enabled with a strict policy.
+// SVG cards are served as image/svg+xml and embedded via <img> tags, so they
+// are sandboxed by the browser regardless of CSP — no script or fetch
+// directives are needed for the cards themselves.
+// The policy below protects the HTML index page served by express.static.
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Disable CSP to allow SVG inline styles/fonts
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // inline styles needed for SVG previews on the index page
+        imgSrc: ["'self'", 'data:'], // data: URIs used in SVG <image> elements
+        fontSrc: ["'self'"],
+        connectSrc: ["'none'"], // no client-side fetch/XHR allowed
+        objectSrc: ["'none'"],
+        frameSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'none'"]
+      }
+    },
     crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow embedding on external sites (like GitHub)
     crossOriginEmbedderPolicy: false
   })
 );
 
-app.use(cors());
+// CORS: public card endpoints must be embeddable from any origin (GitHub READMEs, etc.).
+// Metrics endpoints are intentionally excluded — they require a server-side API key
+// and should never be called cross-origin from a browser.
+const publicCardsCors = cors({
+  origin: '*', // SVG cards are public read-only resources
+  methods: ['GET'], // only GET is needed; no mutations
+  allowedHeaders: [], // no custom request headers required
+  exposedHeaders: ['Cache-Control', 'Content-Type'],
+  credentials: false // credentials (cookies/auth) are never used with wildcard origin
+});
+
+app.use('/api/stats', publicCardsCors);
+app.use('/api/languages', publicCardsCors);
+app.use('/api/repo', publicCardsCors);
+app.use('/api/rank', publicCardsCors);
+// /api/metrics routes intentionally have no CORS middleware → browser cross-origin
+// requests are blocked by default (same-origin policy), which is the desired behaviour.
+
 app.use(express.json());
 
 // Input validation regex matching official GitHub username rules
 const GITHUB_USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 const GITHUB_REPO_REGEX = /^[a-z\d-_.]{1,100}$/i;
 
-// Rate limiting to prevent Abuse, DoS, and GitHub API token exhaustion
+// Rate limiting to prevent abuse, DoS, and GitHub API token exhaustion
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per window
@@ -85,16 +121,29 @@ function renderErrorCard(message: string): string {
 }
 
 // Helper to extract custom styling overrides from URL query params
-function extractThemeOverrides(query: any): Record<string, string> {
+function extractThemeOverrides(query: ParsedQs): Record<string, string> {
   const overrides: Record<string, string> = {};
   const keys = ['bg', 'text', 'title', 'accent', 'secondary', 'border', 'bgGradient'];
   for (const key of keys) {
-    if (query[key] && typeof query[key] === 'string') {
-      overrides[key] = query[key];
+    const value = query[key];
+    if (typeof value === 'string') {
+      overrides[key] = value;
     }
   }
   return overrides;
 }
+
+// ─── Health Check ──────────────────────────────────────────────────────────
+// Registered BEFORE the rate limiter so it is never throttled.
+// Used by Docker HEALTHCHECK, Coolify, Traefik and Caddy liveness probes.
+app.get('/health', (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    version: process.env.npm_package_version || '1.0.0',
+    uptime: Math.floor(process.uptime()),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // Route for General Stats Card SVG
 app.get('/api/stats', async (req: Request, res: Response) => {
@@ -120,10 +169,11 @@ app.get('/api/stats', async (req: Request, res: Response) => {
       ip: req.ip
     });
     return res.status(200).send(svg);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/stats for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
-    return res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+    return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
   }
 });
 
@@ -151,10 +201,11 @@ app.get('/api/languages', async (req: Request, res: Response) => {
       ip: req.ip
     });
     return res.status(200).send(svg);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/languages for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
-    return res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+    return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
   }
 });
 
@@ -187,12 +238,13 @@ app.get('/api/repo', async (req: Request, res: Response) => {
       ip: req.ip
     });
     return res.status(200).send(svg);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/repo for ${username}/${repo || 'featured'}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
     return res
       .status(500)
-      .send(renderErrorCard(error.message || 'Error al obtener datos del repositorio'));
+      .send(renderErrorCard(message || 'Error al obtener datos del repositorio'));
   }
 });
 
@@ -220,10 +272,11 @@ app.get('/api/rank', async (req: Request, res: Response) => {
       ip: req.ip
     });
     return res.status(200).send(svg);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/rank for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
-    return res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+    return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
   }
 });
 
@@ -246,29 +299,30 @@ function checkMetricsKey(req: Request, res: Response, next: () => void) {
   if (providedKey !== expectedKey) {
     return res
       .status(401)
-      .json({ error: 'Acceso no autorizado. Se requiere una clave de metrica valida.' });
+      .json({ error: 'Acceso no autorizado. Se requiere una clave de métrica válida.' });
   }
 
   next();
 }
 
 // Route to get persisted metrics
-app.get('/api/metrics', checkMetricsKey, (req: Request, res: Response) => {
+app.get('/api/metrics', checkMetricsKey, (_req: Request, res: Response) => {
   return res.status(200).json(getMetrics());
 });
 
 // Route to get detailed user metrics
-app.get('/api/metrics/users', checkMetricsKey, async (req: Request, res: Response) => {
+app.get('/api/metrics/users', checkMetricsKey, async (_req: Request, res: Response) => {
   try {
     const userMetrics = await getAllUserMetrics();
     return res.status(200).json(userMetrics);
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    return res.status(500).json({ error: message });
   }
 });
 
 // Catch-all route to serve the frontend (index.html)
-app.get('*', (req, res) => {
+app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 

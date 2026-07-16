@@ -54,7 +54,11 @@ VOLUME /usr/src/app/data
 # The entrypoint script runs as root to fix mounted-volume permissions,
 # then drops privileges to 'node' via su-exec before starting the app.
 
+# Health check — uses wget (built into Alpine) to probe the /health endpoint.
+# --start-period gives the app time to initialize SQLite before probes begin.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
 EXPOSE 3000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
