@@ -34,10 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const sunIcon = document.querySelector('.sun-icon');
   const moonIcon = document.querySelector('.moon-icon');
 
-  // Metrics Elements
-  const metricsBadge = document.getElementById('metrics-badge');
-  const metricsCount = document.getElementById('metrics-count');
-
   // Application State
   let currentTheme = 'dark';
   let currentUsername = '';
@@ -73,23 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     moonIcon.classList.add('hidden');
     localStorage.setItem('site-theme', 'dark');
   }
-
-  // --- Metrics Load Logic ---
-  async function loadMetrics() {
-    try {
-      const response = await fetch('/api/metrics');
-      if (response.ok) {
-        const data = await response.json();
-        metricsCount.textContent = data.totalRenders.toLocaleString();
-        metricsBadge.classList.remove('hidden');
-      }
-    } catch (err) {
-      console.warn('Could not fetch usage metrics:', err);
-    }
-  }
-
-  // Load initial metrics on start
-  loadMetrics();
 
   // --- SVG Themes Selection logic ---
   themesContainer.addEventListener('click', (e) => {
@@ -176,11 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reveal code output section
     codeSection.classList.remove('hidden');
-
-    // Re-fetch metrics after a short delay to account for the new renders
-    setTimeout(() => {
-      loadMetrics();
-    }, 1500);
   }
 
   // Manage image load cycles
