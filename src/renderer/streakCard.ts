@@ -121,7 +121,9 @@ export function renderStreakCard(
   <!-- Date sub-label -->
   <text x="${col3}" y="143" text-anchor="middle" class="streak-sub" fill="${theme.secondary}">${longestStreakRange}</text>
 
-  <!-- Branding -->
-  <text x="${cardWidth - 12}" y="${cardHeight - 10}" text-anchor="end" class="streak-brand" fill="${theme.secondary}" opacity="0.5">github.com/${stats.username}</text>
+  <!-- Brand Logo / Subtitle -->
+  <text x="470" y="25" text-anchor="end" font-family="'Segoe UI', Ubuntu, Sans-Serif" font-weight="600" font-size="9px" fill="${theme.secondary}" opacity="0.6">
+    github.com/${stats.username}
+  </text>
 </svg>`.trim();
 }

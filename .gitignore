@@ -37,3 +37,5 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+data/metrics.sqlite-shm
+data/metrics.sqlite-wal

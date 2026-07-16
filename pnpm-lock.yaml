@@ -18,17 +18,17 @@ importers:
         specifier: 4.19.2
         version: 4.19.2
       express-rate-limit:
-        specifier: ^8.5.2
+        specifier: 8.5.2
         version: 8.5.2(express@4.19.2)
       helmet:
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0
       sqlite3:
         specifier: 5.1.7
         version: 5.1.7
     devDependencies:
       '@release-it/conventional-changelog':
-        specifier: ^11.0.1
+        specifier: 11.0.1
         version: 11.0.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(release-it@20.2.1(@types/node@20.12.7))
       '@types/cors':
         specifier: 2.8.17
@@ -58,7 +58,7 @@ importers:
         specifier: 3.2.5
         version: 3.2.5
       release-it:
-        specifier: ^20.2.1
+        specifier: 20.2.1
         version: 20.2.1(@types/node@20.12.7)
       ts-node-dev:
         specifier: 2.0.0
