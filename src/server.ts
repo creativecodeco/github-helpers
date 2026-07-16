@@ -39,11 +39,11 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"], // inline styles needed for SVG previews on the index page
-        imgSrc: ["'self'", 'data:'], // data: URIs used in SVG <image> elements
-        fontSrc: ["'self'"],
-        connectSrc: ["'none'"], // no client-side fetch/XHR allowed
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://static.cloudflareinsights.com"], // allow local script and Cloudflare Insights
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // inline styles and Google Fonts
+        imgSrc: ["'self'", "data:"], // data: URIs used in SVG <image> elements
+        fontSrc: ["'self'", "https://fonts.gstatic.com"], // local and Google Fonts
+        connectSrc: ["'self'"], // allow client-side fetch/XHR to own endpoints (e.g. metrics)
         objectSrc: ["'none'"],
         frameSrc: ["'none'"],
         baseUri: ["'self'"],
