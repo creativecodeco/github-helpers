@@ -39,6 +39,9 @@ importers:
       '@types/node':
         specifier: 20.12.7
         version: 20.12.7
+      '@types/qs':
+        specifier: 6.9.15
+        version: 6.9.15
       '@types/sqlite3':
         specifier: 3.1.11
         version: 3.1.11
@@ -695,6 +698,9 @@ packages:
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
+
+  '@types/qs@6.9.15':
+    resolution: {integrity: sha512-uXHQKES6DQKKCLh441Xv/dwxOq1TVS3JPUMlEqoEglvlhR6Mxnlew/Xq/LRVHpLyk7iK3zODe1qYHIMltO7XGg==}
 
   '@types/range-parser@1.2.7':
     resolution: {integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==}
@@ -3258,6 +3264,8 @@ snapshots:
       parse-path: 7.1.0
 
   '@types/qs@6.15.1': {}
+
+  '@types/qs@6.9.15': {}
 
   '@types/range-parser@1.2.7': {}
 
