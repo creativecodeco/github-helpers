@@ -207,7 +207,14 @@ app.get('/api/metrics', checkMetricsKey, metricsController.getMetrics);
 app.get('/api/metrics/users', checkMetricsKey, metricsController.getUserMetrics);
 app.get('/api/metrics/users/count', metricsController.getUniqueUsersCount);
 
-app.get('*all', (_req, res) => {
+const fallbackFileLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.get('*all', fallbackFileLimiter, (_req, res) => {
   res.sendFile(path.join(__dirname, '../../../public/index.html'));
 });
 
