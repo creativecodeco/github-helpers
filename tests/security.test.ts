@@ -4,7 +4,7 @@ import {
   decryptToken,
   generateConsentFingerprint,
   validateTokenScopes
-} from '../src/security';
+} from '@/infrastructure/security/security';
 
 // Mock global fetch
 const mockFetch = vi.fn();

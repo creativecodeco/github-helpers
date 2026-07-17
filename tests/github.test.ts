@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getUserStats, getUserLanguages, getFeaturedRepo } from '../src/github';
+import { ApiGitHubRepository } from '@/adapters/repositories/ApiGitHubRepository';
+import { CachedGitHubRepository } from '@/adapters/repositories/CachedGitHubRepository';
+
+const rawGithubRepo = new ApiGitHubRepository();
+const githubRepo = new CachedGitHubRepository(rawGithubRepo);
 
 // Mock global fetch
 const mockFetch = vi.fn();
@@ -56,7 +60,7 @@ describe('github.ts integration tests (Mocked)', () => {
       json: async () => ({ total_count: 15 })
     });
 
-    const stats = await getUserStats('testuser');
+    const stats = await githubRepo.getUserStats('testuser');
 
     expect(stats.username).toBe('testuser');
     expect(stats.name).toBe('Test User');
@@ -70,7 +74,7 @@ describe('github.ts integration tests (Mocked)', () => {
 
     // Call again to verify cache (should not trigger new fetches, mockFetch calls count should remain the same)
     const callCountBefore = mockFetch.mock.calls.length;
-    const cachedStats = await getUserStats('testuser');
+    const cachedStats = await githubRepo.getUserStats('testuser');
     expect(cachedStats).toEqual(stats);
     expect(mockFetch.mock.calls.length).toBe(callCountBefore);
   });
@@ -107,7 +111,7 @@ describe('github.ts integration tests (Mocked)', () => {
       json: async () => ({ TypeScript: 102400 })
     });
 
-    const langs = await getUserLanguages('testuser-lang');
+    const langs = await githubRepo.getUserLanguages('testuser-lang');
 
     // Total size = 500. JavaScript = 300 (60%), TypeScript = 200 (40%)
     expect(langs.length).toBe(2);
@@ -131,7 +135,7 @@ describe('github.ts integration tests (Mocked)', () => {
       })
     });
 
-    const repo = await getFeaturedRepo('testuser', 'custom-repo');
+    const repo = await githubRepo.getFeaturedRepo('testuser', 'custom-repo');
     expect(repo.name).toBe('custom-repo');
     expect(repo.stars).toBe(50);
     expect(repo.language).toBe('Rust');
@@ -160,7 +164,7 @@ describe('github.ts integration tests (Mocked)', () => {
       json: async () => [] // Page 2 empty
     });
 
-    const repo = await getFeaturedRepo('testuser');
+    const repo = await githubRepo.getFeaturedRepo('testuser');
     expect(repo.name).toBe('high-star');
     expect(repo.stars).toBe(100);
     expect(repo.language).toBe('Python');

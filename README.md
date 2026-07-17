@@ -8,16 +8,47 @@ Desarrollado y mantenido por **[CreativeCode.com.co](https://creativecode.com.co
 
 ## ⚡ Características Principales
 
-1. **API en Vivo (Hot Rendering):** Generación de tarjetas SVG al vuelo a través de endpoints con cabeceras `Content-Type: image/svg+xml`.
-2. **Caché en Memoria (2 horas):** Minimiza las llamadas a la API de GitHub para evitar bloqueos por límite de tasa (Rate Limits).
-3. **Imágenes Autocontenidas (Base64 Bypass):** Las fotos de perfil se descargan y se convierten a Base64 en el servidor, garantizando que el proxy de imágenes de GitHub (`camo.githubusercontent.com`) las muestre sin problemas.
-4. **Métricas Clave de Visibilidad:**
+1. **Clean Architecture (Arquitectura Limpia):** Estructurado en capas desacopladas (Dominio, Casos de Uso, Adaptadores e Infraestructura) para garantizar mantenibilidad, testabilidad y escalabilidad.
+2. **API en Vivo (Hot Rendering):** Generación de tarjetas SVG al vuelo a través de endpoints con cabeceras `Content-Type: image/svg+xml`.
+3. **Caché en Memoria (2 horas):** Minimiza las llamadas a la API de GitHub para evitar bloqueos por límite de tasa (Rate Limits) mediante el patrón Decorador.
+4. **Imágenes Autocontenidas (Base64 Bypass):** Las fotos de perfil se descargan y se convierten a Base64 en el servidor, garantizando que el proxy de imágenes de GitHub (`camo.githubusercontent.com`) las muestre sin problemas.
+5. **Métricas Clave de Visibilidad:**
    - **Estadísticas Generales:** Commits totales, estrellas obtenidas, pull requests, issues y seguidores.
    - **Lenguajes más Usados:** Gráfica de distribución de lenguajes (calculada por peso de bytes) con leyenda estructurada.
-5. **Múltiples Temas Estéticos:** Dark, Light, Neon, Solarized, Radical, Tokyonight y Glassmorphism.
-6. **Panel Web Premium (Glassmorphism):** Una interfaz web elegante construida en CSS puro con vista previa en tiempo real y copiador de enlaces Markdown automático.
-7. **Pruebas Unitarias Integradas:** Implementadas utilizando **Vitest**.
-8. **Listo para Docker y Coolify:** Dockerfile de construcción en múltiples etapas (multi-stage) optimizado para producción.
+6. **Múltiples Temas Estéticos:** Dark, Light, Neon, Solarized, Radical, Tokyonight y Glassmorphism.
+7. **Panel Web Premium (Glassmorphism):** Una interfaz web elegante construida en CSS puro con vista previa en tiempo real y copiador de enlaces Markdown automático.
+8. **Pruebas Unitarias Integradas:** Implementadas utilizando **Vitest** con inyección de dependencias.
+9. **Listo para Docker y Coolify:** Dockerfile de construcción en múltiples etapas (multi-stage) optimizado para producción.
+
+---
+
+## 🏗️ Arquitectura del Proyecto
+
+El código fuente está organizado siguiendo los principios de **Clean Architecture**:
+
+```
+src/
+├── domain/                  # Lógica de negocio pura (Entidades y Contratos de Repositorios)
+│   ├── entities/            # UserStats, LanguageStat, Metrics, UserToken, Validation
+│   └── repositories/        # IGitHubRepository, ITokenRepository, IMetricsRepository
+├── use-cases/               # Casos de uso (Orquestadores de la lógica de negocio)
+│   ├── cards/               # GetUserStatsCardUseCase, GetUserLanguagesCardUseCase, etc.
+│   └── tokens/              # RegisterUserTokenUseCase, RevokeUserTokenUseCase
+├── adapters/                # Adaptadores de Interfaz (Controladores, Repositorios y Presentadores)
+│   ├── controllers/         # CardController, TokenController, MetricsController
+│   ├── presenters/          # statsCard, languagesCard, theme (Renderizadores de SVGs)
+│   └── repositories/        # SQLiteTokenRepository, SQLiteMetricsRepository, ApiGitHubRepository, CachedGitHubRepository
+└── infrastructure/          # Detalles técnicos concretos (Base de datos, Servidor Express, Criptografía)
+    ├── database/            # Inicialización de SQLite y migraciones
+    ├── express/             # Enrutamiento, middlewares y arranque de servidor Express
+    ├── security/            # Criptografía AES-256-GCM y validación de scopes
+    └── server.ts            # Entrypoint principal (Wrapper de importación limpio y relativo)
+```
+
+### Path Aliases (Alias de Rutas)
+El proyecto utiliza alias `@/` apuntando al directorio `src/`. Esto previene la existencia de rutas relativas complejas como `../../`.
+- En desarrollo: Se resuelve en tiempo de ejecución utilizando `tsconfig-paths/register`.
+- En producción: `tsc-alias` reescribe los imports a rutas relativas nativas durante la compilación en el directorio `dist/`.
 
 ---
 
@@ -45,7 +76,7 @@ Desarrollado y mantenido por **[CreativeCode.com.co](https://creativecode.com.co
 
 ### Scripts de Desarrollo
 
-- **Modo Desarrollo (auto-reload):**
+- **Modo Desarrollo (auto-reload y resolución de paths):**
   ```bash
   pnpm dev
   ```
@@ -53,7 +84,7 @@ Desarrollado y mantenido por **[CreativeCode.com.co](https://creativecode.com.co
   ```bash
   pnpm test
   ```
-- **Compilar para Producción:**
+- **Compilar para Producción (compila archivos TS y reescribe alias):**
   ```bash
   pnpm build
   ```
@@ -79,7 +110,6 @@ Cuando ejecutas `pnpm release`:
 4. Realiza un commit con los cambios, crea la etiqueta (git tag) y sube todo a GitHub.
 5. Crea un Release oficial en GitHub con el log de cambios automático.
 
-
 ---
 
 ## 📡 Endpoints de la API
@@ -91,7 +121,7 @@ Las tarjetas se pueden incrustar en cualquier archivo Markdown usando la siguien
 ![Estadísticas de GitHub](http://tu-servidor.com/api/stats?username=tu-usuario&theme=neon)
 ```
 - **Parámetros:**
-  - `username` (Obligatorio): Nombre de usuario en GitHub.
+  - `username` (Obligatorio): Nombre de usuario en GitHub. Valida con regex `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i`.
   - `theme` (Opcional): `dark` (por defecto), `light`, `neon`, `glassmorphism`, `solarized`, `radical`, `tokyonight`.
 
 ### 2. Tarjeta de Lenguajes más Usados
@@ -109,7 +139,13 @@ Las tarjetas se pueden incrustar en cualquier archivo Markdown usando la siguien
 Este microservicio implementa las siguientes medidas de seguridad para entornos de producción:
 * **Cabeceras Seguras (Helmet)**: Configurado con políticas de recursos de origen cruzado (`cross-origin`) para permitir incrustar de forma segura las tarjetas en READMEs externos.
 * **Rate Limiting**: Límite de 100 peticiones cada 15 minutos por dirección IP. En caso de bloqueo, responde con un SVG legible para evitar errores de renderizado de imágenes.
-* **Validación de Parámetros**: Validación por expresiones regulares en `username` y `repo` para evitar ataques de SSRF o inyección de rutas.
+* **Validación de Parámetros por Expresión Regular**:
+  - Validado a nivel de Controller y en la capa de negocio de Use Cases.
+  - Username: `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i`
+  - Repo: `/^[a-z\d-_.]{1,100}$/i`
+* **Estadísticas Privadas (Coming Soon - Doble Defensa)**:
+  - Las características de almacenamiento cifrado de PATs personales de GitHub están marcadas en la interfaz frontend como deshabilitadas e inactivas.
+  - Como doble defensa contra manipulaciones del DOM en el navegador, los casos de uso del backend (`RegisterUserTokenUseCase` y `RevokeUserTokenUseCase`) lanzan un error explícito de indisponibilidad si son llamados directamente en el API.
 * **Secure by Default**: Los endpoints de métricas se bloquean por defecto con error `403` si no se configura la variable `METRICS_KEY`.
 
 ---

@@ -269,8 +269,29 @@
             class="token-panel glass-card"
             style="padding: 24px; display: flex; flex-direction: column; gap: 16px; width: 100%"
           >
-            <h2 class="section-title" style="margin-bottom: 8px; font-size: 1.25rem">
+            <h2
+              class="section-title"
+              style="
+                margin-bottom: 8px;
+                font-size: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
               Estadísticas Privadas
+              <span
+                style="
+                  font-size: 0.7rem;
+                  background: rgba(245, 158, 11, 0.15);
+                  color: #f59e0b;
+                  padding: 2px 8px;
+                  border-radius: 9999px;
+                  font-weight: 600;
+                  border: 1px solid rgba(245, 158, 11, 0.2);
+                "
+                >Coming Soon</span
+              >
             </h2>
 
             <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4">
@@ -284,7 +305,11 @@
               >
             </p>
 
-            <div id="token-form-container">
+            <div
+              id="token-form-container"
+              style="opacity: 0.55; pointer-events: none"
+              title="Esta característica estará disponible próximamente"
+            >
               <!-- State: Unregistered -->
               <div id="token-unregistered" class="">
                 <div class="input-group" style="margin-bottom: 12px">
@@ -299,6 +324,7 @@
                       placeholder="ej. octocat"
                       style="font-size: 0.85rem"
                       autocomplete="off"
+                      disabled
                     />
                   </div>
                 </div>
@@ -314,6 +340,7 @@
                       placeholder="github_pat_..."
                       style="font-size: 0.85rem; padding-left: 12px"
                       autocomplete="off"
+                      disabled
                     />
                   </div>
                 </div>
@@ -327,6 +354,7 @@
                     type="checkbox"
                     id="token-consent"
                     style="margin-top: 3px; cursor: pointer"
+                    disabled
                   />
                   <label
                     for="token-consent"
@@ -347,6 +375,7 @@
                   id="btn-save-token"
                   class="primary-btn"
                   style="width: 100%; height: 38px; font-size: 0.9rem"
+                  disabled
                 >
                   Registrar Token
                 </button>
