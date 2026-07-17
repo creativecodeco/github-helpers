@@ -43,9 +43,18 @@ export class SQLiteMetricsRepository implements IMetricsRepository {
     const ip = context?.ip || '';
 
     let source = 'web';
+    let isGitHubReferer = false;
+    try {
+      const refererHost = new URL(referer).hostname.toLowerCase();
+      isGitHubReferer =
+        refererHost === 'github.com' || refererHost.endsWith('.github.com');
+    } catch {
+      isGitHubReferer = false;
+    }
+
     if (
       userAgent.toLowerCase().includes('github-camo') ||
-      referer.toLowerCase().includes('github.com') ||
+      isGitHubReferer ||
       referer.toLowerCase().includes('camo')
     ) {
       source = 'github';
