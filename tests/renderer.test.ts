@@ -3,6 +3,7 @@ import { renderStatsCard } from '../src/renderer/statsCard';
 import { renderLanguagesCard } from '../src/renderer/languagesCard';
 import { renderRepoCard } from '../src/renderer/repoCard';
 import { renderRankCard } from '../src/renderer/rankCard';
+import { renderTrophiesCard } from '../src/renderer/trophiesCard';
 import { getTheme, THEMES } from '../src/renderer/theme';
 import { UserStats, LanguageStat, RepoStats } from '../src/github';
 
@@ -148,5 +149,39 @@ describe('renderer tests', () => {
     expect(svg).toContain('S');
     expect(svg).toContain('Rango de Desarrollador');
     expect(svg).toContain('8%'); // Collaboration progress index
+  });
+
+  it('should render a beautiful trophies card SVG', () => {
+    const mockStats: UserStats = {
+      username: 'creativecode',
+      name: 'Creative Code',
+      avatarUrl: 'https://creativecode.com.co/logo.png',
+      followers: 1500,
+      publicRepos: 42,
+      totalStars: 980,
+      totalCommits: 3200,
+      totalPRs: 210,
+      totalIssues: 45,
+      forksReceived: 120,
+      rank: 'S',
+      collaborationIndex: 8
+    };
+
+    const mockLangs: LanguageStat[] = [
+      { name: 'TypeScript', count: 12, size: 500, percentage: 50, color: '#3178c6' },
+      { name: 'JavaScript', count: 8, size: 300, percentage: 30, color: '#f1e05a' },
+      { name: 'CSS', count: 4, size: 200, percentage: 20, color: '#563d7c' }
+    ];
+
+    const svg = renderTrophiesCard(mockStats, mockLangs, 'dark');
+
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('</svg>');
+    expect(svg).toContain('COMMITS');
+    expect(svg).toContain('STARS');
+    expect(svg).toContain('PULL REQUESTS');
+    expect(svg).toContain('FOLLOWERS');
+    expect(svg).toContain('REPOSITORIES');
+    expect(svg).toContain('LANGUAGES');
   });
 });

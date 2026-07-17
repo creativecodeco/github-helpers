@@ -9,6 +9,7 @@ interface Metrics {
   repoRenders: number;
   rankRenders: number;
   streakRenders: number;
+  trophiesRenders: number;
 }
 
 const DB_DIR = path.join(__dirname, '../data');
@@ -41,7 +42,8 @@ db.serialize(() => {
     'languagesRenders',
     'repoRenders',
     'rankRenders',
-    'streakRenders'
+    'streakRenders',
+    'trophiesRenders'
   ];
   const insertStmt = db.prepare(
     'INSERT OR IGNORE INTO global_metrics (metric_key, metric_value) VALUES (?, 0)'
@@ -63,6 +65,8 @@ db.serialize(() => {
       rank_github INTEGER DEFAULT 0,
       streak_web INTEGER DEFAULT 0,
       streak_github INTEGER DEFAULT 0,
+      trophies_web INTEGER DEFAULT 0,
+      trophies_github INTEGER DEFAULT 0,
       last_updated TEXT
     );
   `);
@@ -72,6 +76,13 @@ db.serialize(() => {
     /* ignore if already exists */
   });
   db.run('ALTER TABLE user_metrics ADD COLUMN streak_github INTEGER DEFAULT 0', () => {
+    /* ignore if already exists */
+  });
+  // Migrate existing databases: add trophies columns if they don't exist yet
+  db.run('ALTER TABLE user_metrics ADD COLUMN trophies_web INTEGER DEFAULT 0', () => {
+    /* ignore if already exists */
+  });
+  db.run('ALTER TABLE user_metrics ADD COLUMN trophies_github INTEGER DEFAULT 0', () => {
     /* ignore if already exists */
   });
 
@@ -97,7 +108,8 @@ const globalMetricsCache: Metrics = {
   languagesRenders: 0,
   repoRenders: 0,
   rankRenders: 0,
-  streakRenders: 0
+  streakRenders: 0,
+  trophiesRenders: 0
 };
 
 // Load global metrics into cache on boot
@@ -127,7 +139,7 @@ export interface HitContext {
 
 // Record a render hit and save stats to database
 export function recordHit(
-  type: 'stats' | 'languages' | 'repo' | 'rank' | 'streak',
+  type: 'stats' | 'languages' | 'repo' | 'rank' | 'streak' | 'trophies',
   context?: HitContext
 ) {
   const username = context?.username || 'unknown';

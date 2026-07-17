@@ -10,6 +10,7 @@ import { renderLanguagesCard } from './renderer/languagesCard';
 import { renderRepoCard } from './renderer/repoCard';
 import { renderRankCard } from './renderer/rankCard';
 import { renderStreakCard } from './renderer/streakCard';
+import { renderTrophiesCard } from './renderer/trophiesCard';
 import { recordHit, getMetrics, getAllUserMetrics, getUniqueUsersCount } from './metrics';
 
 dotenv.config();
@@ -316,6 +317,38 @@ app.get('/api/streak', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     console.error(`Error in /api/streak for ${username}:`, error);
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
+  }
+});
+
+// Route for Trophies Card SVG
+app.get('/api/trophies', async (req: Request, res: Response) => {
+  const { username, theme } = req.query;
+
+  if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+  }
+
+  try {
+    const stats = await getUserStats(username);
+    const languages = await getUserLanguages(username);
+    const overrides = extractThemeOverrides(req.query);
+    const svg = renderTrophiesCard(stats, languages, theme as string, overrides);
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=7200');
+    recordHit('trophies', {
+      username,
+      userAgent: req.headers['user-agent'],
+      referer: req.headers['referer'],
+      ip: req.ip
+    });
+    return res.status(200).send(svg);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error(`Error in /api/trophies for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
     return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
   }

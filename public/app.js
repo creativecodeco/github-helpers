@@ -21,18 +21,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const streakImg = document.getElementById('streak-img');
   const streakPlaceholder = document.getElementById('streak-placeholder');
 
+  const trophiesImg = document.getElementById('trophies-img');
+  const trophiesPlaceholder = document.getElementById('trophies-placeholder');
+
   const codeBlockWrappers = document.querySelectorAll('.code-block-wrapper');
   const markdownStatsCode = document.getElementById('markdown-stats-code');
   const markdownLanguagesCode = document.getElementById('markdown-languages-code');
   const markdownRepoCode = document.getElementById('markdown-repo-code');
   const markdownRankCode = document.getElementById('markdown-rank-code');
   const markdownStreakCode = document.getElementById('markdown-streak-code');
+  const markdownTrophiesCode = document.getElementById('markdown-trophies-code');
 
   const btnCopyStats = document.getElementById('btn-copy-stats');
   const btnCopyLanguages = document.getElementById('btn-copy-languages');
   const btnCopyRepo = document.getElementById('btn-copy-repo');
   const btnCopyRank = document.getElementById('btn-copy-rank');
   const btnCopyStreak = document.getElementById('btn-copy-streak');
+  const btnCopyTrophies = document.getElementById('btn-copy-trophies');
 
   // Theme Toggle Elements
   const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -163,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let completedImagesCount = 0;
-  const totalImagesToLoad = 5;
+  const totalImagesToLoad = 6;
 
   function imageFinishedLoading() {
     completedImagesCount++;
@@ -188,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const languagesUrl = `${origin}/api/languages?username=${currentUsername}&theme=${currentTheme}`;
     const rankUrl = `${origin}/api/rank?username=${currentUsername}&theme=${currentTheme}`;
     const streakUrl = `${origin}/api/streak?username=${currentUsername}&theme=${currentTheme}`;
+    const trophiesUrl = `${origin}/api/trophies?username=${currentUsername}&theme=${currentTheme}`;
 
     let repoUrl = `${origin}/api/repo?username=${currentUsername}&theme=${currentTheme}`;
     if (currentRepo) {
@@ -200,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showImageLoading(repoImg, repoPlaceholder);
     showImageLoading(rankImg, rankPlaceholder);
     showImageLoading(streakImg, streakPlaceholder);
+    showImageLoading(trophiesImg, trophiesPlaceholder);
 
     // 2. Set image sources with cache buster to force rendering updates in preview
     const cacheBuster = `&t=${Date.now()}`;
@@ -208,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     repoImg.src = repoUrl + cacheBuster;
     rankImg.src = rankUrl + cacheBuster;
     streakImg.src = streakUrl + cacheBuster;
+    trophiesImg.src = trophiesUrl + cacheBuster;
 
     // 3. Update Markdown Codes
     const markdownStats = `![GitHub Stats](${statsUrl})`;
@@ -215,12 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const markdownRepo = `![Repositorio Destacado](${repoUrl})`;
     const markdownRank = `![Rango de Desarrollador](${rankUrl})`;
     const markdownStreak = `![Racha de Contribuciones](${streakUrl})`;
+    const markdownTrophies = `![Trofeos de GitHub](${trophiesUrl})`;
 
     markdownStatsCode.textContent = markdownStats;
     markdownLanguagesCode.textContent = markdownLanguages;
     markdownRepoCode.textContent = markdownRepo;
     markdownRankCode.textContent = markdownRank;
     markdownStreakCode.textContent = markdownStreak;
+    markdownTrophiesCode.textContent = markdownTrophies;
 
     // Reveal code output sections
     codeBlockWrappers.forEach((block) => block.classList.remove('hidden'));
@@ -258,6 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v3H6.5a1.5 1.5 0 0 0 0 3H20v2H6.5A2.5 2.5 0 0 1 4 22.5v-3z" />
           <path d="M6 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V3A1 1 0 0 1 5 2h1z" />
+        </svg>
+      `;
+    } else if (placeholderElement.id === 'trophies-placeholder') {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+          <path d="M4 22h16" />
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
+          <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" />
         </svg>
       `;
     } else {
@@ -364,12 +384,31 @@ document.addEventListener('DOMContentLoaded', () => {
     imageFinishedLoading();
   });
 
+  trophiesImg.addEventListener('load', () => {
+    trophiesPlaceholder.classList.add('hidden');
+    trophiesImg.classList.remove('hidden');
+    imageFinishedLoading();
+  });
+
+  trophiesImg.addEventListener('error', () => {
+    trophiesPlaceholder.querySelector('.pulse-icon').innerHTML = `
+      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    `;
+    trophiesPlaceholder.querySelector('p').textContent = 'Error al cargar trofeos.';
+    imageFinishedLoading();
+  });
+
   // Setup Clipboard Copy handlers
   setupCopyButton(btnCopyStats, markdownStatsCode);
   setupCopyButton(btnCopyLanguages, markdownLanguagesCode);
   setupCopyButton(btnCopyRepo, markdownRepoCode);
   setupCopyButton(btnCopyRank, markdownRankCode);
   setupCopyButton(btnCopyStreak, markdownStreakCode);
+  setupCopyButton(btnCopyTrophies, markdownTrophiesCode);
 
   function setupCopyButton(button, codeElement) {
     button.addEventListener('click', async () => {
