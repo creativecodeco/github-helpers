@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderStatsCard } from '../src/renderer/statsCard';
-import { renderLanguagesCard } from '../src/renderer/languagesCard';
-import { renderRepoCard } from '../src/renderer/repoCard';
-import { renderRankCard } from '../src/renderer/rankCard';
-import { renderTrophiesCard } from '../src/renderer/trophiesCard';
-import { getTheme, THEMES } from '../src/renderer/theme';
-import { UserStats, LanguageStat, RepoStats } from '../src/github';
+import { renderStatsCard } from '@/adapters/presenters/statsCard';
+import { renderLanguagesCard } from '@/adapters/presenters/languagesCard';
+import { renderRepoCard } from '@/adapters/presenters/repoCard';
+import { renderRankCard } from '@/adapters/presenters/rankCard';
+import { renderTrophiesCard } from '@/adapters/presenters/trophiesCard';
+import { getTheme, THEMES } from '@/adapters/presenters/theme';
+import { UserStats } from '@/domain/entities/UserStats';
+import { LanguageStat } from '@/domain/entities/LanguageStat';
+import { RepoStats } from '@/domain/entities/RepoStats';
 
 // Mock fetch for image download
 const mockFetch = vi.fn().mockResolvedValue({

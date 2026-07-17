@@ -143,121 +143,318 @@
       </header>
 
       <main class="main-content">
-        <!-- Left Panel: Input & Settings -->
-        <section class="settings-panel glass-card">
-          <h2 class="section-title">Configuración</h2>
+        <!-- Left Column Wrapper -->
+        <div
+          class="left-column"
+          style="display: flex; flex-direction: column; gap: 24px; width: 100%"
+        >
+          <!-- Left Panel: Input & Settings -->
+          <section class="settings-panel glass-card" style="width: 100%">
+            <h2 class="section-title">Configuración</h2>
 
-          <!-- Step 1: Username & Optional Repo -->
-          <div class="input-group">
-            <label for="username-input" class="input-label">Usuario de GitHub</label>
-            <div class="input-wrapper">
-              <span class="input-prefix">@</span>
-              <input
-                type="text"
-                id="username-input"
-                placeholder="ej. github"
-                autocomplete="off"
-                required
-              />
+            <!-- Step 1: Username & Optional Repo -->
+            <div class="input-group">
+              <label for="username-input" class="input-label">Usuario de GitHub</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">@</span>
+                <input
+                  type="text"
+                  id="username-input"
+                  placeholder="ej. github"
+                  autocomplete="off"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div class="input-group">
-            <label for="repo-input" class="input-label">Repositorio Específico (Opcional)</label>
-            <div class="input-wrapper">
-              <span class="input-prefix">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="14"
-                  height="14"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  style="margin-right: 4px"
-                >
-                  <path
-                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                  />
-                </svg>
-              </span>
-              <input
-                type="text"
-                id="repo-input"
-                placeholder="ej. github-helpers (o el más popular)"
-                autocomplete="off"
-              />
+            <div class="input-group">
+              <label for="repo-input" class="input-label">Repositorio Específico (Opcional)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="margin-right: 4px"
+                  >
+                    <path
+                      d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="repo-input"
+                  placeholder="ej. github-helpers (o el más popular)"
+                  autocomplete="off"
+                />
+              </div>
             </div>
-          </div>
 
-          <button
-            id="btn-generate"
-            class="primary-btn full-width-btn"
-            style="margin-bottom: 24px; width: 100%"
+            <button
+              id="btn-generate"
+              class="primary-btn full-width-btn"
+              style="margin-bottom: 24px; width: 100%"
+            >
+              Generar Tarjetas
+            </button>
+
+            <!-- Step 2: Themes -->
+            <div class="themes-group">
+              <span class="input-label">Selecciona un Estilo</span>
+              <div class="themes-grid" id="themes-container">
+                <button class="theme-option active" data-theme="dark" id="theme-dark">
+                  <span class="theme-name">Dark</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: #0d1117"></span>
+                    <span class="color-dot" style="background: #58a6ff"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="light" id="theme-light">
+                  <span class="theme-name">Light</span>
+                  <span class="theme-colors">
+                    <span
+                      class="color-dot"
+                      style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1)"
+                    ></span>
+                    <span class="color-dot" style="background: #0969da"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="neon" id="theme-neon">
+                  <span class="theme-name">Neon</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: #050505"></span>
+                    <span class="color-dot" style="background: #00ff66"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="glassmorphism" id="theme-glassmorphism">
+                  <span class="theme-name">Glass</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: rgba(30, 41, 59, 0.7)"></span>
+                    <span class="color-dot" style="background: #38bdf8"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="solarized" id="theme-solarized">
+                  <span class="theme-name">Solarized</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: #002b36"></span>
+                    <span class="color-dot" style="background: #2aa198"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="radical" id="theme-radical">
+                  <span class="theme-name">Radical</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: #141321"></span>
+                    <span class="color-dot" style="background: #fe428e"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="tokyonight" id="theme-tokyonight">
+                  <span class="theme-name">Tokyo</span>
+                  <span class="theme-colors">
+                    <span class="color-dot" style="background: #1a1b26"></span>
+                    <span class="color-dot" style="background: #79dac8"></span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Private Token Panel -->
+          <section
+            class="token-panel glass-card"
+            style="padding: 24px; display: flex; flex-direction: column; gap: 16px; width: 100%"
           >
-            Generar Tarjetas
-          </button>
+            <h2
+              class="section-title"
+              style="
+                margin-bottom: 8px;
+                font-size: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              Estadísticas Privadas
+              <span
+                style="
+                  font-size: 0.7rem;
+                  background: rgba(245, 158, 11, 0.15);
+                  color: #f59e0b;
+                  padding: 2px 8px;
+                  border-radius: 9999px;
+                  font-weight: 600;
+                  border: 1px solid rgba(245, 158, 11, 0.2);
+                "
+                >Coming Soon</span
+              >
+            </h2>
 
-          <!-- Step 2: Themes -->
-          <div class="themes-group">
-            <span class="input-label">Selecciona un Estilo</span>
-            <div class="themes-grid" id="themes-container">
-              <button class="theme-option active" data-theme="dark" id="theme-dark">
-                <span class="theme-name">Dark</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: #0d1117"></span>
-                  <span class="color-dot" style="background: #58a6ff"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="light" id="theme-light">
-                <span class="theme-name">Light</span>
-                <span class="theme-colors">
-                  <span
-                    class="color-dot"
-                    style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1)"
-                  ></span>
-                  <span class="color-dot" style="background: #0969da"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="neon" id="theme-neon">
-                <span class="theme-name">Neon</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: #050505"></span>
-                  <span class="color-dot" style="background: #00ff66"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="glassmorphism" id="theme-glassmorphism">
-                <span class="theme-name">Glass</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: rgba(30, 41, 59, 0.7)"></span>
-                  <span class="color-dot" style="background: #38bdf8"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="solarized" id="theme-solarized">
-                <span class="theme-name">Solarized</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: #002b36"></span>
-                  <span class="color-dot" style="background: #2aa198"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="radical" id="theme-radical">
-                <span class="theme-name">Radical</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: #141321"></span>
-                  <span class="color-dot" style="background: #fe428e"></span>
-                </span>
-              </button>
-              <button class="theme-option" data-theme="tokyonight" id="theme-tokyonight">
-                <span class="theme-name">Tokyo</span>
-                <span class="theme-colors">
-                  <span class="color-dot" style="background: #1a1b26"></span>
-                  <span class="color-dot" style="background: #79dac8"></span>
-                </span>
-              </button>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4">
+              Para incluir tus repositorios privados, registra un Token Personal (PAT). Tus datos se
+              cifran en el servidor.
+              <a
+                href="/help.html"
+                target="_blank"
+                style="color: var(--accent-color); text-decoration: none; font-weight: 500"
+                >Leer Guía de Ayuda &rarr;</a
+              >
+            </p>
+
+            <div
+              id="token-form-container"
+              style="opacity: 0.55; pointer-events: none"
+              title="Esta característica estará disponible próximamente"
+            >
+              <!-- State: Unregistered -->
+              <div id="token-unregistered" class="">
+                <div class="input-group" style="margin-bottom: 12px">
+                  <label for="token-username" class="input-label" style="font-size: 0.8rem"
+                    >Usuario de GitHub</label
+                  >
+                  <div class="input-wrapper" style="height: 38px">
+                    <span class="input-prefix" style="font-size: 0.85rem">@</span>
+                    <input
+                      type="text"
+                      id="token-username"
+                      placeholder="ej. octocat"
+                      style="font-size: 0.85rem"
+                      autocomplete="off"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div class="input-group" style="margin-bottom: 12px">
+                  <label for="token-input" class="input-label" style="font-size: 0.8rem"
+                    >Personal Access Token (PAT)</label
+                  >
+                  <div class="input-wrapper" style="height: 38px">
+                    <input
+                      type="password"
+                      id="token-input"
+                      placeholder="github_pat_..."
+                      style="font-size: 0.85rem; padding-left: 12px"
+                      autocomplete="off"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <!-- Consent Checkbox -->
+                <div
+                  class="consent-wrapper"
+                  style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 16px"
+                >
+                  <input
+                    type="checkbox"
+                    id="token-consent"
+                    style="margin-top: 3px; cursor: pointer"
+                    disabled
+                  />
+                  <label
+                    for="token-consent"
+                    style="
+                      color: var(--text-secondary);
+                      font-size: 0.75rem;
+                      line-height: 1.3;
+                      cursor: pointer;
+                      user-select: none;
+                    "
+                  >
+                    Acepto que esta aplicación guarde mi token cifrado en su base de datos para
+                    consultar mis estadísticas. Puedo revocarlo cuando quiera.
+                  </label>
+                </div>
+
+                <button
+                  id="btn-save-token"
+                  class="primary-btn"
+                  style="width: 100%; height: 38px; font-size: 0.9rem"
+                  disabled
+                >
+                  Registrar Token
+                </button>
+              </div>
+
+              <!-- State: Registered -->
+              <div id="token-registered" class="hidden" style="text-align: center; padding: 10px 0">
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    color: #4ade80;
+                    font-size: 0.9rem;
+                    margin-bottom: 12px;
+                    font-weight: 500;
+                  "
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Token Registrado Activo</span>
+                </div>
+                <p
+                  style="
+                    color: var(--text-secondary);
+                    font-size: 0.8rem;
+                    margin-bottom: 16px;
+                    line-height: 1.3;
+                  "
+                >
+                  Tus repositorios privados ya se están sumando en las consultas.
+                </p>
+
+                <!-- Deletion Verification Field -->
+                <div
+                  class="input-group"
+                  id="revoke-verification-group"
+                  style="margin-bottom: 12px; text-align: left"
+                >
+                  <label
+                    for="token-revoke-input"
+                    class="input-label"
+                    style="font-size: 0.8rem; color: var(--error-color)"
+                    >Introduce tu token para confirmar revocación</label
+                  >
+                  <div class="input-wrapper" style="height: 38px">
+                    <input
+                      type="password"
+                      id="token-revoke-input"
+                      placeholder="Introduce cualquier token tuyo"
+                      style="font-size: 0.85rem; padding-left: 12px"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <button id="btn-revoke-token" class="danger-btn">Revocar Token</button>
+              </div>
             </div>
-          </div>
-        </section>
+
+            <!-- Status message -->
+            <div
+              id="token-status-msg"
+              class="hidden"
+              style="font-size: 0.8rem; padding: 10px; border-radius: 6px; text-align: center"
+            ></div>
+          </section>
+        </div>
 
         <!-- Right Panel: Live Preview & Code -->
         <section class="preview-panel">
