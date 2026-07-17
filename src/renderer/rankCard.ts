@@ -8,7 +8,7 @@ export function renderRankCard(
 ): string {
   const theme = getTheme(themeName, overrides);
   const cardWidth = 495;
-  const cardHeight = 150;
+  const cardHeight = 195;
 
   // Background style: gradient support
   const backgroundDef = theme.bgGradient
@@ -55,14 +55,14 @@ export function renderRankCard(
       <rect width="${cardWidth}" height="${cardHeight}" rx="12" fill="url(#bg)" stroke="${theme.border}" stroke-width="1.5" />
 
       <!-- Left Section: Rank Badge -->
-      <g transform="translate(25, 25)">
+      <g transform="translate(25, 48)">
         <rect width="100" height="100" rx="16" fill="${theme.accent}10" stroke="${theme.accent}" stroke-width="2" />
         <text x="50" y="38" text-anchor="middle" class="rank-lbl">RANK</text>
         <text x="50" y="78" text-anchor="middle" class="rank-val">${stats.rank}</text>
       </g>
 
       <!-- Right Section: Details -->
-      <g transform="translate(150, 30)">
+      <g transform="translate(150, 52)">
         <text x="0" y="10" class="title">Rango de Desarrollador</text>
         <text x="0" y="28" class="subtitle">${rankDesc}</text>
         

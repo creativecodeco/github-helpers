@@ -10,7 +10,7 @@ import { renderLanguagesCard } from './renderer/languagesCard';
 import { renderRepoCard } from './renderer/repoCard';
 import { renderRankCard } from './renderer/rankCard';
 import { renderStreakCard } from './renderer/streakCard';
-import { recordHit, getMetrics, getAllUserMetrics } from './metrics';
+import { recordHit, getMetrics, getAllUserMetrics, getUniqueUsersCount } from './metrics';
 
 dotenv.config();
 
@@ -43,17 +43,18 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "https://static.cloudflareinsights.com",
-          "https://www.googletagmanager.com"
+          'https://static.cloudflareinsights.com',
+          'https://www.googletagmanager.com'
         ], // allow local script, Cloudflare, and Google Analytics
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"], // inline styles and Google Fonts
-        imgSrc: ["'self'", "data:", "https://www.google-analytics.com", "https://analytics.google.com"], // allow Google Analytics tracking pixels
-        fontSrc: ["'self'", "https://fonts.gstatic.com"], // local and Google Fonts
-        connectSrc: [
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], // inline styles and Google Fonts
+        imgSrc: [
           "'self'",
-          "https://www.google-analytics.com",
-          "https://analytics.google.com"
-        ], // allow client-side fetch/XHR to own endpoints and Google Analytics
+          'data:',
+          'https://www.google-analytics.com',
+          'https://analytics.google.com'
+        ], // allow Google Analytics tracking pixels
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'], // local and Google Fonts
+        connectSrc: ["'self'", 'https://www.google-analytics.com', 'https://analytics.google.com'], // allow client-side fetch/XHR to own endpoints and Google Analytics
         objectSrc: ["'none'"],
         frameSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -355,6 +356,17 @@ app.get('/api/metrics/users', checkMetricsKey, async (_req: Request, res: Respon
   try {
     const userMetrics = await getAllUserMetrics();
     return res.status(200).json(userMetrics);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    return res.status(500).json({ error: message });
+  }
+});
+
+// Route to get count of unique users (anonymous)
+app.get('/api/metrics/users/count', async (_req: Request, res: Response) => {
+  try {
+    const count = await getUniqueUsersCount();
+    return res.status(200).json(count);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Error desconocido';
     return res.status(500).json({ error: message });

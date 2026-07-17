@@ -275,6 +275,12 @@ body {
   box-shadow: inset 0 0 4px var(--accent-glow);
 }
 
+.theme-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .theme-name {
   font-family: var(--font-family);
   font-size: 0.85rem;
@@ -410,11 +416,8 @@ body {
 }
 
 .code-block-wrapper {
+  margin-top: 16px;
   margin-bottom: 16px;
-}
-
-.code-block-wrapper:last-child {
-  margin-bottom: 0;
 }
 
 .code-label {
@@ -431,7 +434,7 @@ body {
   background: #05050a;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 14px 50px 14px 14px;
+  padding: 14px 105px 14px 14px;
   overflow-x: auto;
 }
 
@@ -440,8 +443,9 @@ body {
 }
 
 .code-container code {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
   font-size: 0.85rem;
+  line-height: 1.5;
   color: #38bdf8;
   white-space: pre-wrap;
   word-break: break-all;
@@ -666,7 +670,7 @@ body.light-mode .code-container {
 }
 
 body.light-mode .code-container code {
-  color: #0369a1;
+  color: #0969da;
 }
 
 body.light-mode .copy-btn {
@@ -685,4 +689,86 @@ body.light-mode .copy-btn.copied {
   background: #10b981;
   border-color: #10b981;
   color: white;
+}
+
+/* Global Loading Overlay */
+.global-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(8, 12, 20, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.global-loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-primary);
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner-svg {
+  animation: rotate-spinner 2s linear infinite;
+  color: var(--accent-color);
+}
+
+.spinner-svg .path {
+  stroke: currentColor;
+  stroke-linecap: round;
+  animation: dash-spinner 1.5s ease-in-out infinite;
+}
+
+.loading-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.loading-subtext {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+@keyframes rotate-spinner {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash-spinner {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
 }

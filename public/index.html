@@ -5,7 +5,9 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9SV7XMX2Q1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       gtag('js', new Date());
 
       gtag('config', 'G-9SV7XMX2Q1');
@@ -35,6 +37,27 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Global Loading Overlay -->
+    <div id="global-loading" class="hidden global-loading">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <svg class="spinner-svg" viewBox="0 0 50 50" width="50" height="50">
+            <circle
+              class="path"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke-dasharray="80,200"
+              stroke-width="5"
+            ></circle>
+          </svg>
+        </div>
+        <p class="loading-text">Obteniendo datos de GitHub...</p>
+        <p class="loading-subtext">Generando tus tarjetas personalizadas en tiempo real</p>
+      </div>
+    </div>
+
     <!-- Ambient background blobs -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -94,7 +117,7 @@
             </svg>
             <!-- Moon Icon -->
             <svg
-              class="moon-icon hidden"
+              class="hidden moon-icon"
               viewBox="0 0 24 24"
               width="20"
               height="20"
@@ -112,6 +135,11 @@
           Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente
           para tu README.md.
         </p>
+        <!-- Live Metrics counter -->
+        <div class="hidden metrics-badge" id="metrics-badge">
+          <span class="pulse-dot"></span>
+          <span>Usuarios usando las cards: <strong id="metrics-count">Cargando...</strong></span>
+        </div>
       </header>
 
       <main class="main-content">
@@ -264,6 +292,47 @@
                     <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
                   </div>
                 </div>
+                <!-- Code Block 1: Stats -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Estadísticas Generales</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-stats-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-stats"
+                      aria-label="Copiar markdown de estadísticas"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Languages Card Preview -->
@@ -295,12 +364,53 @@
                     <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
                   </div>
                 </div>
+                <!-- Code Block 2: Languages -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Lenguajes más Usados</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-languages-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-languages"
+                      aria-label="Copiar markdown de lenguajes"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Featured Repo Card Preview -->
               <div class="card-preview-wrapper">
                 <h3 class="card-title-label">Tarjeta de Repositorio Destacado</h3>
-                <div class="image-frame" id="repo-frame" style="aspect-ratio: 495 / 150">
+                <div class="image-frame" id="repo-frame">
                   <img id="repo-img" alt="Repositorio Destacado" class="hidden preview-img" />
                   <div class="placeholder-card" id="repo-placeholder">
                     <div class="pulse-icon">
@@ -324,12 +434,53 @@
                     <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
                   </div>
                 </div>
+                <!-- Code Block 3: Featured Repo -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Repositorio Destacado</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-repo-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-repo"
+                      aria-label="Copiar markdown de repositorio destacado"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Developer Rank Card Preview -->
               <div class="card-preview-wrapper">
                 <h3 class="card-title-label">Tarjeta de Rango y Colaboración</h3>
-                <div class="image-frame" id="rank-frame" style="aspect-ratio: 495 / 150">
+                <div class="image-frame" id="rank-frame">
                   <img id="rank-img" alt="Rango de Desarrollador" class="hidden preview-img" />
                   <div class="placeholder-card" id="rank-placeholder">
                     <div class="pulse-icon">
@@ -352,13 +503,58 @@
                     <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
                   </div>
                 </div>
+                <!-- Code Block 4: Developer Rank -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Rango y Colaboración</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-rank-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-rank"
+                      aria-label="Copiar markdown de rango de desarrollador"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Streak Stats Card Preview -->
               <div class="card-preview-wrapper">
                 <h3 class="card-title-label">Tarjeta de Racha de Contribuciones</h3>
-                <div class="image-frame" id="streak-frame" style="aspect-ratio: 495 / 195">
-                  <img id="streak-img" alt="Racha de contribuciones GitHub" class="hidden preview-img" />
+                <div class="image-frame" id="streak-frame">
+                  <img
+                    id="streak-img"
+                    alt="Racha de contribuciones GitHub"
+                    class="hidden preview-img"
+                  />
                   <div class="placeholder-card" id="streak-placeholder">
                     <div class="pulse-icon">
                       <svg
@@ -372,227 +568,53 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                       >
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                       </svg>
                     </div>
                     <p>Ingresa tu usuario de GitHub para cargar la vista previa</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Markdown Code Output -->
-          <div class="hidden code-output-card glass-card" id="code-section">
-            <h2 class="section-title">Código Markdown para tu Readme.md</h2>
-
-            <!-- Code Block 1: Stats -->
-            <div class="code-block-wrapper">
-              <span class="code-label">Estadísticas Generales</span>
-              <div class="code-container">
-                <pre><code id="markdown-stats-code">Cargando...</code></pre>
-                <button
-                  class="copy-btn"
-                  id="btn-copy-stats"
-                  aria-label="Copiar markdown de estadísticas"
-                >
-                  <svg
-                    class="icon-copy"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                  <svg
-                    class="hidden icon-check"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span class="copy-text">Copiar</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Code Block 2: Languages -->
-            <div class="code-block-wrapper">
-              <span class="code-label">Lenguajes más Usados</span>
-              <div class="code-container">
-                <pre><code id="markdown-languages-code">Cargando...</code></pre>
-                <button
-                  class="copy-btn"
-                  id="btn-copy-languages"
-                  aria-label="Copiar markdown de lenguajes"
-                >
-                  <svg
-                    class="icon-copy"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                  <svg
-                    class="hidden icon-check"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span class="copy-text">Copiar</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Code Block 3: Featured Repo -->
-            <div class="code-block-wrapper">
-              <span class="code-label">Repositorio Destacado</span>
-              <div class="code-container">
-                <pre><code id="markdown-repo-code">Cargando...</code></pre>
-                <button
-                  class="copy-btn"
-                  id="btn-copy-repo"
-                  aria-label="Copiar markdown de repositorio destacado"
-                >
-                  <svg
-                    class="icon-copy"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                  <svg
-                    class="hidden icon-check"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span class="copy-text">Copiar</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Code Block 4: Developer Rank -->
-            <div class="code-block-wrapper">
-              <span class="code-label">Rango y Colaboración</span>
-              <div class="code-container">
-                <pre><code id="markdown-rank-code">Cargando...</code></pre>
-                <button
-                  class="copy-btn"
-                  id="btn-copy-rank"
-                  aria-label="Copiar markdown de rango de desarrollador"
-                >
-                  <svg
-                    class="icon-copy"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                  <svg
-                    class="hidden icon-check"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span class="copy-text">Copiar</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Code Block 5: Streak Stats -->
-            <div class="code-block-wrapper">
-              <span class="code-label">Racha de Contribuciones</span>
-              <div class="code-container">
-                <pre><code id="markdown-streak-code">Cargando...</code></pre>
-                <button
-                  class="copy-btn"
-                  id="btn-copy-streak"
-                  aria-label="Copiar markdown de racha de contribuciones"
-                >
-                  <svg
-                    class="icon-copy"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                  <svg
-                    class="hidden icon-check"
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span class="copy-text">Copiar</span>
-                </button>
+                <!-- Code Block 5: Streak Stats -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Racha de Contribuciones</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-streak-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-streak"
+                      aria-label="Copiar markdown de racha de contribuciones"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -612,13 +634,29 @@
         </p>
         <p class="footer-version">
           <span class="version-badge">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
             v1.0.0
           </span>
           &nbsp;·&nbsp;
-          <a href="https://github.com/creativecodeco/github-helpers/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="footer-link">Changelog</a>
+          <a
+            href="https://github.com/creativecodeco/github-helpers/blob/main/CHANGELOG.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="footer-link"
+            >Changelog</a
+          >
         </p>
       </footer>
     </div>

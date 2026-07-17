@@ -35,7 +35,14 @@ db.serialize(() => {
   `);
 
   // Initialize global counters
-  const keys = ['totalRenders', 'statsRenders', 'languagesRenders', 'repoRenders', 'rankRenders', 'streakRenders'];
+  const keys = [
+    'totalRenders',
+    'statsRenders',
+    'languagesRenders',
+    'repoRenders',
+    'rankRenders',
+    'streakRenders'
+  ];
   const insertStmt = db.prepare(
     'INSERT OR IGNORE INTO global_metrics (metric_key, metric_value) VALUES (?, 0)'
   );
@@ -61,8 +68,12 @@ db.serialize(() => {
   `);
 
   // Migrate existing databases: add streak columns if they don't exist yet
-  db.run('ALTER TABLE user_metrics ADD COLUMN streak_web INTEGER DEFAULT 0', () => { /* ignore if already exists */ });
-  db.run('ALTER TABLE user_metrics ADD COLUMN streak_github INTEGER DEFAULT 0', () => { /* ignore if already exists */ });
+  db.run('ALTER TABLE user_metrics ADD COLUMN streak_web INTEGER DEFAULT 0', () => {
+    /* ignore if already exists */
+  });
+  db.run('ALTER TABLE user_metrics ADD COLUMN streak_github INTEGER DEFAULT 0', () => {
+    /* ignore if already exists */
+  });
 
   // Table 3: Request Event Logs for detailed temporal analytics
   db.run(`
@@ -115,7 +126,10 @@ export interface HitContext {
 }
 
 // Record a render hit and save stats to database
-export function recordHit(type: 'stats' | 'languages' | 'repo' | 'rank' | 'streak', context?: HitContext) {
+export function recordHit(
+  type: 'stats' | 'languages' | 'repo' | 'rank' | 'streak',
+  context?: HitContext
+) {
   const username = context?.username || 'unknown';
   const userAgent = context?.userAgent || '';
   const referer = context?.referer || '';
@@ -196,6 +210,16 @@ export function getAllUserMetrics(): Promise<any[]> {
     db.all('SELECT * FROM user_metrics ORDER BY last_updated DESC', (err, rows) => {
       if (err) reject(err);
       else resolve(rows || []);
+    });
+  });
+}
+
+// Count unique users using the cards
+export function getUniqueUsersCount(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT COUNT(*) as count FROM user_metrics', (err, row: any) => {
+      if (err) reject(err);
+      else resolve(row ? row.count : 0);
     });
   });
 }

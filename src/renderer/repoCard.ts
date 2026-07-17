@@ -34,7 +34,7 @@ export function renderRepoCard(
 ): string {
   const theme = getTheme(themeName, overrides);
   const cardWidth = 495;
-  const cardHeight = 150;
+  const cardHeight = 195;
 
   // Background style: gradient support
   const backgroundDef = theme.bgGradient
@@ -50,7 +50,7 @@ export function renderRepoCard(
   // Wrap description text
   const descLines = wrapText(repo.description, 64).slice(0, 2); // max 2 lines
   const descTextElements = descLines.map((line, idx) => {
-    return `<text x="25" y="${68 + idx * 18}" class="desc">${line}</text>`;
+    return `<text x="25" y="${80 + idx * 20}" class="desc">${line}</text>`;
   });
 
   return `
@@ -71,7 +71,7 @@ export function renderRepoCard(
       <rect width="${cardWidth}" height="${cardHeight}" rx="12" fill="url(#bg)" stroke="${theme.border}" stroke-width="1.5" />
 
       <!-- Repository Header -->
-      <g transform="translate(25, 22)">
+      <g transform="translate(25, 28)">
         <svg class="icon" viewBox="0 0 24 24" width="20" height="20" x="0" y="0">
           ${ICONS.repo}
         </svg>
@@ -85,10 +85,10 @@ export function renderRepoCard(
       </g>
 
       <!-- Decorative Divider -->
-      <line x1="25" y1="110" x2="470" y2="110" stroke="${theme.border}" stroke-dasharray="2, 2" stroke-width="1" />
+      <line x1="25" y1="145" x2="470" y2="145" stroke="${theme.border}" stroke-dasharray="2, 2" stroke-width="1" />
 
       <!-- Footer Metrics -->
-      <g transform="translate(25, 120)">
+      <g transform="translate(25, 158)">
         <!-- Language -->
         <g transform="translate(0, 0)">
           <circle cx="6" cy="6" r="5" fill="${repo.languageColor}" />

@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { recordHit, getMetrics, getUserMetrics, getAllUserMetrics } from '../src/metrics';
+import {
+  recordHit,
+  getMetrics,
+  getUserMetrics,
+  getAllUserMetrics,
+  getUniqueUsersCount
+} from '../src/metrics';
 
 describe('SQLite Metrics Tracker', () => {
   const uniqueUsername = `testuser_${Math.random().toString(36).substring(7)}`;
@@ -43,5 +49,23 @@ describe('SQLite Metrics Tracker', () => {
     const allUsers = await getAllUserMetrics();
     expect(allUsers.length).toBeGreaterThanOrEqual(1);
     expect(allUsers.some((u) => u.username === uniqueUsername)).toBe(true);
+  });
+
+  it('should count unique users correctly', async () => {
+    const initialCount = await getUniqueUsersCount();
+    expect(initialCount).toBeGreaterThanOrEqual(1);
+
+    const newUser = `another_${Math.random().toString(36).substring(7)}`;
+    recordHit('stats', {
+      username: newUser,
+      userAgent: 'Mozilla/5.0 Normal Browser',
+      referer: 'http://localhost:3000'
+    });
+
+    // Wait a brief moment for SQLite writes to finish
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const updatedCount = await getUniqueUsersCount();
+    expect(updatedCount).toBe(initialCount + 1);
   });
 });

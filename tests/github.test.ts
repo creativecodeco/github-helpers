@@ -80,14 +80,31 @@ describe('github.ts integration tests (Mocked)', () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [
-        { name: 'r1', fork: false, language: 'TypeScript', size: 100 },
-        { name: 'r2', fork: false, language: 'JavaScript', size: 300 },
-        { name: 'r3', fork: false, language: 'TypeScript', size: 100 }
+        { name: 'r1', fork: false },
+        { name: 'r2', fork: false },
+        { name: 'r3', fork: false }
       ]
     });
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => [] // Page 2 empty
+    });
+
+    // Mock individual repository languages endpoints
+    // r1: TypeScript (100 KB = 102400 bytes)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ TypeScript: 102400 })
+    });
+    // r2: JavaScript (300 KB = 307200 bytes)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ JavaScript: 307200 })
+    });
+    // r3: TypeScript (100 KB = 102400 bytes)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ TypeScript: 102400 })
     });
 
     const langs = await getUserLanguages('testuser-lang');

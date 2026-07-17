@@ -225,7 +225,7 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
   }
 
   try {
-    const languageMap: Record<string, { count: number; size: number }> = {};
+    const nonForkRepos: any[] = [];
     let page = 1;
     let hasMoreRepos = true;
 
@@ -237,18 +237,39 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
         hasMoreRepos = false;
       } else {
         for (const repo of repos) {
-          if (!repo.fork && repo.language) {
-            const lang = repo.language;
-            const size = repo.size || 0;
-            if (!languageMap[lang]) {
-              languageMap[lang] = { count: 0, size: 0 };
-            }
-            languageMap[lang].count += 1;
-            languageMap[lang].size += size;
+          if (!repo.fork) {
+            nonForkRepos.push(repo);
           }
         }
         page++;
       }
+    }
+
+    // Fetch language breakdown for each non-fork repository in parallel
+    const languageMap: Record<string, { count: number; size: number }> = {};
+    const CONCURRENCY_LIMIT = 15;
+
+    for (let i = 0; i < nonForkRepos.length; i += CONCURRENCY_LIMIT) {
+      const batch = nonForkRepos.slice(i, i + CONCURRENCY_LIMIT);
+      await Promise.all(
+        batch.map(async (repo) => {
+          try {
+            const repoLangs = await fetchGitHub(
+              `https://api.github.com/repos/${username}/${repo.name}/languages`
+            );
+            for (const [lang, bytes] of Object.entries(repoLangs)) {
+              const sizeInKB = (bytes as number) / 1024;
+              if (!languageMap[lang]) {
+                languageMap[lang] = { count: 0, size: 0 };
+              }
+              languageMap[lang].count += 1;
+              languageMap[lang].size += sizeInKB;
+            }
+          } catch (err) {
+            console.warn(`Could not fetch languages for repo ${username}/${repo.name}:`, err);
+          }
+        })
+      );
     }
 
     // Convert map to array
@@ -274,7 +295,7 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
       percentage: totalSize > 0 ? parseFloat(((stat.size / totalSize) * 100).toFixed(1)) : 0
     }));
 
-    // Keep top 6 languages, aggregate the rest as "Others" if needed
+    // Keep top 6 languages, aggregate the rest as "Otros" if needed
     const topLanguages = result.slice(0, 6);
     if (result.length > 6) {
       const otherLanguages = result.slice(6);

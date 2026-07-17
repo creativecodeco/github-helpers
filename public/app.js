@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const streakImg = document.getElementById('streak-img');
   const streakPlaceholder = document.getElementById('streak-placeholder');
 
-  const codeSection = document.getElementById('code-section');
+  const codeBlockWrappers = document.querySelectorAll('.code-block-wrapper');
   const markdownStatsCode = document.getElementById('markdown-stats-code');
   const markdownLanguagesCode = document.getElementById('markdown-languages-code');
   const markdownRepoCode = document.getElementById('markdown-repo-code');
@@ -39,10 +39,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const sunIcon = document.querySelector('.sun-icon');
   const moonIcon = document.querySelector('.moon-icon');
 
+  // Metrics Elements
+  const metricsBadge = document.getElementById('metrics-badge');
+  const metricsCount = document.getElementById('metrics-count');
+
+  // Global Loading Overlay
+  const globalLoading = document.getElementById('global-loading');
+
   // Application State
   let currentTheme = 'dark';
   let currentUsername = '';
   let currentRepo = '';
+
+  // --- SVG Themes Selector disabled state ---
+  function updateThemeSelectorsState() {
+    const hasUser = !!currentUsername;
+    themeOptions.forEach((opt) => {
+      opt.disabled = !hasUser;
+    });
+  }
+  updateThemeSelectorsState();
+
+  // --- Metrics Load Logic ---
+  async function loadMetrics() {
+    if (!metricsBadge || !metricsCount) return;
+
+    // Show loading state
+    metricsCount.textContent = 'Cargando...';
+    metricsBadge.classList.remove('hidden');
+
+    try {
+      const response = await fetch('/api/metrics/users/count');
+      if (response.ok) {
+        const count = await response.json();
+        metricsCount.textContent = Number(count).toLocaleString();
+      } else {
+        metricsBadge.classList.add('hidden');
+      }
+    } catch (err) {
+      console.warn('Could not fetch usage metrics:', err);
+      metricsBadge.classList.add('hidden');
+    }
+  }
+
+  // Load initial metrics on start
+  loadMetrics();
 
   // --- Theme Toggle Logic (Home Page Light/Dark Mode) ---
   const savedTheme = localStorage.getItem('site-theme') || 'dark';
@@ -117,12 +158,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentUsername = usernameVal;
     currentRepo = repoInput.value.trim();
+    updateThemeSelectorsState();
     updateCards();
+  }
+
+  let completedImagesCount = 0;
+  const totalImagesToLoad = 5;
+
+  function imageFinishedLoading() {
+    completedImagesCount++;
+    if (completedImagesCount >= totalImagesToLoad) {
+      if (globalLoading) {
+        globalLoading.classList.add('hidden');
+      }
+    }
   }
 
   // Update image previews and Markdown blocks
   function updateCards() {
     if (!currentUsername) return;
+
+    completedImagesCount = 0;
+    if (globalLoading) {
+      globalLoading.classList.remove('hidden');
+    }
 
     const origin = window.location.origin;
     const statsUrl = `${origin}/api/stats?username=${currentUsername}&theme=${currentTheme}`;
@@ -163,8 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
     markdownRankCode.textContent = markdownRank;
     markdownStreakCode.textContent = markdownStreak;
 
-    // Reveal code output section
-    codeSection.classList.remove('hidden');
+    // Reveal code output sections
+    codeBlockWrappers.forEach((block) => block.classList.remove('hidden'));
+
+    // Re-fetch metrics after a short delay to account for the new renders
+    setTimeout(() => {
+      loadMetrics();
+    }, 1500);
   }
 
   // Manage image load cycles
@@ -212,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
   statsImg.addEventListener('load', () => {
     statsPlaceholder.classList.add('hidden');
     statsImg.classList.remove('hidden');
+    imageFinishedLoading();
   });
 
   statsImg.addEventListener('error', () => {
@@ -224,11 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     statsPlaceholder.querySelector('p').textContent =
       'Error al cargar tarjeta. Verifica el usuario.';
+    imageFinishedLoading();
   });
 
   languagesImg.addEventListener('load', () => {
     languagesPlaceholder.classList.add('hidden');
     languagesImg.classList.remove('hidden');
+    imageFinishedLoading();
   });
 
   languagesImg.addEventListener('error', () => {
@@ -240,11 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </svg>
     `;
     languagesPlaceholder.querySelector('p').textContent = 'Error al cargar lenguajes.';
+    imageFinishedLoading();
   });
 
   repoImg.addEventListener('load', () => {
     repoPlaceholder.classList.add('hidden');
     repoImg.classList.remove('hidden');
+    imageFinishedLoading();
   });
 
   repoImg.addEventListener('error', () => {
@@ -256,11 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </svg>
     `;
     repoPlaceholder.querySelector('p').textContent = 'Error al cargar repositorio.';
+    imageFinishedLoading();
   });
 
   rankImg.addEventListener('load', () => {
     rankPlaceholder.classList.add('hidden');
     rankImg.classList.remove('hidden');
+    imageFinishedLoading();
   });
 
   rankImg.addEventListener('error', () => {
@@ -272,11 +343,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </svg>
     `;
     rankPlaceholder.querySelector('p').textContent = 'Error al cargar rango.';
+    imageFinishedLoading();
   });
 
   streakImg.addEventListener('load', () => {
     streakPlaceholder.classList.add('hidden');
     streakImg.classList.remove('hidden');
+    imageFinishedLoading();
   });
 
   streakImg.addEventListener('error', () => {
@@ -288,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </svg>
     `;
     streakPlaceholder.querySelector('p').textContent = 'Error al cargar racha de contribuciones.';
+    imageFinishedLoading();
   });
 
   // Setup Clipboard Copy handlers
