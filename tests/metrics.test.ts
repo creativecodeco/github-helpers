@@ -4,7 +4,10 @@ import {
   getMetrics,
   getUserMetrics,
   getAllUserMetrics,
-  getUniqueUsersCount
+  getUniqueUsersCount,
+  saveUserToken,
+  getUserToken,
+  deleteUserToken
 } from '../src/metrics';
 
 describe('SQLite Metrics Tracker', () => {
@@ -67,5 +70,38 @@ describe('SQLite Metrics Tracker', () => {
 
     const updatedCount = await getUniqueUsersCount();
     expect(updatedCount).toBe(initialCount + 1);
+  });
+
+  it('should save, retrieve, and delete user tokens correctly', async () => {
+    const testUser = `tokenuser_${Math.random().toString(36).substring(7)}`;
+    const encryptedToken = 'encrypted_val_123';
+    const iv = 'iv_val_123';
+    const consentAccepted = true;
+    const consentDate = new Date().toISOString();
+    const fingerprint = 'fingerprint_val_123';
+
+    // Verify token doesn't exist yet
+    const initialToken = await getUserToken(testUser);
+    expect(initialToken).toBeNull();
+
+    // Save token
+    await saveUserToken(testUser, encryptedToken, iv, consentAccepted, consentDate, fingerprint);
+
+    // Retrieve and verify
+    const savedToken = await getUserToken(testUser);
+    expect(savedToken).not.toBeNull();
+    expect(savedToken!.username).toBe(testUser);
+    expect(savedToken!.encrypted_token).toBe(encryptedToken);
+    expect(savedToken!.iv).toBe(iv);
+    expect(savedToken!.consent_accepted).toBe(1);
+    expect(savedToken!.consent_date).toBe(consentDate);
+    expect(savedToken!.consent_fingerprint).toBe(fingerprint);
+
+    // Delete token
+    await deleteUserToken(testUser);
+
+    // Verify deletion
+    const deletedToken = await getUserToken(testUser);
+    expect(deletedToken).toBeNull();
   });
 });

@@ -99,6 +99,19 @@ db.serialize(() => {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // Table 4: User Tokens for Private Repositories Stats
+  db.run(`
+    CREATE TABLE IF NOT EXISTS user_tokens (
+      username TEXT PRIMARY KEY,
+      encrypted_token TEXT NOT NULL,
+      iv TEXT NOT NULL,
+      consent_accepted INTEGER NOT NULL DEFAULT 0,
+      consent_date TEXT NOT NULL,
+      consent_fingerprint TEXT NOT NULL,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 });
 
 // Cache global metrics in memory to resolve API calls instantly
@@ -242,6 +255,87 @@ export function getEventLogs(limit: number = 100): Promise<any[]> {
     db.all('SELECT * FROM request_log ORDER BY created_at DESC LIMIT ?', [limit], (err, rows) => {
       if (err) reject(err);
       else resolve(rows || []);
+    });
+  });
+}
+
+export interface UserToken {
+  username: string;
+  encrypted_token: string;
+  iv: string;
+  consent_accepted: number;
+  consent_date: string;
+  consent_fingerprint: string;
+  updated_at?: string;
+}
+
+// Save or update a user's token with consent (wrapped in db.serialize for ordered execution)
+export function saveUserToken(
+  username: string,
+  encryptedToken: string,
+  iv: string,
+  consentAccepted: boolean,
+  consentDate: string,
+  consentFingerprint: string
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(
+        `
+        INSERT INTO user_tokens (username, encrypted_token, iv, consent_accepted, consent_date, consent_fingerprint, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(username) DO UPDATE SET
+          encrypted_token = ?,
+          iv = ?,
+          consent_accepted = ?,
+          consent_date = ?,
+          consent_fingerprint = ?,
+          updated_at = CURRENT_TIMESTAMP
+      `,
+        [
+          username.toLowerCase(),
+          encryptedToken,
+          iv,
+          consentAccepted ? 1 : 0,
+          consentDate,
+          consentFingerprint,
+          encryptedToken,
+          iv,
+          consentAccepted ? 1 : 0,
+          consentDate,
+          consentFingerprint
+        ],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  });
+}
+
+// Get user's token info
+export function getUserToken(username: string): Promise<UserToken | null> {
+  return new Promise((resolve, reject) => {
+    db.get(
+      'SELECT * FROM user_tokens WHERE username = ?',
+      [username.toLowerCase()],
+      (err, row: any) => {
+        if (err) reject(err);
+        else resolve(row || null);
+      }
+    );
+  });
+}
+
+// Delete user's token info (revoke) (wrapped in db.serialize for ordered execution)
+export function deleteUserToken(username: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run('DELETE FROM user_tokens WHERE username = ?', [username.toLowerCase()], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
   });
 }

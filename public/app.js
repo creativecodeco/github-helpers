@@ -410,6 +410,211 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCopyButton(btnCopyStreak, markdownStreakCode);
   setupCopyButton(btnCopyTrophies, markdownTrophiesCode);
 
+  // --- Private Token Management UI Logic ---
+  const tokenUsername = document.getElementById('token-username');
+  const tokenInput = document.getElementById('token-input');
+  const tokenConsent = document.getElementById('token-consent');
+  const btnSaveToken = document.getElementById('btn-save-token');
+
+  const tokenUnregistered = document.getElementById('token-unregistered');
+  const tokenRegistered = document.getElementById('token-registered');
+  const tokenRevokeInput = document.getElementById('token-revoke-input');
+  const btnRevokeToken = document.getElementById('btn-revoke-token');
+  const tokenStatusMsg = document.getElementById('token-status-msg');
+
+  // Helper to show status messages
+  function showStatus(text, type = 'success') {
+    tokenStatusMsg.textContent = text;
+    tokenStatusMsg.className = 'token-status-msg'; // reset classes
+    tokenStatusMsg.classList.remove('hidden');
+    if (type === 'success') {
+      tokenStatusMsg.style.background = 'rgba(74, 222, 128, 0.1)';
+      tokenStatusMsg.style.color = '#4ade80';
+      tokenStatusMsg.style.border = '1px solid rgba(74, 222, 128, 0.2)';
+      tokenStatusMsg.style.padding = '10px';
+      tokenStatusMsg.style.borderRadius = '6px';
+      tokenStatusMsg.style.marginTop = '10px';
+    } else {
+      tokenStatusMsg.style.background = 'rgba(248, 81, 73, 0.1)';
+      tokenStatusMsg.style.color = '#f85149';
+      tokenStatusMsg.style.border = '1px solid rgba(248, 81, 73, 0.2)';
+      tokenStatusMsg.style.padding = '10px';
+      tokenStatusMsg.style.borderRadius = '6px';
+      tokenStatusMsg.style.marginTop = '10px';
+    }
+  }
+
+  function hideStatus() {
+    tokenStatusMsg.classList.add('hidden');
+  }
+
+  // Load and show initial token state
+  const storedRegUser = localStorage.getItem('registered-github-username');
+  if (storedRegUser) {
+    showRegisteredState();
+    if (usernameInput) {
+      usernameInput.value = storedRegUser;
+      submitUsername();
+    }
+  }
+
+  function showRegisteredState() {
+    tokenUnregistered.classList.add('hidden');
+    tokenRegistered.classList.remove('hidden');
+    hideStatus();
+  }
+
+  function showUnregisteredState() {
+    tokenRegistered.classList.add('hidden');
+    tokenUnregistered.classList.remove('hidden');
+    hideStatus();
+    tokenInput.value = '';
+    tokenRevokeInput.value = '';
+    tokenConsent.checked = false;
+    if (tokenUsername) {
+      tokenUsername.value = '';
+    }
+  }
+
+  // Completely reset the entire dashboard UI and statistics
+  function resetAppUI() {
+    if (usernameInput) usernameInput.value = '';
+    if (repoInput) repoInput.value = '';
+    currentUsername = '';
+    currentRepo = '';
+
+    updateThemeSelectorsState();
+
+    // Hide images and show placeholders
+    if (statsImg) statsImg.classList.add('hidden');
+    if (statsPlaceholder) statsPlaceholder.classList.remove('hidden');
+
+    if (languagesImg) languagesImg.classList.add('hidden');
+    if (languagesPlaceholder) languagesPlaceholder.classList.remove('hidden');
+
+    if (repoImg) repoImg.classList.add('hidden');
+    if (repoPlaceholder) repoPlaceholder.classList.remove('hidden');
+
+    if (rankImg) rankImg.classList.add('hidden');
+    if (rankPlaceholder) rankPlaceholder.classList.remove('hidden');
+
+    if (streakImg) streakImg.classList.add('hidden');
+    if (streakPlaceholder) streakPlaceholder.classList.remove('hidden');
+
+    if (trophiesImg) trophiesImg.classList.add('hidden');
+    if (trophiesPlaceholder) trophiesPlaceholder.classList.remove('hidden');
+
+    // Hide code block wrappers
+    if (codeBlockWrappers) {
+      codeBlockWrappers.forEach((wrapper) => {
+        wrapper.classList.add('hidden');
+      });
+    }
+  }
+
+  // Handle register
+  if (btnSaveToken) {
+    btnSaveToken.addEventListener('click', async () => {
+      hideStatus();
+      const username = tokenUsername.value.trim();
+      const token = tokenInput.value.trim();
+      const consentAccepted = tokenConsent.checked;
+
+      if (!username) {
+        showStatus('Por favor, ingresa tu usuario de GitHub.', 'error');
+        return;
+      }
+      if (!token) {
+        showStatus('Por favor, ingresa tu Personal Access Token (PAT).', 'error');
+        return;
+      }
+      if (!consentAccepted) {
+        showStatus('Debes aceptar el almacenamiento cifrado de datos.', 'error');
+        return;
+      }
+
+      try {
+        globalLoading.classList.remove('hidden');
+        const response = await fetch('/api/tokens/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, token, consentAccepted })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem('registered-github-username', username);
+          showRegisteredState();
+          showStatus(data.message, 'success');
+
+          // Auto-load and refresh statistics
+          if (usernameInput) {
+            usernameInput.value = username;
+            submitUsername();
+          }
+        } else {
+          showStatus(data.error || 'Error al registrar el token.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+      } finally {
+        globalLoading.classList.add('hidden');
+      }
+    });
+  }
+
+  // Handle revoke
+  if (btnRevokeToken) {
+    btnRevokeToken.addEventListener('click', async () => {
+      hideStatus();
+      const username =
+        localStorage.getItem('registered-github-username') || tokenUsername.value.trim();
+      const token = tokenRevokeInput.value.trim();
+
+      if (!username) {
+        showStatus('No se reconoce ningún usuario registrado.', 'error');
+        return;
+      }
+      if (!token) {
+        showStatus(
+          'Debes ingresar un token de GitHub válido tuyo para verificar tu propiedad antes de revocar.',
+          'error'
+        );
+        return;
+      }
+
+      try {
+        globalLoading.classList.remove('hidden');
+        const response = await fetch('/api/tokens/revoke', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ username })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.removeItem('registered-github-username');
+          showUnregisteredState();
+          showStatus(data.message, 'success');
+
+          // Completely reset the UI and clear all statistics
+          resetAppUI();
+        } else {
+          showStatus(data.error || 'Error al revocar el token.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+      } finally {
+        globalLoading.classList.add('hidden');
+      }
+    });
+  }
+
   function setupCopyButton(button, codeElement) {
     button.addEventListener('click', async () => {
       const codeText = codeElement.textContent;

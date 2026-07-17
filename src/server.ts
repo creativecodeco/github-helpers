@@ -4,14 +4,34 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
-import { getUserStats, getUserLanguages, getFeaturedRepo, getUserStreak } from './github';
+import {
+  getUserStats,
+  getUserLanguages,
+  getFeaturedRepo,
+  getUserStreak,
+  clearUserCache
+} from './github';
 import { renderStatsCard } from './renderer/statsCard';
 import { renderLanguagesCard } from './renderer/languagesCard';
 import { renderRepoCard } from './renderer/repoCard';
 import { renderRankCard } from './renderer/rankCard';
 import { renderStreakCard } from './renderer/streakCard';
 import { renderTrophiesCard } from './renderer/trophiesCard';
-import { recordHit, getMetrics, getAllUserMetrics, getUniqueUsersCount } from './metrics';
+import {
+  recordHit,
+  getMetrics,
+  getAllUserMetrics,
+  getUniqueUsersCount,
+  saveUserToken,
+  getUserToken,
+  deleteUserToken
+} from './metrics';
+import {
+  encryptToken,
+  decryptToken,
+  generateConsentFingerprint,
+  validateTokenScopes
+} from './security';
 
 dotenv.config();
 
@@ -144,6 +164,18 @@ function extractThemeOverrides(query: Record<string, any>): Record<string, strin
   return overrides;
 }
 
+async function getDecryptedTokenForUser(username: string): Promise<string | undefined> {
+  try {
+    const tokenInfo = await getUserToken(username);
+    if (tokenInfo) {
+      return decryptToken(tokenInfo.encrypted_token, tokenInfo.iv);
+    }
+  } catch (error) {
+    console.warn(`Could not decrypt token for user ${username}:`, error);
+  }
+  return undefined;
+}
+
 // ─── Health Check ──────────────────────────────────────────────────────────
 // Registered BEFORE the rate limiter so it is never throttled.
 // Used by Docker HEALTHCHECK, Coolify, Traefik and Caddy liveness probes.
@@ -166,7 +198,8 @@ app.get('/api/stats', async (req: Request, res: Response) => {
   }
 
   try {
-    const stats = await getUserStats(username);
+    const userToken = await getDecryptedTokenForUser(username);
+    const stats = await getUserStats(username, userToken);
     const overrides = extractThemeOverrides(req.query);
     const svg = await renderStatsCard(stats, theme as string, overrides);
 
@@ -198,7 +231,8 @@ app.get('/api/languages', async (req: Request, res: Response) => {
   }
 
   try {
-    const languages = await getUserLanguages(username);
+    const userToken = await getDecryptedTokenForUser(username);
+    const languages = await getUserLanguages(username, userToken);
     const overrides = extractThemeOverrides(req.query);
     const svg = renderLanguagesCard(languages, theme as string, overrides, username);
 
@@ -235,7 +269,8 @@ app.get('/api/repo', async (req: Request, res: Response) => {
   }
 
   try {
-    const repoStats = await getFeaturedRepo(username, (repo as string) || undefined);
+    const userToken = await getDecryptedTokenForUser(username);
+    const repoStats = await getFeaturedRepo(username, (repo as string) || undefined, userToken);
     const overrides = extractThemeOverrides(req.query);
     const svg = renderRepoCard(repoStats, theme as string, overrides);
 
@@ -269,7 +304,8 @@ app.get('/api/rank', async (req: Request, res: Response) => {
   }
 
   try {
-    const stats = await getUserStats(username);
+    const userToken = await getDecryptedTokenForUser(username);
+    const stats = await getUserStats(username, userToken);
     const overrides = extractThemeOverrides(req.query);
     const svg = renderRankCard(stats, theme as string, overrides);
 
@@ -332,8 +368,9 @@ app.get('/api/trophies', async (req: Request, res: Response) => {
   }
 
   try {
-    const stats = await getUserStats(username);
-    const languages = await getUserLanguages(username);
+    const userToken = await getDecryptedTokenForUser(username);
+    const stats = await getUserStats(username, userToken);
+    const languages = await getUserLanguages(username, userToken);
     const overrides = extractThemeOverrides(req.query);
     const svg = renderTrophiesCard(stats, languages, theme as string, overrides);
 
@@ -351,6 +388,138 @@ app.get('/api/trophies', async (req: Request, res: Response) => {
     console.error(`Error in /api/trophies for ${username}:`, error);
     res.setHeader('Content-Type', 'image/svg+xml');
     return res.status(500).send(renderErrorCard(message || 'Error al obtener datos'));
+  }
+});
+
+// ─── Token Registration and Revocation ──────────────────────────────────────
+
+// Register or update a user's GitHub Personal Access Token securely
+app.post('/api/tokens/register', async (req: Request, res: Response) => {
+  const { username, token, consentAccepted } = req.body;
+
+  // 1. Input validations
+  if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+    return res.status(400).json({ error: 'Usuario de GitHub inválido.' });
+  }
+
+  if (!token || typeof token !== 'string' || token.trim() === '') {
+    return res.status(400).json({ error: 'Token de GitHub no proporcionado.' });
+  }
+
+  if (consentAccepted !== true) {
+    return res
+      .status(400)
+      .json({ error: 'Debes aceptar los términos y condiciones de almacenamiento de datos.' });
+  }
+
+  try {
+    // 2. Validate token scopes on GitHub (must be valid and read-only metadata)
+    const validation = await validateTokenScopes(token);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.reason || 'Token inválido.' });
+    }
+
+    // 3. Encrypt the token
+    const { encryptedToken, iv } = encryptToken(token);
+
+    // 4. Generate consent audit fingerprint from request IP and User-Agent
+    const ip = req.ip || '';
+    const userAgent = req.headers['user-agent'] || '';
+    const fingerprint = generateConsentFingerprint(ip, userAgent);
+    const consentDate = new Date().toISOString();
+
+    // 5. Store the token in SQLite
+    await saveUserToken(username, encryptedToken, iv, consentAccepted, consentDate, fingerprint);
+
+    // Clear user cache to force a reload on the next card requests
+    clearUserCache(username);
+
+    return res.status(200).json({
+      message:
+        'Token registrado exitosamente. Tus estadísticas privadas ahora se incluirán en tus tarjetas.'
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error(`Error registering token for user ${username}:`, error);
+    return res
+      .status(500)
+      .json({ error: message || 'Error interno del servidor al registrar el token.' });
+  }
+});
+
+// Revoke (delete) a user's token securely
+// Ownership is verified by ensuring the request contains any valid GitHub token belonging to the target username.
+app.delete('/api/tokens/revoke', async (req: Request, res: Response) => {
+  const { username } = req.body;
+
+  // Extract token from Authorization header or body
+  let providedToken = req.headers['authorization'] || req.body.token;
+  if (providedToken && typeof providedToken === 'string') {
+    if (providedToken.startsWith('Bearer ')) {
+      providedToken = providedToken.slice(7);
+    } else if (providedToken.startsWith('token ')) {
+      providedToken = providedToken.slice(6);
+    }
+  }
+
+  if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+    return res.status(400).json({ error: 'Usuario de GitHub inválido.' });
+  }
+
+  if (!providedToken || typeof providedToken !== 'string' || providedToken.trim() === '') {
+    return res.status(400).json({
+      error: 'Se requiere proveer un token de GitHub válido para confirmar tu identidad.'
+    });
+  }
+
+  try {
+    // 1. Verify who owns the provided token
+    const profileRes = await fetch('https://api.github.com/user', {
+      headers: {
+        'User-Agent': 'github-helpers-security',
+        Accept: 'application/vnd.github.v3+json',
+        Authorization: `token ${providedToken}`
+      }
+    });
+
+    if (!profileRes.ok) {
+      return res
+        .status(403)
+        .json({ error: 'El token provisto no es válido. No se puede verificar tu identidad.' });
+    }
+
+    const githubUser = await profileRes.json();
+    const tokenOwner = githubUser.login;
+
+    // 2. Enforce ownership: only the owner of the GitHub username can delete its token
+    if (tokenOwner.toLowerCase() !== username.toLowerCase()) {
+      return res.status(403).json({
+        error: `Acceso denegado. El token proporcionado pertenece al usuario de GitHub '${tokenOwner}', pero estás intentando revocar el token de '${username}'.`
+      });
+    }
+
+    // 3. If verified, delete from database
+    const existingToken = await getUserToken(username);
+    if (!existingToken) {
+      return res
+        .status(404)
+        .json({ error: 'No se encontró ningún token registrado para este usuario.' });
+    }
+
+    await deleteUserToken(username);
+
+    // Clear user cache to force a reload on the next card requests
+    clearUserCache(username);
+
+    return res
+      .status(200)
+      .json({ message: 'Token revocado y eliminado exitosamente de nuestros servidores.' });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error(`Error revoking token for user ${username}:`, error);
+    return res
+      .status(500)
+      .json({ error: message || 'Error interno del servidor al revocar el token.' });
   }
 });
 

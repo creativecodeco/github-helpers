@@ -69,22 +69,27 @@ const LANGUAGE_COLORS: Record<string, string> = {
 const DEFAULT_COLOR = '#858585';
 
 // Helper to get headers for GitHub API
-function getHeaders(): HeadersInit {
+function getHeaders(userToken?: string): HeadersInit {
   const headers: HeadersInit = {
     'User-Agent': 'github-helpers-stats',
     Accept: 'application/vnd.github.v3+json'
   };
 
-  if (process.env.GITHUB_TOKEN) {
-    headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+  const token = userToken || process.env.GITHUB_TOKEN;
+  if (token) {
+    headers['Authorization'] = `token ${token}`;
   }
 
   return headers;
 }
 
 // Fetch helper with rate-limit and error handling
-async function fetchGitHub(url: string, extraHeaders: Record<string, string> = {}): Promise<any> {
-  const mergedHeaders = { ...getHeaders(), ...extraHeaders };
+async function fetchGitHub(
+  url: string,
+  userToken?: string,
+  extraHeaders: Record<string, string> = {}
+): Promise<any> {
+  const mergedHeaders = { ...getHeaders(userToken), ...extraHeaders };
   const response = await fetch(url, { headers: mergedHeaders });
 
   if (!response.ok) {
@@ -98,8 +103,8 @@ async function fetchGitHub(url: string, extraHeaders: Record<string, string> = {
 /**
  * Fetch stats for a specific GitHub user
  */
-export async function getUserStats(username: string): Promise<UserStats> {
-  const cacheKey = username.toLowerCase();
+export async function getUserStats(username: string, userToken?: string): Promise<UserStats> {
+  const cacheKey = `${username.toLowerCase()}:${userToken ? 'private' : 'public'}`;
   const cached = statsCache.get(cacheKey);
 
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -107,19 +112,23 @@ export async function getUserStats(username: string): Promise<UserStats> {
   }
 
   try {
-    // 1. Get profile general info
-    const userProfile = await fetchGitHub(`https://api.github.com/users/${username}`);
+    // 1. Get profile general info (using userToken if available)
+    const userProfile = userToken
+      ? await fetchGitHub('https://api.github.com/user', userToken)
+      : await fetchGitHub(`https://api.github.com/users/${username}`);
 
-    // 2. Fetch all public repos to count stars and forks received (max 3 pages = 300 repos)
+    // 2. Fetch all public/private repos to count stars and forks received (max 3 pages = 300 repos)
     let totalStars = 0;
     let forksReceived = 0;
     let page = 1;
     let hasMoreRepos = true;
 
     while (hasMoreRepos && page <= 3) {
-      const repos = await fetchGitHub(
-        `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`
-      );
+      const reposUrl = userToken
+        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+        : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
+
+      const repos = await fetchGitHub(reposUrl, userToken);
       if (repos.length === 0) {
         hasMoreRepos = false;
       } else {
@@ -139,6 +148,7 @@ export async function getUserStats(username: string): Promise<UserStats> {
     try {
       const commitsSearch = await fetchGitHub(
         `https://api.github.com/search/commits?q=author:${username}`,
+        userToken,
         { Accept: 'application/vnd.github.cloak-preview+json' }
       );
       totalCommits = commitsSearch.total_count || 0;
@@ -150,7 +160,8 @@ export async function getUserStats(username: string): Promise<UserStats> {
     let totalPRs = 0;
     try {
       const prsSearch = await fetchGitHub(
-        `https://api.github.com/search/issues?q=author:${username}+type:pr`
+        `https://api.github.com/search/issues?q=author:${username}+type:pr`,
+        userToken
       );
       totalPRs = prsSearch.total_count || 0;
     } catch (e) {
@@ -161,7 +172,8 @@ export async function getUserStats(username: string): Promise<UserStats> {
     let totalIssues = 0;
     try {
       const issuesSearch = await fetchGitHub(
-        `https://api.github.com/search/issues?q=author:${username}+type:issue`
+        `https://api.github.com/search/issues?q=author:${username}+type:issue`,
+        userToken
       );
       totalIssues = issuesSearch.total_count || 0;
     } catch (e) {
@@ -216,8 +228,11 @@ export async function getUserStats(username: string): Promise<UserStats> {
 /**
  * Fetch top programming languages for a specific GitHub user
  */
-export async function getUserLanguages(username: string): Promise<LanguageStat[]> {
-  const cacheKey = username.toLowerCase();
+export async function getUserLanguages(
+  username: string,
+  userToken?: string
+): Promise<LanguageStat[]> {
+  const cacheKey = `${username.toLowerCase()}:${userToken ? 'private' : 'public'}`;
   const cached = languagesCache.get(cacheKey);
 
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -230,9 +245,11 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
     let hasMoreRepos = true;
 
     while (hasMoreRepos && page <= 3) {
-      const repos = await fetchGitHub(
-        `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`
-      );
+      const reposUrl = userToken
+        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+        : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
+
+      const repos = await fetchGitHub(reposUrl, userToken);
       if (repos.length === 0) {
         hasMoreRepos = false;
       } else {
@@ -254,8 +271,10 @@ export async function getUserLanguages(username: string): Promise<LanguageStat[]
       await Promise.all(
         batch.map(async (repo) => {
           try {
+            const ownerLogin = repo.owner?.login || username;
             const repoLangs = await fetchGitHub(
-              `https://api.github.com/repos/${username}/${repo.name}/languages`
+              `https://api.github.com/repos/${ownerLogin}/${repo.name}/languages`,
+              userToken
             );
             for (const [lang, bytes] of Object.entries(repoLangs)) {
               const sizeInKB = (bytes as number) / 1024;
@@ -486,8 +505,12 @@ const repoCache = new Map<string, CacheEntry<RepoStats>>();
 /**
  * Fetch stats for a specific featured repository
  */
-export async function getFeaturedRepo(username: string, repoName?: string): Promise<RepoStats> {
-  const cacheKey = `${username.toLowerCase()}:${(repoName || '').toLowerCase()}`;
+export async function getFeaturedRepo(
+  username: string,
+  repoName?: string,
+  userToken?: string
+): Promise<RepoStats> {
+  const cacheKey = `${username.toLowerCase()}:${(repoName || '').toLowerCase()}:${userToken ? 'private' : 'public'}`;
   const cached = repoCache.get(cacheKey);
 
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -498,8 +521,11 @@ export async function getFeaturedRepo(username: string, repoName?: string): Prom
     let repoData: any;
 
     if (repoName) {
-      // Fetch specific repository
-      repoData = await fetchGitHub(`https://api.github.com/repos/${username}/${repoName}`);
+      // Fetch specific repository (could be private if userToken is set)
+      repoData = await fetchGitHub(
+        `https://api.github.com/repos/${username}/${repoName}`,
+        userToken
+      );
     } else {
       // Find the repository with the highest stars that is not a fork
       let bestRepo: any = null;
@@ -507,9 +533,11 @@ export async function getFeaturedRepo(username: string, repoName?: string): Prom
       let hasMoreRepos = true;
 
       while (hasMoreRepos && page <= 3) {
-        const repos = await fetchGitHub(
-          `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`
-        );
+        const reposUrl = userToken
+          ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+          : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
+
+        const repos = await fetchGitHub(reposUrl, userToken);
         if (repos.length === 0) {
           hasMoreRepos = false;
         } else {
@@ -525,7 +553,7 @@ export async function getFeaturedRepo(username: string, repoName?: string): Prom
       }
 
       if (!bestRepo) {
-        throw new Error('No se encontraron repositorios públicos (no forks) para este usuario.');
+        throw new Error('No se encontraron repositorios (no forks) para este usuario.');
       }
       repoData = bestRepo;
     }
@@ -560,5 +588,22 @@ export async function getFeaturedRepo(username: string, repoName?: string): Prom
       error
     );
     throw error;
+  }
+}
+
+/**
+ * Clear in-memory caches for a specific user to ensure fresh data is fetched after token registration/revocation
+ */
+export function clearUserCache(username: string): void {
+  const keyBase = username.toLowerCase();
+  statsCache.delete(`${keyBase}:public`);
+  statsCache.delete(`${keyBase}:private`);
+  languagesCache.delete(`${keyBase}:public`);
+  languagesCache.delete(`${keyBase}:private`);
+
+  for (const key of repoCache.keys()) {
+    if (key.startsWith(`${keyBase}:`)) {
+      repoCache.delete(key);
+    }
   }
 }
