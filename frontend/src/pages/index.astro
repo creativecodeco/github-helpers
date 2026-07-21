@@ -100,37 +100,7 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
 
-        <!-- Step 2: Visitor Counter Options -->
-        <div style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(56,189,248,0.04); display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px;">
-          <span class="input-label" style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            Contador de Visitas del Perfil
-          </span>
-          
-          <div class="input-group" style="margin-bottom: 0;">
-            <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
-            <div class="input-wrapper" style="height: 36px;">
-              <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
-            </div>
-          </div>
 
-          <div style="display: flex; gap: 12px;">
-            <div class="input-group" style="flex: 1; margin-bottom: 0;">
-              <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
-              <div class="input-wrapper" style="height: 36px;">
-                <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
-              </div>
-            </div>
-            
-            <div class="input-group" style="flex: 1; margin-bottom: 0;">
-              <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
-              <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
-                <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
-                <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
-              </select>
-            </div>
-          </div>
-        </div>
 
         <button
           id="btn-generate"
@@ -224,6 +194,38 @@ import Footer from '../components/Footer.astro';
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
+
+            <!-- Visitor Counter Options -->
+            <div slot="options" style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(56,189,248,0.04); display: flex; flex-direction: column; gap: 12px; margin-top: 12px; margin-bottom: 12px;">
+              <span class="input-label" style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Contador de Visitas del Perfil
+              </span>
+              
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
+                <div class="input-wrapper" style="height: 36px;">
+                  <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                  <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
+                  <div class="input-wrapper" style="height: 36px;">
+                    <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
+                  </div>
+                </div>
+                
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                  <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
+                  <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
+                    <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
+                    <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </CardPreview>
 
           <!-- Stats Card Preview -->
@@ -497,6 +499,7 @@ import Footer from '../components/Footer.astro';
 
   let completedImagesCount = 0;
   const totalImagesToLoad = 7;
+  let isGeneratingAllCards = false;
 
   function sortCardsByStatus() {
     const container = document.querySelector('.cards-preview-container');
@@ -525,6 +528,8 @@ import Footer from '../components/Footer.astro';
   }
 
   function imageFinishedLoading() {
+    if (!isGeneratingAllCards) return;
+
     completedImagesCount++;
     if (completedImagesCount >= totalImagesToLoad) {
       if (globalLoading) {
@@ -532,6 +537,7 @@ import Footer from '../components/Footer.astro';
       }
       // Sort cards: successful ones first, errored ones last
       sortCardsByStatus();
+      isGeneratingAllCards = false;
     }
   }
 
@@ -539,6 +545,7 @@ import Footer from '../components/Footer.astro';
   function updateCards() {
     if (!currentUsername) return;
 
+    isGeneratingAllCards = true;
     completedImagesCount = 0;
     if (globalLoading) {
       globalLoading.classList.remove('hidden');
@@ -625,6 +632,29 @@ import Footer from '../components/Footer.astro';
     setTimeout(() => {
       loadMetrics();
     }, 1500);
+  }
+
+  // Update only the Profile Views Card preview in real-time
+  function updateViewsCard() {
+    if (!currentUsername) return;
+
+    const origin = window.location.origin;
+    const labelVal = viewsLabel ? viewsLabel.value.trim() : '';
+    const colorVal = viewsColor ? viewsColor.value.trim() : '';
+    const styleVal = viewsStyle ? viewsStyle.value : '';
+
+    let viewsUrl = `${origin}/api/views?username=${currentUsername}&theme=${currentTheme}`;
+    if (labelVal) viewsUrl += `&label=${encodeURIComponent(labelVal)}`;
+    if (colorVal) viewsUrl += `&color=${encodeURIComponent(colorVal)}`;
+    if (styleVal) viewsUrl += `&style=${encodeURIComponent(styleVal)}`;
+
+    if (viewsImg) {
+      const cacheBuster = `&t=${Date.now()}`;
+      viewsImg.src = viewsUrl + cacheBuster;
+    }
+
+    const markdownViews = `![Visitas de Perfil](${viewsUrl})`;
+    if (markdownViewsCode) markdownViewsCode.textContent = markdownViews;
   }
 
   // Manage image load cycles
@@ -741,15 +771,15 @@ import Footer from '../components/Footer.astro';
   setupCopyButton(btnCopyTrophies, markdownTrophiesCode);
   setupCopyButton(btnCopyViews, markdownViewsCode);
 
-  // Setup views badge options change listeners
+  // Setup views badge options change listeners (real-time updates)
   viewsStyle?.addEventListener('change', () => {
-    if (currentUsername) updateCards();
+    updateViewsCard();
   });
-  viewsLabel?.addEventListener('change', () => {
-    if (currentUsername) updateCards();
+  viewsLabel?.addEventListener('input', () => {
+    updateViewsCard();
   });
-  viewsColor?.addEventListener('change', () => {
-    if (currentUsername) updateCards();
+  viewsColor?.addEventListener('input', () => {
+    updateViewsCard();
   });
 
   // --- Private Token Management UI Logic ---

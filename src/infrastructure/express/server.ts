@@ -209,8 +209,8 @@ app.get('/api/stats', cardController.getStats);
 app.get('/api/languages', cardController.getLanguages);
 app.get('/api/repo', cardController.getRepo);
 app.get('/api/rank', cardController.getRank);
-app.get('/api/cards/streak', cardController.getStreak);
-app.get('/api/cards/trophies', cardController.getTrophies);
+app.get('/api/streak', cardController.getStreak);
+app.get('/api/trophies', cardController.getTrophies);
 app.get('/api/views', cardController.getProfileViews);
 
 app.post('/api/tokens/register', tokenController.register);

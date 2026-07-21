@@ -4,6 +4,8 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-07-21
+
 ### 🏗️ Base de Datos
 - **Migración a PostgreSQL con TypeORM**: Reemplazo completo de la base de datos SQLite y su controlador de bajo nivel `sqlite3` por una arquitectura basada en TypeORM con PostgreSQL para mejorar la seguridad (prevención de inyección SQL), concurrencia y flexibilidad de despliegue.
 - **Entidades de Dominio e Infraestructura**: Mapeo completo de las tablas `global_metrics`, `user_metrics`, `request_log` y `user_tokens` mediante decoradores TypeORM.
@@ -13,6 +15,13 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ### 🔒 Seguridad
 - **Políticas de Secretos**: Modificación de las directrices en `AGENTS.md` prohibiendo la lectura/escritura del archivo `.env` por parte de agentes de IA para salvaguardar secretos locales de producción.
+
+### 📡 Rutas de la API (Corrección)
+- **Corrección de Error 404**: Solucionado el error 404 en las tarjetas de racha (`/api/streak`) y trofeos (`/api/trophies`) corrigiendo su registro en el servidor de Express.
+
+### 🎨 Frontend / UX
+- **Configuración del Contador de Visitas**: Reubicación de las opciones de configuración del contador de visitas del perfil dentro de su propia tarjeta de vista previa.
+- **Optimización de Foco**: Implementación de actualización en tiempo real que mantiene el foco del teclado al escribir, previniendo reinicios molestos del DOM.
 
 ## [1.1.0] - 2026-07-17
 
@@ -42,4 +51,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.0.0
+**Versión actualmente expuesta / en producción:** v1.1.1

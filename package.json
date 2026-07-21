@@ -1,6 +1,6 @@
 {
   "name": "github-helpers",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "API server and interactive web frontend to generate beautiful GitHub readme stats cards and metrics",
   "main": "dist/server.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "@typescript-eslint/parser": "8.65.0",
     "eslint": "10.7.0",
     "eslint-config-prettier": "10.1.8",
-    "prettier": "3.9.5",
+    "prettier": "3.9.6",
     "release-it": "20.2.1",
     "ts-node-dev": "2.0.0",
     "tsc-alias": "^1.9.1",
