@@ -100,6 +100,38 @@ import Footer from '../components/Footer.astro';
           </div>
         </div>
 
+        <!-- Step 2: Visitor Counter Options -->
+        <div style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(56,189,248,0.04); display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px;">
+          <span class="input-label" style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Contador de Visitas del Perfil
+          </span>
+          
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
+            <div class="input-wrapper" style="height: 36px;">
+              <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
+              <div class="input-wrapper" style="height: 36px;">
+                <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
+              </div>
+            </div>
+            
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
+              <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
+                <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
+                <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <button
           id="btn-generate"
           class="primary-btn full-width-btn"
@@ -108,7 +140,7 @@ import Footer from '../components/Footer.astro';
           Generar Tarjetas
         </button>
 
-        <!-- Step 2: Themes -->
+        <!-- Step 3: Themes -->
         <div class="themes-group">
           <span class="input-label">Selecciona un Estilo</span>
           <div class="themes-grid" id="themes-container">
@@ -163,35 +195,6 @@ import Footer from '../components/Footer.astro';
             </button>
           </div>
         </div>
-
-        <!-- Step 3: Visitor Counter Options -->
-        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--glass-border); display: flex; flex-direction: column; gap: 12px;">
-          <span class="input-label" style="font-weight: 600;">Opciones del Contador de Visitas</span>
-          
-          <div class="input-group" style="margin-bottom: 0;">
-            <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
-            <div class="input-wrapper" style="height: 36px;">
-              <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 12px;">
-            <div class="input-group" style="flex: 1; margin-bottom: 0;">
-              <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
-              <div class="input-wrapper" style="height: 36px;">
-                <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
-              </div>
-            </div>
-            
-            <div class="input-group" style="flex: 1; margin-bottom: 0;">
-              <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
-              <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
-                <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
-                <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
-              </select>
-            </div>
-          </div>
-        </div>
       </section>
 
       <PrivateTokenModal />
@@ -204,6 +207,25 @@ import Footer from '../components/Footer.astro';
         <h2 class="section-title">Vista Previa</h2>
 
         <div class="cards-preview-container">
+          <!-- Profile Views Badge Preview -->
+          <CardPreview id="views" title="Contador de Visitas del Perfil" codeLabel="Contador de Visitas" frameStyle="min-height: auto; padding: 20px 0;" imgStyle="max-height: 20px; object-fit: contain;">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="36"
+              height="36"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </CardPreview>
+
           <!-- Stats Card Preview -->
           <CardPreview id="stats" title="Tarjeta de Estadísticas" codeLabel="Estadísticas Generales">
             <svg
@@ -317,25 +339,6 @@ import Footer from '../components/Footer.astro';
               <path d="M4 22h16" />
               <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
               <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" />
-            </svg>
-          </CardPreview>
-
-          <!-- Profile Views Badge Preview -->
-          <CardPreview id="views" title="Contador de Visitas del Perfil" codeLabel="Contador de Visitas" frameStyle="min-height: auto; padding: 20px 0;" imgStyle="max-height: 20px; object-fit: contain;">
-            <svg
-              slot="placeholder-icon"
-              class="placeholder-svg"
-              viewBox="0 0 24 24"
-              width="36"
-              height="36"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
             </svg>
           </CardPreview>
         </div>
