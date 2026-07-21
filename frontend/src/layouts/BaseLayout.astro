@@ -1,0 +1,94 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'GitHub Helpers - Stats Generator | CreativeCode',
+  description = 'Generador en tiempo real de tarjetas de estadísticas y lenguajes para tu perfil de GitHub y archivos README.'
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9SV7XMX2Q1"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-9SV7XMX2Q1');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href="https://github-helpers.creativecode.com.co/" />
+    
+    <!-- Robots and Indexing -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://github-helpers.creativecode.com.co/" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://github-helpers.creativecode.com.co/logo.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content="https://github-helpers.creativecode.com.co/" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content="https://github-helpers.creativecode.com.co/logo.png" />
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Global Loading Overlay -->
+    <div id="global-loading" class="hidden global-loading">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <svg class="spinner-svg" viewBox="0 0 50 50" width="50" height="50" aria-hidden="true">
+            <circle
+              class="path"
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke-dasharray="80,200"
+              stroke-width="5"
+            ></circle>
+          </svg>
+        </div>
+        <p class="loading-text">Obteniendo datos de GitHub...</p>
+        <p class="loading-subtext">Generando tus tarjetas personalizadas en tiempo real</p>
+      </div>
+    </div>
+
+    <!-- Ambient background blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container">
+      <slot />
+    </div>
+  </body>
+</html>

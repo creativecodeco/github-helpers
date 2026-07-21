@@ -8,15 +8,17 @@ WORKDIR /usr/src/app
 
 # Copy package and lock files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY frontend/package.json ./frontend/
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install --frozen-lockfile
 
-# Copy compiler settings and source files
+# Copy compiler settings, frontend and backend source files
 COPY tsconfig.json ./
 COPY src ./src
+COPY frontend ./frontend
 
-# Compile TypeScript
+# Compile Frontend and Backend
 RUN pnpm run build
 
 # Stage 2: Runtime (Production)
@@ -31,6 +33,7 @@ ENV NODE_ENV=production
 
 # Copy package and lock files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY frontend/package.json ./frontend/
 
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile

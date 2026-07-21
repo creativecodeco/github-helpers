@@ -1,5 +1,10 @@
+packages:
+  - "."
+  - "frontend"
+
 allowBuilds:
   esbuild: true
+  sharp: true
   sqlite3: true
 minimumReleaseAgeExclude:
   - express-rate-limit@8.6.0

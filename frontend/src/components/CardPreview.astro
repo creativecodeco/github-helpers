@@ -1,0 +1,80 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  placeholderMsg?: string;
+  codeLabel: string;
+  frameStyle?: string;
+  imgStyle?: string;
+}
+
+const {
+  id,
+  title,
+  placeholderMsg = 'Ingresa tu usuario de GitHub para cargar la vista previa',
+  codeLabel,
+  frameStyle = '',
+  imgStyle = ''
+} = Astro.props;
+---
+
+<div class="card-preview-wrapper">
+  <h3 class="card-title-label">{title}</h3>
+  <div class="image-frame" id={`${id}-frame`} style={frameStyle}>
+    <img
+      id={`${id}-img`}
+      alt={`Vista previa de ${title.toLowerCase()}`}
+      class="hidden preview-img"
+      style={imgStyle}
+    />
+    <div class="placeholder-card" id={`${id}-placeholder`}>
+      <div class="pulse-icon">
+        <slot name="placeholder-icon" />
+      </div>
+      <p>{placeholderMsg}</p>
+    </div>
+  </div>
+  <!-- Code Block -->
+  <div class="hidden code-block-wrapper">
+    <span class="code-label">{codeLabel}</span>
+    <div class="code-container">
+      <pre><code id={`markdown-${id}-code`}>Cargando...</code></pre>
+      <button
+        class="copy-btn"
+        id={`btn-copy-${id}`}
+        aria-label={`Copiar markdown de ${codeLabel.toLowerCase()}`}
+      >
+        <svg
+          class="icon-copy"
+          viewBox="0 0 24 24"
+          width="15"
+          height="15"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+        </svg>
+        <svg
+          class="hidden icon-check"
+          viewBox="0 0 24 24"
+          width="15"
+          height="15"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span class="copy-text">Copiar</span>
+      </button>
+    </div>
+  </div>
+</div>

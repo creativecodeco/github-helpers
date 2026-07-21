@@ -1,0 +1,1073 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import PrivateTokenModal from '../components/PrivateTokenModal.astro';
+import CardPreview from '../components/CardPreview.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout>
+  <header class="app-header">
+    <div class="header-top-row">
+      <div class="logo">
+        <svg
+          class="logo-icon"
+          viewBox="0 0 24 24"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="url(#logo-grad)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#a855f7" />
+            </linearGradient>
+          </defs>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+        <h1>GitHub <span class="accent-text">Helpers</span></h1>
+      </div>
+      <ThemeToggle />
+    </div>
+    <p class="subtitle">
+      Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente
+      para tu README.md.
+    </p>
+    <!-- Live Metrics counter -->
+    <div class="hidden metrics-badge" id="metrics-badge">
+      <span class="pulse-dot"></span>
+      <span>Usuarios usando las cards: <strong id="metrics-count">Cargando...</strong></span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Left Column Wrapper -->
+    <div
+      class="left-column"
+      style="display: flex; flex-direction: column; gap: 24px; width: 100%"
+    >
+      <!-- Left Panel: Input & Settings -->
+      <section class="settings-panel glass-card" style="width: 100%">
+        <h2 class="section-title">Configuración</h2>
+
+        <!-- Step 1: Username & Optional Repo -->
+        <div class="input-group">
+          <label for="username-input" class="input-label">Usuario de GitHub</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">@</span>
+            <input
+              type="text"
+              id="username-input"
+              placeholder="ej. github"
+              autocomplete="off"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="repo-input" class="input-label">Repositorio Específico (Opcional)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="margin-right: 4px"
+                aria-hidden="true"
+              >
+                <path
+                  d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="repo-input"
+              placeholder="ej. github-helpers (o el más popular)"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <button
+          id="btn-generate"
+          class="primary-btn full-width-btn"
+          style="margin-bottom: 24px; width: 100%"
+        >
+          Generar Tarjetas
+        </button>
+
+        <!-- Step 2: Themes -->
+        <div class="themes-group">
+          <span class="input-label">Selecciona un Estilo</span>
+          <div class="themes-grid" id="themes-container">
+            <button class="theme-option active" data-theme="dark" id="theme-dark">
+              <span class="theme-name">Dark</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #0d1117"></span>
+                <span class="color-dot" style="background: #58a6ff"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="light" id="theme-light">
+              <span class="theme-name">Light</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #ffffff"></span>
+                <span class="color-dot" style="background: #0969da"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="neon" id="theme-neon">
+              <span class="theme-name">Neon</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #050505"></span>
+                <span class="color-dot" style="background: #00ff66"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="glassmorphism" id="theme-glassmorphism">
+              <span class="theme-name">Glass</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: rgba(15, 23, 42, 0.65)"></span>
+                <span class="color-dot" style="background: #38bdf8"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="solarized" id="theme-solarized">
+              <span class="theme-name">Solarized</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #002b36"></span>
+                <span class="color-dot" style="background: #2aa198"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="radical" id="theme-radical">
+              <span class="theme-name">Radical</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #141321"></span>
+                <span class="color-dot" style="background: #fe428e"></span>
+              </span>
+            </button>
+            <button class="theme-option" data-theme="tokyonight" id="theme-tokyonight">
+              <span class="theme-name">Tokyo</span>
+              <span class="theme-colors">
+                <span class="color-dot" style="background: #1a1b26"></span>
+                <span class="color-dot" style="background: #79dac8"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Visitor Counter Options -->
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--glass-border); display: flex; flex-direction: column; gap: 12px;">
+          <span class="input-label" style="font-weight: 600;">Opciones del Contador de Visitas</span>
+          
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
+            <div class="input-wrapper" style="height: 36px;">
+              <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
+              <div class="input-wrapper" style="height: 36px;">
+                <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
+              </div>
+            </div>
+            
+            <div class="input-group" style="flex: 1; margin-bottom: 0;">
+              <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
+              <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
+                <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
+                <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <PrivateTokenModal />
+    </div>
+
+    <!-- Right Panel: Live Preview & Code -->
+    <section class="preview-panel">
+      <!-- Live Preview -->
+      <div class="preview-card glass-card">
+        <h2 class="section-title">Vista Previa</h2>
+
+        <div class="cards-preview-container">
+          <!-- Stats Card Preview -->
+          <CardPreview id="stats" title="Tarjeta de Estadísticas" codeLabel="Estadísticas Generales">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </CardPreview>
+
+          <!-- Languages Card Preview -->
+          <CardPreview id="languages" title="Tarjeta de Lenguajes" codeLabel="Lenguajes Más Usados">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+              <path d="M22 12A10 10 0 0 0 12 2v10z" />
+            </svg>
+          </CardPreview>
+
+          <!-- Featured Repo Card Preview -->
+          <CardPreview id="repo" title="Tarjeta de Repositorio Destacado" codeLabel="Repositorio Destacado">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            </svg>
+          </CardPreview>
+
+          <!-- Rank Card Preview -->
+          <CardPreview id="rank" title="Tarjeta de Rango de Desarrollador" codeLabel="Rango de Desarrollador">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="8" r="7" />
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+            </svg>
+          </CardPreview>
+
+          <!-- Streak Stats Card Preview -->
+          <CardPreview id="streak" title="Tarjeta de Racha de Contribuciones" codeLabel="Racha de Contribuciones">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </CardPreview>
+
+          <!-- Trophies Card Preview -->
+          <CardPreview id="trophies" title="Tarjeta de Trofeos" codeLabel="Trofeos de GitHub">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="48"
+              height="48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+              <path d="M4 22h16" />
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
+              <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" />
+            </svg>
+          </CardPreview>
+
+          <!-- Profile Views Badge Preview -->
+          <CardPreview id="views" title="Contador de Visitas del Perfil" codeLabel="Contador de Visitas" frameStyle="min-height: auto; padding: 20px 0;" imgStyle="max-height: 20px; object-fit: contain;">
+            <svg
+              slot="placeholder-icon"
+              class="placeholder-svg"
+              viewBox="0 0 24 24"
+              width="36"
+              height="36"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </CardPreview>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Elements
+  const usernameInput = document.getElementById('username-input') as HTMLInputElement | null;
+  const repoInput = document.getElementById('repo-input') as HTMLInputElement | null;
+  const btnGenerate = document.getElementById('btn-generate');
+  const themesContainer = document.getElementById('themes-container');
+  const themeOptions = document.querySelectorAll('.theme-option') as NodeListOf<HTMLButtonElement>;
+
+  const statsImg = document.getElementById('stats-img') as HTMLImageElement | null;
+  const statsPlaceholder = document.getElementById('stats-placeholder');
+
+  const languagesImg = document.getElementById('languages-img') as HTMLImageElement | null;
+  const languagesPlaceholder = document.getElementById('languages-placeholder');
+
+  const repoImg = document.getElementById('repo-img') as HTMLImageElement | null;
+  const repoPlaceholder = document.getElementById('repo-placeholder');
+
+  const rankImg = document.getElementById('rank-img') as HTMLImageElement | null;
+  const rankPlaceholder = document.getElementById('rank-placeholder');
+
+  const streakImg = document.getElementById('streak-img') as HTMLImageElement | null;
+  const streakPlaceholder = document.getElementById('streak-placeholder');
+
+  const trophiesImg = document.getElementById('trophies-img') as HTMLImageElement | null;
+  const trophiesPlaceholder = document.getElementById('trophies-placeholder');
+
+  const viewsImg = document.getElementById('views-img') as HTMLImageElement | null;
+  const viewsPlaceholder = document.getElementById('views-placeholder');
+
+  const codeBlockWrappers = document.querySelectorAll('.code-block-wrapper');
+  const markdownStatsCode = document.getElementById('markdown-stats-code');
+  const markdownLanguagesCode = document.getElementById('markdown-languages-code');
+  const markdownRepoCode = document.getElementById('markdown-repo-code');
+  const markdownRankCode = document.getElementById('markdown-rank-code');
+  const markdownStreakCode = document.getElementById('markdown-streak-code');
+  const markdownTrophiesCode = document.getElementById('markdown-trophies-code');
+  const markdownViewsCode = document.getElementById('markdown-views-code');
+
+  const btnCopyStats = document.getElementById('btn-copy-stats');
+  const btnCopyLanguages = document.getElementById('btn-copy-languages');
+  const btnCopyRepo = document.getElementById('btn-copy-repo');
+  const btnCopyRank = document.getElementById('btn-copy-rank');
+  const btnCopyStreak = document.getElementById('btn-copy-streak');
+  const btnCopyTrophies = document.getElementById('btn-copy-trophies');
+  const btnCopyViews = document.getElementById('btn-copy-views');
+
+  const viewsLabel = document.getElementById('views-label') as HTMLInputElement | null;
+  const viewsColor = document.getElementById('views-color') as HTMLInputElement | null;
+  const viewsStyle = document.getElementById('views-style') as HTMLSelectElement | null;
+
+  // Metrics Elements
+  const metricsBadge = document.getElementById('metrics-badge');
+  const metricsCount = document.getElementById('metrics-count');
+
+  // Private Stats Elements
+  const privateStatsBadge = document.getElementById('private-stats-badge');
+  const tokenFormContainer = document.getElementById('token-form-container');
+
+  // Global Loading Overlay
+  const globalLoading = document.getElementById('global-loading');
+
+  // Application State
+  let currentTheme = 'dark';
+  let currentUsername = '';
+  let currentRepo = '';
+
+  // --- SVG Themes Selector disabled state ---
+  function updateThemeSelectorsState() {
+    const hasUser = !!currentUsername;
+    themeOptions.forEach((opt) => {
+      opt.disabled = !hasUser;
+    });
+  }
+  updateThemeSelectorsState();
+
+  // --- Metrics Load Logic ---
+  async function loadMetrics() {
+    if (!metricsBadge || !metricsCount) return;
+
+    metricsCount.textContent = 'Cargando...';
+    metricsBadge.classList.remove('hidden');
+
+    try {
+      const response = await fetch('/api/metrics/users/count');
+      if (response.ok) {
+        const count = await response.json();
+        metricsCount.textContent = Number(count).toLocaleString();
+      } else {
+        metricsBadge.classList.add('hidden');
+      }
+    } catch (err) {
+      console.warn('Could not fetch usage metrics:', err);
+      metricsBadge.classList.add('hidden');
+    }
+  }
+
+  loadMetrics();
+
+  // --- SVG Themes Selection logic ---
+  themesContainer?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const option = target.closest('.theme-option') as HTMLButtonElement | null;
+    if (!option) return;
+
+    themeOptions.forEach((opt) => opt.classList.remove('active'));
+    option.classList.add('active');
+
+    currentTheme = option.dataset.theme || 'dark';
+
+    if (currentUsername) {
+      updateCards();
+    }
+  });
+
+  // Generate button handler
+  btnGenerate?.addEventListener('click', () => {
+    submitUsername();
+  });
+
+  // Enter key support in inputs
+  usernameInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      submitUsername();
+    }
+  });
+
+  repoInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      submitUsername();
+    }
+  });
+
+  function submitUsername() {
+    if (!usernameInput) return;
+    const usernameVal = usernameInput.value.trim();
+    if (!usernameVal) {
+      usernameInput.focus();
+      return;
+    }
+
+    currentUsername = usernameVal;
+    currentRepo = repoInput ? repoInput.value.trim() : '';
+    updateThemeSelectorsState();
+    updateCards();
+  }
+
+  let completedImagesCount = 0;
+  const totalImagesToLoad = 7;
+
+  function imageFinishedLoading() {
+    completedImagesCount++;
+    if (completedImagesCount >= totalImagesToLoad) {
+      if (globalLoading) {
+        globalLoading.classList.add('hidden');
+      }
+    }
+  }
+
+  // Update image previews and Markdown blocks
+  function updateCards() {
+    if (!currentUsername) return;
+
+    completedImagesCount = 0;
+    if (globalLoading) {
+      globalLoading.classList.remove('hidden');
+    }
+
+    const origin = window.location.origin;
+    const statsUrl = `${origin}/api/stats?username=${currentUsername}&theme=${currentTheme}`;
+    const languagesUrl = `${origin}/api/languages?username=${currentUsername}&theme=${currentTheme}`;
+    const rankUrl = `${origin}/api/rank?username=${currentUsername}&theme=${currentTheme}`;
+    const streakUrl = `${origin}/api/streak?username=${currentUsername}&theme=${currentTheme}`;
+    const trophiesUrl = `${origin}/api/trophies?username=${currentUsername}&theme=${currentTheme}`;
+
+    let repoUrl = `${origin}/api/repo?username=${currentUsername}&theme=${currentTheme}`;
+    if (currentRepo) {
+      repoUrl += `&repo=${encodeURIComponent(currentRepo)}`;
+    }
+
+    const labelVal = viewsLabel ? viewsLabel.value.trim() : '';
+    const colorVal = viewsColor ? viewsColor.value.trim() : '';
+    const styleVal = viewsStyle ? viewsStyle.value : '';
+
+    let viewsUrl = `${origin}/api/views?username=${currentUsername}&theme=${currentTheme}`;
+    if (labelVal) viewsUrl += `&label=${encodeURIComponent(labelVal)}`;
+    if (colorVal) viewsUrl += `&color=${encodeURIComponent(colorVal)}`;
+    if (styleVal) viewsUrl += `&style=${encodeURIComponent(styleVal)}`;
+
+    // 1. Show Loading State
+    showImageLoading(statsImg, statsPlaceholder);
+    showImageLoading(languagesImg, languagesPlaceholder);
+    showImageLoading(repoImg, repoPlaceholder);
+    showImageLoading(rankImg, rankPlaceholder);
+    showImageLoading(streakImg, streakPlaceholder);
+    showImageLoading(trophiesImg, trophiesPlaceholder);
+    showImageLoading(viewsImg, viewsPlaceholder);
+
+    // 2. Set image sources with cache buster to force rendering updates in preview
+    const cacheBuster = `&t=${Date.now()}`;
+    if (statsImg) {
+      statsImg.src = statsUrl + cacheBuster;
+      statsImg.alt = `Tarjeta de estadísticas generales de GitHub para el usuario @${currentUsername}`;
+    }
+    if (languagesImg) {
+      languagesImg.src = languagesUrl + cacheBuster;
+      languagesImg.alt = `Tarjeta de lenguajes más usados de GitHub para el usuario @${currentUsername}`;
+    }
+    if (repoImg) {
+      repoImg.src = repoUrl + cacheBuster;
+      repoImg.alt = `Tarjeta de repositorio destacado de GitHub para el usuario @${currentUsername}${currentRepo ? ` (repo: ${currentRepo})` : ''}`;
+    }
+    if (rankImg) {
+      rankImg.src = rankUrl + cacheBuster;
+      rankImg.alt = `Tarjeta de rango de GitHub para el usuario @${currentUsername}`;
+    }
+    if (streakImg) {
+      streakImg.src = streakUrl + cacheBuster;
+      streakImg.alt = `Tarjeta de racha de commits de GitHub para el usuario @${currentUsername}`;
+    }
+    if (trophiesImg) {
+      trophiesImg.src = trophiesUrl + cacheBuster;
+      trophiesImg.alt = `Tarjeta de trofeos de GitHub para el usuario @${currentUsername}`;
+    }
+    if (viewsImg) {
+      viewsImg.src = viewsUrl + cacheBuster;
+      viewsImg.alt = `Contador de visitas de GitHub para el usuario @${currentUsername}`;
+    }
+
+    // 3. Update Markdown Codes
+    const markdownStats = `![GitHub Stats](${statsUrl})`;
+    const markdownLanguages = `![Lenguajes más usados](${languagesUrl})`;
+    const markdownRepo = `![Repositorio Destacado](${repoUrl})`;
+    const markdownRank = `![Rango de Desarrollador](${rankUrl})`;
+    const markdownStreak = `![Racha de Contribuciones](${streakUrl})`;
+    const markdownTrophies = `![Trofeos de GitHub](${trophiesUrl})`;
+    const markdownViews = `![Visitas de Perfil](${viewsUrl})`;
+
+    if (markdownStatsCode) markdownStatsCode.textContent = markdownStats;
+    if (markdownLanguagesCode) markdownLanguagesCode.textContent = markdownLanguages;
+    if (markdownRepoCode) markdownRepoCode.textContent = markdownRepo;
+    if (markdownRankCode) markdownRankCode.textContent = markdownRank;
+    if (markdownStreakCode) markdownStreakCode.textContent = markdownStreak;
+    if (markdownTrophiesCode) markdownTrophiesCode.textContent = markdownTrophies;
+    if (markdownViewsCode) markdownViewsCode.textContent = markdownViews;
+
+    setTimeout(() => {
+      loadMetrics();
+    }, 1500);
+  }
+
+  // Manage image load cycles
+  function showImageLoading(imgElement: HTMLImageElement | null, placeholderElement: HTMLElement | null) {
+    if (!imgElement || !placeholderElement) return;
+    imgElement.classList.add('hidden');
+    placeholderElement.classList.remove('hidden');
+
+    const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+    if (codeBlock) {
+      codeBlock.classList.add('hidden');
+    }
+
+    let svgIcon = '';
+    if (placeholderElement.id === 'stats-placeholder') {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      `;
+    } else if (placeholderElement.id === 'languages-placeholder') {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      `;
+    } else if (placeholderElement.id === 'repo-placeholder') {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v3H6.5a1.5 1.5 0 0 0 0 3H20v2H6.5A2.5 2.5 0 0 1 4 22.5v-3z" />
+          <path d="M6 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V3A1 1 0 0 1 5 2h1z" />
+        </svg>
+      `;
+    } else if (placeholderElement.id === 'trophies-placeholder') {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+          <path d="M4 22h16" />
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
+          <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" />
+        </svg>
+      `;
+    } else {
+      svgIcon = `
+        <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      `;
+    }
+
+    const pulseIcon = placeholderElement.querySelector('.pulse-icon');
+    const pText = placeholderElement.querySelector('p');
+    if (pulseIcon) pulseIcon.innerHTML = svgIcon;
+    if (pText) pText.textContent = 'Consultando datos en GitHub...';
+  }
+
+  // Setup Image Load Listeners Helper
+  function setupImageEvents(imgElement: HTMLImageElement | null, placeholderElement: HTMLElement | null, errorText: string) {
+    if (!imgElement || !placeholderElement) return;
+
+    imgElement.addEventListener('load', () => {
+      placeholderElement.classList.add('hidden');
+      imgElement.classList.remove('hidden');
+      
+      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+      if (codeBlock) {
+        codeBlock.classList.remove('hidden');
+      }
+      imageFinishedLoading();
+    });
+
+    imgElement.addEventListener('error', () => {
+      const pulseIcon = placeholderElement.querySelector('.pulse-icon');
+      const pText = placeholderElement.querySelector('p');
+      
+      if (pulseIcon) {
+        pulseIcon.innerHTML = `
+          <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        `;
+      }
+      if (pText) pText.textContent = errorText;
+      
+      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+      if (codeBlock) {
+        codeBlock.classList.add('hidden');
+      }
+      imageFinishedLoading();
+    });
+  }
+
+  // Bind image event listeners
+  setupImageEvents(statsImg, statsPlaceholder, 'Error al cargar tarjeta. Verifica el usuario.');
+  setupImageEvents(languagesImg, languagesPlaceholder, 'Error al cargar lenguajes.');
+  setupImageEvents(repoImg, repoPlaceholder, 'Error al cargar repositorio.');
+  setupImageEvents(rankImg, rankPlaceholder, 'Error al cargar rango.');
+  setupImageEvents(streakImg, streakPlaceholder, 'Error al cargar racha de contribuciones.');
+  setupImageEvents(trophiesImg, trophiesPlaceholder, 'Error al cargar trofeos.');
+  setupImageEvents(viewsImg, viewsPlaceholder, 'Error al cargar contador de visitas.');
+
+  // Setup Clipboard Copy handlers
+  setupCopyButton(btnCopyStats, markdownStatsCode);
+  setupCopyButton(btnCopyLanguages, markdownLanguagesCode);
+  setupCopyButton(btnCopyRepo, markdownRepoCode);
+  setupCopyButton(btnCopyRank, markdownRankCode);
+  setupCopyButton(btnCopyStreak, markdownStreakCode);
+  setupCopyButton(btnCopyTrophies, markdownTrophiesCode);
+  setupCopyButton(btnCopyViews, markdownViewsCode);
+
+  // Setup views badge options change listeners
+  viewsStyle?.addEventListener('change', () => {
+    if (currentUsername) updateCards();
+  });
+  viewsLabel?.addEventListener('change', () => {
+    if (currentUsername) updateCards();
+  });
+  viewsColor?.addEventListener('change', () => {
+    if (currentUsername) updateCards();
+  });
+
+  // --- Private Token Management UI Logic ---
+  const tokenUsername = document.getElementById('token-username') as HTMLInputElement | null;
+  const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
+  const tokenConsent = document.getElementById('token-consent') as HTMLInputElement | null;
+  const btnSaveToken = document.getElementById('btn-save-token');
+
+  const tokenUnregistered = document.getElementById('token-unregistered');
+  const tokenRegistered = document.getElementById('token-registered');
+  const tokenRevokeInput = document.getElementById('token-revoke-input') as HTMLInputElement | null;
+  const btnRevokeToken = document.getElementById('btn-revoke-token');
+  const tokenStatusMsg = document.getElementById('token-status-msg');
+
+  // Helper to show status messages
+  function showStatus(text: string, type = 'success') {
+    if (!tokenStatusMsg) return;
+    tokenStatusMsg.textContent = text;
+    tokenStatusMsg.className = 'token-status-msg'; // reset classes
+    tokenStatusMsg.classList.remove('hidden');
+    if (type === 'success') {
+      tokenStatusMsg.style.background = 'rgba(74, 222, 128, 0.1)';
+      tokenStatusMsg.style.color = '#4ade80';
+      tokenStatusMsg.style.border = '1px solid rgba(74, 222, 128, 0.2)';
+      tokenStatusMsg.style.padding = '10px';
+      tokenStatusMsg.style.borderRadius = '6px';
+      tokenStatusMsg.style.marginTop = '10px';
+    } else {
+      tokenStatusMsg.style.background = 'rgba(248, 81, 73, 0.1)';
+      tokenStatusMsg.style.color = '#f85149';
+      tokenStatusMsg.style.border = '1px solid rgba(248, 81, 73, 0.2)';
+      tokenStatusMsg.style.padding = '10px';
+      tokenStatusMsg.style.borderRadius = '6px';
+      tokenStatusMsg.style.marginTop = '10px';
+    }
+  }
+
+  function hideStatus() {
+    tokenStatusMsg?.classList.add('hidden');
+  }
+
+  // Load and show initial token state
+  const storedRegUser = localStorage.getItem('registered-github-username');
+  if (storedRegUser) {
+    showRegisteredState();
+    if (usernameInput) {
+      usernameInput.value = storedRegUser;
+      submitUsername();
+    }
+  }
+
+  function showRegisteredState() {
+    if (tokenUnregistered) tokenUnregistered.classList.add('hidden');
+    if (tokenRegistered) tokenRegistered.classList.remove('hidden');
+    hideStatus();
+  }
+
+  function showUnregisteredState() {
+    if (tokenRegistered) tokenRegistered.classList.add('hidden');
+    if (tokenUnregistered) tokenUnregistered.classList.remove('hidden');
+    hideStatus();
+    if (tokenInput) tokenInput.value = '';
+    if (tokenRevokeInput) tokenRevokeInput.value = '';
+    if (tokenConsent) tokenConsent.checked = false;
+    if (tokenUsername) {
+      tokenUsername.value = '';
+    }
+  }
+
+  // Completely reset the entire dashboard UI and statistics
+  function resetAppUI() {
+    if (usernameInput) usernameInput.value = '';
+    if (repoInput) repoInput.value = '';
+    currentUsername = '';
+    currentRepo = '';
+
+    updateThemeSelectorsState();
+
+    if (statsImg) statsImg.classList.add('hidden');
+    if (statsPlaceholder) statsPlaceholder.classList.remove('hidden');
+
+    if (languagesImg) languagesImg.classList.add('hidden');
+    if (languagesPlaceholder) languagesPlaceholder.classList.remove('hidden');
+
+    if (repoImg) repoImg.classList.add('hidden');
+    if (repoPlaceholder) repoPlaceholder.classList.remove('hidden');
+
+    if (rankImg) rankImg.classList.add('hidden');
+    if (rankPlaceholder) rankPlaceholder.classList.remove('hidden');
+
+    if (streakImg) streakImg.classList.add('hidden');
+    if (streakPlaceholder) streakPlaceholder.classList.remove('hidden');
+
+    if (trophiesImg) trophiesImg.classList.add('hidden');
+    if (trophiesPlaceholder) trophiesPlaceholder.classList.remove('hidden');
+
+    if (viewsImg) viewsImg.classList.add('hidden');
+    if (viewsPlaceholder) viewsPlaceholder.classList.remove('hidden');
+
+    if (viewsLabel) viewsLabel.value = 'Profile views';
+    if (viewsColor) viewsColor.value = '';
+    if (viewsStyle) viewsStyle.value = 'flat';
+
+    if (codeBlockWrappers) {
+      codeBlockWrappers.forEach((wrapper) => {
+        wrapper.classList.add('hidden');
+      });
+    }
+  }
+
+  // Handle register
+  btnSaveToken?.addEventListener('click', async () => {
+    if (!tokenUsername || !tokenInput || !tokenConsent || !globalLoading) return;
+    hideStatus();
+    const username = tokenUsername.value.trim();
+    const token = tokenInput.value.trim();
+    const consentAccepted = tokenConsent.checked;
+
+    if (!username) {
+      showStatus('Por favor, ingresa tu usuario de GitHub.', 'error');
+      return;
+    }
+    if (!token) {
+      showStatus('Por favor, ingresa tu Personal Access Token (PAT).', 'error');
+      return;
+    }
+    if (!consentAccepted) {
+      showStatus('Debes aceptar el almacenamiento cifrado de datos.', 'error');
+      return;
+    }
+
+    try {
+      globalLoading.classList.remove('hidden');
+      const response = await fetch('/api/tokens/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, token, consentAccepted })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('registered-github-username', username);
+        showRegisteredState();
+        showStatus(data.message, 'success');
+
+        if (usernameInput) {
+          usernameInput.value = username;
+          submitUsername();
+        }
+      } else {
+        showStatus(data.error || 'Error al registrar el token.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+    } finally {
+      globalLoading.classList.add('hidden');
+    }
+  });
+
+  // Handle revoke
+  btnRevokeToken?.addEventListener('click', async () => {
+    if (!tokenUsername || !tokenRevokeInput || !globalLoading) return;
+    hideStatus();
+    const username =
+      localStorage.getItem('registered-github-username') || tokenUsername.value.trim();
+    const token = tokenRevokeInput.value.trim();
+
+    if (!username) {
+      showStatus('No se reconoce ningún usuario registrado.', 'error');
+      return;
+    }
+    if (!token) {
+      showStatus(
+        'Debes ingresar un token de GitHub válido tuyo para verificar tu propiedad antes de revocar.',
+        'error'
+      );
+      return;
+    }
+
+    try {
+      globalLoading.classList.remove('hidden');
+      const response = await fetch('/api/tokens/revoke', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ username })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.removeItem('registered-github-username');
+        showUnregisteredState();
+        showStatus(data.message, 'success');
+        resetAppUI();
+      } else {
+        showStatus(data.error || 'Error al revocar el token.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+    } finally {
+      globalLoading.classList.add('hidden');
+    }
+  });
+
+  // Handle Purge Data
+  const btnOpenPurgeModal = document.getElementById('btn-open-purge-modal');
+  const purgeModal = document.getElementById('purge-modal');
+  const purgeUsername = document.getElementById('purge-username') as HTMLInputElement | null;
+  const purgeToken = document.getElementById('purge-token') as HTMLInputElement | null;
+  const btnClosePurge = document.getElementById('btn-close-purge');
+  const btnConfirmPurge = document.getElementById('btn-confirm-purge') as HTMLButtonElement | null;
+
+  btnOpenPurgeModal?.addEventListener('click', () => {
+    if (purgeModal) {
+      purgeModal.classList.remove('hidden');
+    }
+    if (purgeUsername) purgeUsername.value = '';
+    if (purgeToken) purgeToken.value = '';
+    updatePurgeConfirmButtonState();
+  });
+
+  btnClosePurge?.addEventListener('click', () => {
+    if (purgeModal) {
+      purgeModal.classList.add('hidden');
+    }
+  });
+
+  function updatePurgeConfirmButtonState() {
+    if (!btnConfirmPurge) return;
+    const hasUsername = purgeUsername && purgeUsername.value.trim() !== '';
+    const hasToken = purgeToken && purgeToken.value.trim() !== '';
+    if (hasUsername && hasToken) {
+      btnConfirmPurge.style.opacity = '1';
+      btnConfirmPurge.style.pointerEvents = 'auto';
+    } else {
+      btnConfirmPurge.style.opacity = '0.5';
+      btnConfirmPurge.style.pointerEvents = 'none';
+    }
+  }
+
+  purgeUsername?.addEventListener('input', updatePurgeConfirmButtonState);
+  purgeToken?.addEventListener('input', updatePurgeConfirmButtonState);
+
+  btnConfirmPurge?.addEventListener('click', async () => {
+    if (!purgeUsername || !purgeToken || !globalLoading) return;
+    const username = purgeUsername.value.trim();
+    const token = purgeToken.value.trim();
+
+    if (!username || !token) return;
+
+    try {
+      globalLoading.classList.remove('hidden');
+      const response = await fetch('/api/users/purge', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ username })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        if (purgeModal) {
+          purgeModal.classList.add('hidden');
+        }
+        localStorage.removeItem('registered-github-username');
+        showUnregisteredState();
+        showStatus(data.message, 'success');
+        resetAppUI();
+      } else {
+        alert(data.error || 'Error al intentar purgar los datos.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al intentar purgar los datos.');
+    } finally {
+      globalLoading.classList.add('hidden');
+    }
+  });
+
+  function setupCopyButton(button: HTMLElement | null, codeElement: HTMLElement | null) {
+    if (!button || !codeElement) return;
+    button.addEventListener('click', async () => {
+      const codeText = codeElement.textContent;
+      if (!codeText) return;
+      try {
+        await navigator.clipboard.writeText(codeText);
+
+        button.classList.add('copied');
+        const copyText = button.querySelector('.copy-text');
+        if (copyText) copyText.textContent = '¡Copiado!';
+
+        button.querySelector('.icon-copy')?.classList.add('hidden');
+        button.querySelector('.icon-check')?.classList.remove('hidden');
+
+        setTimeout(() => {
+          button.classList.remove('copied');
+          if (copyText) copyText.textContent = 'Copiar';
+          button.querySelector('.icon-copy')?.classList.remove('hidden');
+          button.querySelector('.icon-check')?.classList.add('hidden');
+        }, 2000);
+      } catch (err) {
+        console.error('Error al copiar al portapapeles:', err);
+      }
+    });
+  }
+
+  // --- Config Load Logic ---
+  async function loadConfig() {
+    try {
+      const response = await fetch('/api/config');
+      if (response.ok) {
+        const config = await response.json();
+        if (config.privateStatsComingSoon === false) {
+          if (privateStatsBadge) {
+            privateStatsBadge.classList.add('hidden');
+          }
+          if (tokenFormContainer) {
+            tokenFormContainer.style.opacity = '1';
+            tokenFormContainer.style.pointerEvents = 'auto';
+            tokenFormContainer.removeAttribute('title');
+          }
+          if (tokenUsername) tokenUsername.removeAttribute('disabled');
+          if (tokenInput) tokenInput.removeAttribute('disabled');
+          if (tokenConsent) tokenConsent.removeAttribute('disabled');
+          if (btnSaveToken) btnSaveToken.removeAttribute('disabled');
+        } else {
+          if (privateStatsBadge) {
+            privateStatsBadge.classList.remove('hidden');
+          }
+          if (tokenFormContainer) {
+            tokenFormContainer.style.opacity = '0.55';
+            tokenFormContainer.style.pointerEvents = 'none';
+            tokenFormContainer.setAttribute('title', 'Esta característica estará disponible próximamente');
+          }
+          if (tokenUsername) tokenUsername.setAttribute('disabled', '');
+          if (tokenInput) tokenInput.setAttribute('disabled', '');
+          if (tokenConsent) tokenConsent.setAttribute('disabled', '');
+          if (btnSaveToken) btnSaveToken.setAttribute('disabled', '');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading config:', error);
+    }
+  }
+  loadConfig();
+</script>

@@ -1,0 +1,50 @@
+---
+import packageJson from '../../../package.json';
+const version = packageJson.version;
+---
+
+<footer class="app-footer">
+  <p>
+    © 2026 Powered by
+    <a
+      href="https://creativecode.com.co"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="footer-link"
+      >CreativeCode.com.co</a
+    >. Todos los derechos reservados.
+  </p>
+  <p class="footer-version">
+    <span class="version-badge">
+      <svg
+        viewBox="0 0 24 24"
+        width="12"
+        height="12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+      v{version}
+    </span>
+    &nbsp;·&nbsp;
+    <a
+      href="https://github.com/creativecodeco/github-helpers/blob/main/CHANGELOG.md"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="footer-link"
+      >Changelog</a
+    >
+    &nbsp;·&nbsp;
+    <a
+      href="/privacy.html"
+      target="_blank"
+      class="footer-link"
+      >Privacidad</a
+    >
+  </p>
+</footer>

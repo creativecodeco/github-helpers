@@ -4,14 +4,15 @@
   "description": "API server and interactive web frontend to generate beautiful GitHub readme stats cards and metrics",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "pnpm --filter github-helpers-frontend build && tsc && tsc-alias",
     "start": "node dist/server.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
+    "dev:frontend": "pnpm --filter github-helpers-frontend dev",
     "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"public/**/*.{html,css,js}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" \"public/**/*.{html,css,js}\"",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\"",
     "release": "release-it"
   },
   "author": "CreativeCode.com.co",
