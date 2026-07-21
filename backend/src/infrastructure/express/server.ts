@@ -65,7 +65,11 @@ const cardController = new CardController(
   recordProfileViewUseCase
 );
 
-const tokenController = new TokenController(registerTokenUseCase, revokeTokenUseCase, purgeUserDataUseCase);
+const tokenController = new TokenController(
+  registerTokenUseCase,
+  revokeTokenUseCase,
+  purgeUserDataUseCase
+);
 const metricsController = new MetricsController(metricsRepo);
 
 // Trust proxy configuration
@@ -168,7 +172,7 @@ const apiLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
-app.use(express.static(path.join(__dirname, '../../../public')));
+app.use(express.static(path.join(__dirname, '../../../../public')));
 
 function checkMetricsKey(req: Request, res: Response, next: () => void) {
   const expectedKey = process.env.METRICS_KEY;
@@ -235,9 +239,13 @@ const fallbackFileLimiter = rateLimit({
 });
 
 // Serve index.html as fallback only for page routes, returning a standard 404 for missing static files
-app.get(/^\/(?!api|_astro|.*\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml)$).*$/, fallbackFileLimiter, (_req, res) => {
-  res.sendFile(path.join(__dirname, '../../../public/index.html'));
-});
+app.get(
+  /^\/(?!api|_astro|.*\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml)$).*$/,
+  fallbackFileLimiter,
+  (_req, res) => {
+    res.sendFile(path.join(__dirname, '../../../../public/index.html'));
+  }
+);
 
 export async function startServer() {
   await initDatabase();

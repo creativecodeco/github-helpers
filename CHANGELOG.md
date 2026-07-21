@@ -2,7 +2,21 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
-## [Unreleased]
+## [1.2.0] - 2026-07-21
+
+### 🏗️ Arquitectura y Estructura (Monorepo)
+- **Separación de Backend en Carpeta Dedicada**: Reestructuración completa del monorepo moviendo el código fuente del backend (`src/`) y las pruebas (`tests/`) al subdirectorio dedicado `backend/` para evitar la mezcla de configuraciones en la raíz del proyecto.
+- **Configuración de pnpm workspaces**: Ajustado el archivo [pnpm-workspace.yaml](file:///Users/joaltoroc/Code/creativecodeco/github-helpers/pnpm-workspace.yaml) para registrar de forma separada los paquetes `"backend"` y `"frontend"`.
+- **Simplificación del package.json Raíz**: Rediseñado el package.json de la raíz del monorepo para servir únicamente como orquestador de dependencias compartidas y comandos globales (`build`, `dev`, `test`, `lint`, `format`).
+
+### 📦 Gestión de Dependencias
+- **Eliminación de release-it**: Se removió por completo la suite de automatización `release-it` y `@release-it/conventional-changelog` del proyecto, delegando la gestión de versiones directamente a los agentes de IA mediante directrices explícitas en `AGENTS.md`.
+- **Fijación de Versiones de Dependencias**: Se eliminaron los caracteres de rango `^` y `~` de todas las dependencias en los tres archivos `package.json` del monorepo para asegurar la consistencia absoluta de versiones probadas localmente. Se documentó esta regla en `AGENTS.md`.
+
+### ⚙️ Herramientas de Desarrollo y Calidad (TypeScript / Linters / Pruebas)
+- **Soporte Nativo de TypeScript en Frontend**: Creado el archivo de compilación [frontend/tsconfig.json](file:///Users/joaltoroc/Code/creativecodeco/github-helpers/frontend/tsconfig.json) heredando de `astro/tsconfigs/strict`.
+- **Migración a ESLint Flat Config (ESM)**: Creado [eslint.config.mjs](file:///Users/joaltoroc/Code/creativecodeco/github-helpers/eslint.config.mjs) con soporte ESM completo para integrar de manera nativa TypeScript y componentes Astro (`eslint-plugin-astro` v3 y `astro-eslint-parser` v3) con cero errores y cero advertencias.
+- **Entorno de Pruebas Unitarias**: Configurada la suite de pruebas unitarias con Vitest y `happy-dom` en el frontend ([frontend/vitest.config.ts](file:///Users/joaltoroc/Code/creativecodeco/github-helpers/frontend/vitest.config.ts)) junto a un script unificado de ejecución paralela (`pnpm -r test`).
 
 ## [1.1.1] - 2026-07-21
 
@@ -27,7 +41,7 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ### ✨ Características
 
-- **Repositorios Privados**: Actualización del endpoint de la API y del widget SVG para permitir la visualización de métricas de repositorios privados mediante la inclusión del parámetro `private` y la configuración de un token de acceso en el archivo `.env`.
+- **Repositorios Privados**: Actualización del endpoint de la API and del widget SVG para permitir la visualización de métricas de repositorios privados mediante la inclusión del parámetro `private` y la configuración de un token de acceso en el archivo `.env`.
 - **Refactor a Clean Architecture**: Reestructuración completa del código fuente para implementar principios de Clean Architecture.
 
 ## [1.0.0] - 2026-07-16
@@ -51,4 +65,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.1.1
+**Versión actualmente expuesta / en producción:** v1.2.0

@@ -26,7 +26,7 @@ describe('User Stats History Tracking', () => {
 
   it('should create a new history entry on the first record', async () => {
     const historyRepo = AppDataSource.getRepository(UserStatsHistory);
-    
+
     // Initial stats payload
     await saveHistoryUseCase.execute(testUser, {
       totalStars: 10,
@@ -52,7 +52,7 @@ describe('User Stats History Tracking', () => {
 
   it('should update the same history entry when called within the frequency cutoff', async () => {
     const historyRepo = AppDataSource.getRepository(UserStatsHistory);
-    
+
     // Update only languages payload
     await saveHistoryUseCase.execute(testUser, undefined, { TypeScript: 5000, JavaScript: 2000 });
 
@@ -80,7 +80,7 @@ describe('User Stats History Tracking', () => {
 
   it('should create a new entry when frequency hours is configured to 0 (always record)', async () => {
     const historyRepo = AppDataSource.getRepository(UserStatsHistory);
-    
+
     // Set frequency to 0 to simulate cutoff elapsed
     process.env.STATS_HISTORY_FREQUENCY_HOURS = '0';
 

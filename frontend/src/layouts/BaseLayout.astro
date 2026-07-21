@@ -20,7 +20,7 @@ const {
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
-        dataLayer.push(arguments);
+        window.dataLayer.push(arguments);
       }
       gtag('js', new Date());
       gtag('config', 'G-9SV7XMX2Q1');
@@ -30,10 +30,13 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href="https://github-helpers.creativecode.com.co/" />
-    
+
     <!-- Robots and Indexing -->
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://github-helpers.creativecode.com.co/" />
@@ -73,8 +76,7 @@ const {
               r="20"
               fill="none"
               stroke-dasharray="80,200"
-              stroke-width="5"
-            ></circle>
+              stroke-width="5"></circle>
           </svg>
         </div>
         <p class="loading-text">Obteniendo datos de GitHub...</p>

@@ -9,13 +9,13 @@ WORKDIR /usr/src/app
 # Copy package and lock files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install --frozen-lockfile
 
 # Copy compiler settings, frontend and backend source files
-COPY tsconfig.json ./
-COPY src ./src
+COPY backend ./backend
 COPY frontend ./frontend
 
 # Compile Frontend and Backend
@@ -34,12 +34,13 @@ ENV NODE_ENV=production
 # Copy package and lock files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
 
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile
 
 # Copy build output and public directory
-COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/backend/dist ./backend/dist
 COPY --from=builder /usr/src/app/public ./public
 
 # Ensure the app files are owned by the node user
@@ -54,4 +55,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "backend/dist/server.js"]

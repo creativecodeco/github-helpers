@@ -24,13 +24,15 @@ import Footer from '../components/Footer.astro';
         >
           <defs>
             <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#38bdf8" />
-              <stop offset="100%" stop-color="#a855f7" />
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
             </linearGradient>
           </defs>
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
         </svg>
-        <h1 style="font-size: 1.8rem; margin: 0">GitHub <span class="accent-text">Helpers</span></h1>
+        <h1 style="font-size: 1.8rem; margin: 0">
+          GitHub <span class="accent-text">Helpers</span>
+        </h1>
       </a>
     </div>
   </header>
@@ -63,11 +65,23 @@ import Footer from '../components/Footer.astro';
         1. Recopilación y Seguridad de Datos
       </h3>
       <p>
-        Para generar y mostrar estadísticas de tus repositorios privados, solicitamos tu consentimiento para almacenar de forma cifrada un <strong>Personal Access Token (PAT)</strong> con permisos estrictamente de lectura.
+        Para generar y mostrar estadísticas de tus repositorios privados, solicitamos tu
+        consentimiento para almacenar de forma cifrada un <strong
+          >Personal Access Token (PAT)</strong
+        > con permisos estrictamente de lectura.
       </p>
       <ul>
-        <li><strong>Cifrado Avanzado</strong>: Los tokens son cifrados mediante el algoritmo estándar de la industria <code>AES-256-CBC</code> en el lado del servidor y se almacenan en una base de datos segura. La llave de descifrado reside únicamente en las variables de entorno de la ejecución del servidor.</li>
-        <li><strong>Tratamiento de Datos</strong>: Tu token nunca se expone a terceros, ni se transmite fuera de los servidores de GitHub. Solo se utiliza internamente para interactuar de forma segura con la API de GitHub al renderizar tus tarjetas SVG.</li>
+        <li>
+          <strong>Cifrado Avanzado</strong>: Los tokens son cifrados mediante el algoritmo estándar
+          de la industria <code>AES-256-CBC</code> en el lado del servidor y se almacenan en una base
+          de datos segura. La llave de descifrado reside únicamente en las variables de entorno de la
+          ejecución del servidor.
+        </li>
+        <li>
+          <strong>Tratamiento de Datos</strong>: Tu token nunca se expone a terceros, ni se
+          transmite fuera de los servidores de GitHub. Solo se utiliza internamente para interactuar
+          de forma segura con la API de GitHub al renderizar tus tarjetas SVG.
+        </li>
       </ul>
     </section>
 
@@ -93,13 +107,24 @@ import Footer from '../components/Footer.astro';
         </svg>
         2. Qué información se almacena
       </h3>
-      <p>
-        Al utilizar nuestro servicio, se almacenan los siguientes conjuntos de datos:
-      </p>
+      <p>Al utilizar nuestro servicio, se almacenan los siguientes conjuntos de datos:</p>
       <ul>
-        <li><strong>Tokens de Acceso (PAT)</strong>: Cifrados con firma criptográfica de consentimiento (huella digital basada en IP y User-Agent para auditoría de seguridad).</li>
-        <li><strong>Historial de Estadísticas</strong>: Registramos instantáneas de rendimiento (commits, estrellas, Pull Requests, issues y lenguajes utilizados) a intervalos mínimos de 12 horas por usuario. Este historial se utiliza exclusivamente para mantener los datos de visualización disponibles y cargados ágilmente.</li>
-        <li><strong>Métricas de Uso y Logs</strong>: Contador de renders para cada tipo de tarjeta para fines estadísticos, así como logs de peticiones HTTP básicos (Dirección IP anonimizada/abreviada, referer y User-Agent) para la prevención de abusos y control de tasa (rate limiting).</li>
+        <li>
+          <strong>Tokens de Acceso (PAT)</strong>: Cifrados con firma criptográfica de
+          consentimiento (huella digital basada en IP y User-Agent para auditoría de seguridad).
+        </li>
+        <li>
+          <strong>Historial de Estadísticas</strong>: Registramos instantáneas de rendimiento
+          (commits, estrellas, Pull Requests, issues y lenguajes utilizados) a intervalos mínimos de
+          12 horas por usuario. Este historial se utiliza exclusivamente para mantener los datos de
+          visualización disponibles y cargados ágilmente.
+        </li>
+        <li>
+          <strong>Métricas de Uso y Logs</strong>: Contador de renders para cada tipo de tarjeta
+          para fines estadísticos, así como logs de peticiones HTTP básicos (Dirección IP
+          anonimizada/abreviada, referer y User-Agent) para la prevención de abusos y control de
+          tasa (rate limiting).
+        </li>
       </ul>
     </section>
 
@@ -118,16 +143,27 @@ import Footer from '../components/Footer.astro';
           aria-hidden="true"
         >
           <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          ></path>
         </svg>
         3. Libertad de Limpieza y Derecho al Olvido (GDPR)
       </h3>
       <p>
-        Creemos firmemente en el derecho de los usuarios a controlar su marca digital. Por ello, tienes completa libertad de retirar tus datos en cualquier momento:
+        Creemos firmemente en el derecho de los usuarios a controlar su marca digital. Por ello,
+        tienes completa libertad de retirar tus datos en cualquier momento:
       </p>
       <ul>
-        <li><strong>Revocación de Token</strong>: Puedes eliminar tu token de nuestros servidores ingresándolo en el panel correspondiente. Las estadísticas privadas dejarán de mostrarse inmediatamente.</li>
-        <li><strong>Purga de Datos Completa</strong>: Puedes darte de baja definitivamente ingresando tu nombre de usuario y tu token en la herramienta de purga de datos. Esto ejecutará una transacción que eliminará de forma irreversible tu token cifrado, tu historial completo de estadísticas, tus métricas de consumo de cards y todos tus registros de logs.</li>
+        <li>
+          <strong>Revocación de Token</strong>: Puedes eliminar tu token de nuestros servidores
+          ingresándolo en el panel correspondiente. Las estadísticas privadas dejarán de mostrarse
+          inmediatamente.
+        </li>
+        <li>
+          <strong>Purga de Datos Completa</strong>: Puedes darte de baja definitivamente ingresando
+          tu nombre de usuario y tu token en la herramienta de purga de datos. Esto ejecutará una
+          transacción que eliminará de forma irreversible tu token cifrado, tu historial completo de
+          estadísticas, tus métricas de consumo de cards y todos tus registros de logs.
+        </li>
       </ul>
     </section>
 

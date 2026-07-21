@@ -30,7 +30,7 @@ describe('GDPR Purge User Data', () => {
     const logRepo = AppDataSource.getRepository(RequestLog);
 
     // 1. Insert mock data in all tables
-    
+
     // UserTokenEntity
     const token = new UserTokenEntity();
     token.username = testUser;
@@ -66,7 +66,7 @@ describe('GDPR Purge User Data', () => {
     // 2. Verify existence of records
     expect(await tokenRepo.findOneBy({ username: testUser })).not.toBeNull();
     expect(await metricRepo.findOneBy({ username: testUser })).not.toBeNull();
-    
+
     const initialHistory = await historyRepo.find({ where: { username: testUser } });
     expect(initialHistory.length).toBe(1);
 
@@ -79,7 +79,7 @@ describe('GDPR Purge User Data', () => {
     // 4. Verify total deletion across all tables
     expect(await tokenRepo.findOneBy({ username: testUser })).toBeNull();
     expect(await metricRepo.findOneBy({ username: testUser })).toBeNull();
-    
+
     const afterHistory = await historyRepo.find({ where: { username: testUser } });
     expect(afterHistory.length).toBe(0);
 

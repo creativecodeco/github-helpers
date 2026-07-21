@@ -105,7 +105,8 @@ export class TokenController {
 
     if (!providedToken || typeof providedToken !== 'string' || providedToken.trim() === '') {
       res.status(400).json({
-        error: 'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'
+        error:
+          'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'
       });
       return;
     }
@@ -140,7 +141,8 @@ export class TokenController {
       await this.purgeUseCase.execute(username);
 
       res.status(200).json({
-        message: 'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
+        message:
+          'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
       });
     } catch (error: any) {
       console.error(`Error purging data for user ${username}:`, error);

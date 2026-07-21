@@ -24,11 +24,11 @@ import Footer from '../components/Footer.astro';
         >
           <defs>
             <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#38bdf8" />
-              <stop offset="100%" stop-color="#a855f7" />
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
             </linearGradient>
           </defs>
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
         </svg>
         <h1>GitHub <span class="accent-text">Helpers</span></h1>
       </div>
@@ -47,10 +47,7 @@ import Footer from '../components/Footer.astro';
 
   <main class="main-content">
     <!-- Left Column Wrapper -->
-    <div
-      class="left-column"
-      style="display: flex; flex-direction: column; gap: 24px; width: 100%"
-    >
+    <div class="left-column" style="display: flex; flex-direction: column; gap: 24px; width: 100%">
       <!-- Left Panel: Input & Settings -->
       <section class="settings-panel glass-card" style="width: 100%">
         <h2 class="section-title">Configuración</h2>
@@ -88,7 +85,7 @@ import Footer from '../components/Footer.astro';
               >
                 <path
                   d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                />
+                ></path>
               </svg>
             </span>
             <input
@@ -99,8 +96,6 @@ import Footer from '../components/Footer.astro';
             />
           </div>
         </div>
-
-
 
         <button
           id="btn-generate"
@@ -178,7 +173,13 @@ import Footer from '../components/Footer.astro';
 
         <div class="cards-preview-container">
           <!-- Profile Views Badge Preview -->
-          <CardPreview id="views" title="Contador de Visitas del Perfil" codeLabel="Contador de Visitas" frameStyle="min-height: auto; padding: 20px 0;" imgStyle="max-height: 20px; object-fit: contain;">
+          <CardPreview
+            id="views"
+            title="Contador de Visitas del Perfil"
+            codeLabel="Contador de Visitas"
+            frameStyle="min-height: auto; padding: 20px 0;"
+            imgStyle="max-height: 20px; object-fit: contain;"
+          >
             <svg
               slot="placeholder-icon"
               class="placeholder-svg"
@@ -191,37 +192,86 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
             </svg>
 
             <!-- Visitor Counter Options -->
-            <div slot="options" style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(56,189,248,0.04); display: flex; flex-direction: column; gap: 12px; margin-top: 12px; margin-bottom: 12px;">
-              <span class="input-label" style="font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <div
+              slot="options"
+              style="padding: 16px; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(56,189,248,0.04); display: flex; flex-direction: column; gap: 12px; margin-top: 12px; margin-bottom: 12px;"
+            >
+              <span
+                class="input-label"
+                style="font-weight: 600; display: flex; align-items: center; gap: 8px;"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="#38bdf8"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  ><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle
+                    cx="12"
+                    cy="12"
+                    r="3"></circle></svg
+                >
                 Contador de Visitas del Perfil
               </span>
-              
+
               <div class="input-group" style="margin-bottom: 0;">
-                <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
+                <label for="views-label" class="input-label" style="font-size: 0.8rem;"
+                  >Etiqueta (Label)</label
+                >
                 <div class="input-wrapper" style="height: 36px;">
-                  <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
+                  <input
+                    type="text"
+                    id="views-label"
+                    placeholder="Profile views"
+                    style="font-size: 0.85rem;"
+                    value="Profile views"
+                    autocomplete="off"
+                  />
                 </div>
               </div>
 
               <div style="display: flex; gap: 12px;">
                 <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                  <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
+                  <label for="views-color" class="input-label" style="font-size: 0.8rem;"
+                    >Color acento (Opcional)</label
+                  >
                   <div class="input-wrapper" style="height: 36px;">
-                    <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
+                    <input
+                      type="text"
+                      id="views-color"
+                      placeholder="ej. blue o hex"
+                      style="font-size: 0.85rem;"
+                      autocomplete="off"
+                    />
                   </div>
                 </div>
-                
+
                 <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                  <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
-                  <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
-                    <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
-                    <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
+                  <label for="views-style" class="input-label" style="font-size: 0.8rem;"
+                    >Estilo</label
+                  >
+                  <select
+                    id="views-style"
+                    style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;"
+                  >
+                    <option
+                      value="flat"
+                      style="background: var(--glass-bg); color: var(--text-primary);">flat</option
+                    >
+                    <option
+                      value="flat-square"
+                      style="background: var(--glass-bg); color: var(--text-primary);"
+                      >flat-square</option
+                    >
                   </select>
                 </div>
               </div>
@@ -229,7 +279,11 @@ import Footer from '../components/Footer.astro';
           </CardPreview>
 
           <!-- Stats Card Preview -->
-          <CardPreview id="stats" title="Tarjeta de Estadísticas" codeLabel="Estadísticas Generales">
+          <CardPreview
+            id="stats"
+            title="Tarjeta de Estadísticas"
+            codeLabel="Estadísticas Generales"
+          >
             <svg
               slot="placeholder-icon"
               class="placeholder-svg"
@@ -242,9 +296,9 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <line x1="18" y1="20" x2="18" y2="10" />
-              <line x1="12" y1="20" x2="12" y2="4" />
-              <line x1="6" y1="20" x2="6" y2="14" />
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg>
           </CardPreview>
 
@@ -262,13 +316,17 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
-              <path d="M22 12A10 10 0 0 0 12 2v10z" />
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
             </svg>
           </CardPreview>
 
           <!-- Featured Repo Card Preview -->
-          <CardPreview id="repo" title="Tarjeta de Repositorio Destacado" codeLabel="Repositorio Destacado">
+          <CardPreview
+            id="repo"
+            title="Tarjeta de Repositorio Destacado"
+            codeLabel="Repositorio Destacado"
+          >
             <svg
               slot="placeholder-icon"
               class="placeholder-svg"
@@ -281,12 +339,17 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+              ></path>
             </svg>
           </CardPreview>
 
           <!-- Rank Card Preview -->
-          <CardPreview id="rank" title="Tarjeta de Rango de Desarrollador" codeLabel="Rango de Desarrollador">
+          <CardPreview
+            id="rank"
+            title="Tarjeta de Rango de Desarrollador"
+            codeLabel="Rango de Desarrollador"
+          >
             <svg
               slot="placeholder-icon"
               class="placeholder-svg"
@@ -299,13 +362,17 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <circle cx="12" cy="8" r="7" />
-              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
             </svg>
           </CardPreview>
 
           <!-- Streak Stats Card Preview -->
-          <CardPreview id="streak" title="Tarjeta de Racha de Contribuciones" codeLabel="Racha de Contribuciones">
+          <CardPreview
+            id="streak"
+            title="Tarjeta de Racha de Contribuciones"
+            codeLabel="Racha de Contribuciones"
+          >
             <svg
               slot="placeholder-icon"
               class="placeholder-svg"
@@ -318,7 +385,7 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
             </svg>
           </CardPreview>
 
@@ -336,11 +403,11 @@ import Footer from '../components/Footer.astro';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-              <path d="M4 22h16" />
-              <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34" />
-              <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" />
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+              <path d="M4 22h16"></path>
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+              <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path>
             </svg>
           </CardPreview>
         </div>
@@ -505,14 +572,15 @@ import Footer from '../components/Footer.astro';
     const container = document.querySelector('.cards-preview-container');
     if (!container) return;
 
-    const wrappers = Array.from(container.querySelectorAll('.card-preview-wrapper')) as HTMLElement[];
+    const wrappers = Array.from(
+      container.querySelectorAll('.card-preview-wrapper')
+    ) as HTMLElement[];
 
     // Separate into success and error groups
     const successCards: HTMLElement[] = [];
     const errorCards: HTMLElement[] = [];
 
     wrappers.forEach((wrapper) => {
-      const img = wrapper.querySelector('img.preview-img');
       const placeholder = wrapper.querySelector('.placeholder-card');
       // A card is in error state if the placeholder is visible (not hidden) and has the red error SVG
       const hasErrorSvg = placeholder?.querySelector('svg.error') !== null;
@@ -658,17 +726,22 @@ import Footer from '../components/Footer.astro';
   }
 
   // Manage image load cycles
-  function showImageLoading(imgElement: HTMLImageElement | null, placeholderElement: HTMLElement | null) {
+  function showImageLoading(
+    imgElement: HTMLImageElement | null,
+    placeholderElement: HTMLElement | null
+  ) {
     if (!imgElement || !placeholderElement) return;
     imgElement.classList.add('hidden');
     placeholderElement.classList.remove('hidden');
 
-    const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+    const codeBlock = imgElement
+      .closest('.card-preview-wrapper')
+      ?.querySelector('.code-block-wrapper');
     if (codeBlock) {
       codeBlock.classList.add('hidden');
     }
 
-    let svgIcon = '';
+    let svgIcon: string;
     if (placeholderElement.id === 'stats-placeholder') {
       svgIcon = `
         <svg class="placeholder-svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -716,14 +789,20 @@ import Footer from '../components/Footer.astro';
   }
 
   // Setup Image Load Listeners Helper
-  function setupImageEvents(imgElement: HTMLImageElement | null, placeholderElement: HTMLElement | null, errorText: string) {
+  function setupImageEvents(
+    imgElement: HTMLImageElement | null,
+    placeholderElement: HTMLElement | null,
+    errorText: string
+  ) {
     if (!imgElement || !placeholderElement) return;
 
     imgElement.addEventListener('load', () => {
       placeholderElement.classList.add('hidden');
       imgElement.classList.remove('hidden');
-      
-      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+
+      const codeBlock = imgElement
+        .closest('.card-preview-wrapper')
+        ?.querySelector('.code-block-wrapper');
       if (codeBlock) {
         codeBlock.classList.remove('hidden');
       }
@@ -733,7 +812,7 @@ import Footer from '../components/Footer.astro';
     imgElement.addEventListener('error', () => {
       const pulseIcon = placeholderElement.querySelector('.pulse-icon');
       const pText = placeholderElement.querySelector('p');
-      
+
       if (pulseIcon) {
         pulseIcon.innerHTML = `
           <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -744,8 +823,10 @@ import Footer from '../components/Footer.astro';
         `;
       }
       if (pText) pText.textContent = errorText;
-      
-      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+
+      const codeBlock = imgElement
+        .closest('.card-preview-wrapper')
+        ?.querySelector('.code-block-wrapper');
       if (codeBlock) {
         codeBlock.classList.add('hidden');
       }
@@ -1118,7 +1199,10 @@ import Footer from '../components/Footer.astro';
           if (tokenFormContainer) {
             tokenFormContainer.style.opacity = '0.55';
             tokenFormContainer.style.pointerEvents = 'none';
-            tokenFormContainer.setAttribute('title', 'Esta característica estará disponible próximamente');
+            tokenFormContainer.setAttribute(
+              'title',
+              'Esta característica estará disponible próximamente'
+            );
           }
           if (tokenUsername) tokenUsername.setAttribute('disabled', '');
           if (tokenInput) tokenInput.setAttribute('disabled', '');

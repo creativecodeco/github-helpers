@@ -71,7 +71,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
 
       // 3. Upsert user metrics in a clean, concurrency-safe manner:
       const column = `${type}_${source}`;
-      
+
       // First, insert user row if not exists (using ON CONFLICT DO NOTHING / orIgnore)
       await transactionalEntityManager
         .createQueryBuilder()
@@ -102,14 +102,16 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       log.referer = referer;
       log.ip_address = ip;
       await requestLogRepo.save(log);
-    }).then(() => {
-      // Update in-memory cache on success
-      this.globalMetricsCache.totalRenders += 1;
-      const key = `${type}Renders` as keyof Metrics;
-      this.globalMetricsCache[key] += 1;
-    }).catch((err) => {
-      console.error('Failed to record metrics hit in TypeORM:', err);
-    });
+    })
+      .then(() => {
+        // Update in-memory cache on success
+        this.globalMetricsCache.totalRenders += 1;
+        const key = `${type}Renders` as keyof Metrics;
+        this.globalMetricsCache[key] += 1;
+      })
+      .catch((err) => {
+        console.error('Failed to record metrics hit in TypeORM:', err);
+      });
   }
 
   getMetrics(): Metrics {
@@ -152,7 +154,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
   async getOrIncrementProfileViews(username: string, increment: boolean): Promise<number> {
     try {
       const userMetricRepo = AppDataSource.getRepository(UserMetric);
-      
+
       // Ensure user row exists in user_metrics
       await AppDataSource.createQueryBuilder()
         .insert()

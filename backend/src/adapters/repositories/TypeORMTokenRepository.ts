@@ -14,7 +14,7 @@ export class TypeORMTokenRepository implements ITokenRepository {
   ): Promise<void> {
     try {
       const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
-      
+
       await tokenRepo
         .createQueryBuilder()
         .insert()
@@ -27,7 +27,14 @@ export class TypeORMTokenRepository implements ITokenRepository {
           consent_fingerprint: consentFingerprint
         })
         .orUpdate(
-          ['encrypted_token', 'iv', 'consent_accepted', 'consent_date', 'consent_fingerprint', 'updated_at'],
+          [
+            'encrypted_token',
+            'iv',
+            'consent_accepted',
+            'consent_date',
+            'consent_fingerprint',
+            'updated_at'
+          ],
           ['username']
         )
         .execute();

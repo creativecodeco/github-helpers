@@ -12,9 +12,7 @@ export class RecordProfileViewUseCase {
 
     // Determine if the request originated from GitHub profile view
     const isGitHubSource =
-      ua.includes('github-camo') ||
-      ref.includes('github.com') ||
-      ref.includes('camo');
+      ua.includes('github-camo') || ref.includes('github.com') || ref.includes('camo');
 
     return await this.metricsRepo.getOrIncrementProfileViews(username, isGitHubSource);
   }

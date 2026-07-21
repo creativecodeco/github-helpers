@@ -24,12 +24,9 @@ This file documents workspace-specific rules, patterns, and guidelines that all 
 ## Codebase Patterns
 * **PostgreSQL Database**: We use PostgreSQL managed through TypeORM for security and concurrency. Avoid using raw SQL queries; instead, use the Active Record / Data Mapper repositories or QueryBuilder parameterized bindings to prevent SQL Injection.
 * **SVG Cards**: Cards are rendered directly as SVG strings in server code and cached for 2 hours. If returning an error on a card endpoint, always send the response as `Content-Type: image/svg+xml` containing an SVG representation of the error card (e.g., using `renderErrorCard(message)`), so it renders correctly inside `<img>` tags on GitHub.
-* **Package Manager**: Use `pnpm` exclusively. Never run `npm install` or `yarn` inside this workspace. Run test suite using `pnpm test`.
+* **Package Manager**: Use `pnpm` exclusively. Never run `npm install` or `yarn` inside this workspace. Run test suite using `pnpm test`. Always install packages using exact versions without carets (`^`) or tildes (`~`) to ensure consistency with locally tested packages.
 
 ## Release & Version Management
-* **release-it**: The repository uses `release-it` to manage semantic versioning and automate changelog generation.
-* **Commands**: Run `pnpm release` from the `main` branch to trigger a new release.
-* **Conventional Commits**: Commit messages must follow the Conventional Commits specification (e.g. `feat: ...`, `fix: ...`, `chore: ...`) to enable automatic changelog generation.
 * **Documentation Synchronization**: AI coding agents MUST update all relevant markdown files (`README.md`, `CHANGELOG.md`, `.agents/ARCHITECTURE.md`, etc.) on every modification that changes architecture, configuration keys, or deployment steps to ensure documentation is always synchronized.
 * **Manual Version Changes**: When explicitly asked to change the version:
   1. Update `"version"` in the root `package.json`.

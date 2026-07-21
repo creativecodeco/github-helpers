@@ -66,7 +66,6 @@ export function renderStreakCard(
 
   // Accent color for current streak ring (use title color which is typically vibrant)
   const ringColor = theme.title;
-  const fireColor = theme.title;
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">

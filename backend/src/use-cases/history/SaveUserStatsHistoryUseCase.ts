@@ -1,7 +1,6 @@
 import { AppDataSource } from '@/infrastructure/database/database';
 import { UserStatsHistory } from '@/infrastructure/database/entities/UserStatsHistory';
 import { UserStats } from '@/domain/entities/UserStats';
-import { LessThan, MoreThan } from 'typeorm';
 
 export class SaveUserStatsHistoryUseCase {
   async execute(
@@ -37,14 +36,17 @@ export class SaveUserStatsHistoryUseCase {
         // Create a new entry, merging with the last known data to prevent losing stats/languages
         const newEntry = new UserStatsHistory();
         newEntry.username = username;
-        
+
         // Use new stats if provided, otherwise fall back to the last known values
-        newEntry.stars = stats?.totalStars !== undefined ? stats.totalStars : (lastEntry?.stars || 0);
-        newEntry.commits = stats?.totalCommits !== undefined ? stats.totalCommits : (lastEntry?.commits || 0);
-        newEntry.prs = stats?.totalPRs !== undefined ? stats.totalPRs : (lastEntry?.prs || 0);
-        newEntry.issues = stats?.totalIssues !== undefined ? stats.totalIssues : (lastEntry?.issues || 0);
-        newEntry.followers = stats?.followers !== undefined ? stats.followers : (lastEntry?.followers || 0);
-        
+        newEntry.stars = stats?.totalStars !== undefined ? stats.totalStars : lastEntry?.stars || 0;
+        newEntry.commits =
+          stats?.totalCommits !== undefined ? stats.totalCommits : lastEntry?.commits || 0;
+        newEntry.prs = stats?.totalPRs !== undefined ? stats.totalPRs : lastEntry?.prs || 0;
+        newEntry.issues =
+          stats?.totalIssues !== undefined ? stats.totalIssues : lastEntry?.issues || 0;
+        newEntry.followers =
+          stats?.followers !== undefined ? stats.followers : lastEntry?.followers || 0;
+
         // Merge languages
         const lastLanguages = lastEntry?.languages || {};
         newEntry.languages = languages ? { ...lastLanguages, ...languages } : lastLanguages;

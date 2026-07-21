@@ -1,48 +1,30 @@
 {
   "name": "github-helpers",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "API server and interactive web frontend to generate beautiful GitHub readme stats cards and metrics",
-  "main": "dist/server.js",
   "scripts": {
-    "build": "pnpm --filter github-helpers-frontend build && tsc && tsc-alias",
-    "start": "node dist/server.js",
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
+    "build": "pnpm --filter github-helpers-frontend build && pnpm --filter github-helpers-backend build",
+    "start": "pnpm --filter github-helpers-backend start",
+    "dev": "pnpm --filter github-helpers-backend dev",
     "dev:frontend": "pnpm --filter github-helpers-frontend dev",
-    "test": "vitest run",
+    "test": "pnpm -r test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\"",
-    "release": "release-it"
+    "format": "prettier --write \"backend/src/**/*.ts\" \"backend/tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\"",
+    "format:check": "prettier --check \"backend/src/**/*.ts\" \"backend/tests/**/*.ts\" \"frontend/src/**/*.{astro,css,ts,js}\""
   },
   "author": "CreativeCode.com.co",
   "license": "MIT",
-  "dependencies": {
-    "cors": "2.8.6",
-    "dotenv": "17.4.2",
-    "express": "5.2.1",
-    "express-rate-limit": "8.6.0",
-    "helmet": "8.3.0",
-    "pg": "^8.22.0",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^1.1.0"
-  },
   "devDependencies": {
-    "@release-it/conventional-changelog": "11.0.1",
-    "@types/cors": "2.8.19",
-    "@types/express": "5.0.6",
-    "@types/node": "26.1.1",
-    "@types/pg": "^8.20.0",
+    "@eslint/js": "10.0.1",
     "@typescript-eslint/eslint-plugin": "8.65.0",
     "@typescript-eslint/parser": "8.65.0",
+    "astro-eslint-parser": "3.0.0",
     "eslint": "10.7.0",
     "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-astro": "3.0.1",
+    "globals": "17.7.0",
     "prettier": "3.9.6",
-    "release-it": "20.2.1",
-    "ts-node-dev": "2.0.0",
-    "tsc-alias": "^1.9.1",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "prettier-plugin-astro": "0.14.1"
   }
 }
