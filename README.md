@@ -37,9 +37,10 @@ src/
 ├── adapters/                # Adaptadores de Interfaz (Controladores, Repositorios y Presentadores)
 │   ├── controllers/         # CardController, TokenController, MetricsController
 │   ├── presenters/          # statsCard, languagesCard, theme (Renderizadores de SVGs)
-│   └── repositories/        # SQLiteTokenRepository, SQLiteMetricsRepository, ApiGitHubRepository, CachedGitHubRepository
+│   └── repositories/        # TypeORMTokenRepository, TypeORMMetricsRepository, ApiGitHubRepository, CachedGitHubRepository
 └── infrastructure/          # Detalles técnicos concretos (Base de datos, Servidor Express, Criptografía)
-    ├── database/            # Inicialización de SQLite y migraciones
+    ├── database/            # Configuración de TypeORM con PostgreSQL y Entidades
+    │   └── entities/        # Entidades de base de datos (GlobalMetric, UserMetric, etc.)
     ├── express/             # Enrutamiento, middlewares y arranque de servidor Express
     ├── security/            # Criptografía AES-256-GCM y validación de scopes
     └── server.ts            # Entrypoint principal (Wrapper de importación limpio y relativo)
@@ -73,6 +74,8 @@ El proyecto utiliza alias `@/` apuntando al directorio `src/`. Esto previene la 
    - `GITHUB_TOKEN`: Tu token de acceso personal de GitHub para evitar límites de tasa.
    - `METRICS_KEY`: Clave secreta obligatoria para poder acceder a los endpoints de analíticas (`/api/metrics`).
    - `TRUST_PROXY`: Número de saltos del proxy (por defecto `1`), útil para que el rate limit identifique correctamente las IPs detrás de Cloudflare, Nginx, etc.
+   - `PRIVATE_STATS_COMING_SOON`: Estado de configuración de estadísticas privadas. Establécelo en `false` para habilitar y activar completamente la funcionalidad de registro/revocación de tokens (por defecto `true`).
+   - `STATS_HISTORY_FREQUENCY_HOURS`: Frecuencia mínima en horas entre tomas de instantáneas del historial de estadísticas del usuario (por defecto `12`).
 
 ### Scripts de Desarrollo
 
@@ -152,18 +155,19 @@ Este microservicio implementa las siguientes medidas de seguridad para entornos 
 
 ## 🐳 Despliegue en Docker y Coolify
 
-Este proyecto incluye un `Dockerfile` optimizado con builds en multi-etapa y configuración para correr bajo el usuario no root `node`.
+Este proyecto incluye un `Dockerfile` optimizado con builds en multi-etapa y configuración segura que se ejecuta bajo el usuario no root `node`.
 
 ### Pruebas Locales con Docker
-Para evitar perder el histórico de métricas (base de datos SQLite) cuando se recrea o actualiza el contenedor, debes montar un volumen persistente apuntando al directorio `/usr/src/app/data`:
+
+Dado que la base de datos se ha migrado a PostgreSQL, el contenedor de la aplicación no requiere almacenamiento persistente en disco. Puedes enlazarlo a tu servidor de PostgreSQL local:
 
 1. Construir la imagen:
    ```bash
    docker build -t github-helpers .
    ```
-2. Ejecutar el contenedor con volumen persistente:
+2. Ejecutar el contenedor pasando las credenciales de la base de datos en las variables de entorno:
    ```bash
-   docker run -d -p 3000:3000 --name github-helpers-app -v github-helpers-db:/usr/src/app/data --env-file .env github-helpers
+   docker run -d -p 3000:3000 --name github-helpers-app --env-file .env github-helpers
    ```
 
 ### Despliegue en Coolify
@@ -171,6 +175,12 @@ Para evitar perder el histórico de métricas (base de datos SQLite) cuando se r
 2. Selecciona **GitHub Repository** como fuente y apunta a este repositorio.
 3. En la configuración de construcción, selecciona **Dockerfile**.
 4. Configura el puerto de exposición en el puerto `3000`.
-5. **Persistencia**: En la pestaña **Storages**, crea un volumen para montar en la ruta `/usr/src/app/data` (ej. `db-data:/usr/src/app/data`). Esto asegurará que tu base de datos SQLite no se pierda en cada despliegue.
-6. Agrega las variables de entorno en la pestaña `Environment Variables` (ej. `GITHUB_TOKEN`, `METRICS_KEY`).
-7. Haz clic en **Deploy**. Coolify leerá el `Dockerfile`, construirá el contenedor seguro de producción y lo pondrá en marcha con SSL automático.
+5. **Base de Datos**: Añade un servicio de base de datos **PostgreSQL** en Coolify.
+6. **Variables de Entorno**: Agrega en la pestaña `Environment Variables` los datos de acceso de la base de datos y tus tokens de seguridad:
+   * `DB_HOST`: Host de tu base de datos PostgreSQL de Coolify.
+   * `DB_PORT`: `5432`
+   * `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`: Datos de tu base de datos PostgreSQL.
+   * `DB_SSL`: `'true'` (si la base de datos requiere SSL).
+   * `DB_SYNCHRONIZE`: `'true'` (si deseas que cree las tablas al iniciar la primera vez).
+   * `GITHUB_TOKEN`, `METRICS_KEY`, `TRUST_PROXY`.
+7. Haz clic en **Deploy**. Coolify construirá el contenedor seguro de producción y lo pondrá en marcha con SSL automático.

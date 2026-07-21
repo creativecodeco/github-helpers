@@ -6,7 +6,11 @@ import { renderLanguagesCard } from '@/adapters/presenters/languagesCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername } from '@/domain/entities/Validation';
 
+import { SaveUserStatsHistoryUseCase } from '@/use-cases/history/SaveUserStatsHistoryUseCase';
+
 export class GetUserLanguagesCardUseCase {
+  private readonly saveHistoryUseCase = new SaveUserStatsHistoryUseCase();
+
   constructor(
     private readonly githubRepo: IGitHubRepository,
     private readonly tokenRepo: ITokenRepository,
@@ -35,6 +39,19 @@ export class GetUserLanguagesCardUseCase {
     const svg = renderLanguagesCard(languages, theme, overrides, username);
 
     this.metricsRepo.recordHit('languages', hitContext);
+
+    // Convert LanguageStat[] to Record<string, number> for history tracking
+    const langRecord: Record<string, number> = {};
+    if (Array.isArray(languages)) {
+      for (const lang of languages) {
+        langRecord[lang.name] = lang.size;
+      }
+    }
+
+    // Save snapshot of user languages to history asynchronously
+    this.saveHistoryUseCase.execute(username, undefined, langRecord).catch((err) => {
+      console.error(`Error saving languages history for ${username}:`, err);
+    });
 
     return svg;
   }

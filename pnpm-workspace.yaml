@@ -3,3 +3,13 @@ allowBuilds:
   sqlite3: true
 minimumReleaseAgeExclude:
   - express-rate-limit@8.6.0
+  - '@typescript-eslint/eslint-plugin@8.65.0'
+  - '@typescript-eslint/parser@8.65.0'
+  - '@typescript-eslint/project-service@8.65.0'
+  - '@typescript-eslint/scope-manager@8.65.0'
+  - '@typescript-eslint/tsconfig-utils@8.65.0'
+  - '@typescript-eslint/type-utils@8.65.0'
+  - '@typescript-eslint/types@8.65.0'
+  - '@typescript-eslint/typescript-estree@8.65.0'
+  - '@typescript-eslint/utils@8.65.0'
+  - '@typescript-eslint/visitor-keys@8.65.0'

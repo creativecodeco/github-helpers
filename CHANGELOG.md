@@ -2,6 +2,18 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [Unreleased]
+
+### 🏗️ Base de Datos
+- **Migración a PostgreSQL con TypeORM**: Reemplazo completo de la base de datos SQLite y su controlador de bajo nivel `sqlite3` por una arquitectura basada en TypeORM con PostgreSQL para mejorar la seguridad (prevención de inyección SQL), concurrencia y flexibilidad de despliegue.
+- **Entidades de Dominio e Infraestructura**: Mapeo completo de las tablas `global_metrics`, `user_metrics`, `request_log` y `user_tokens` mediante decoradores TypeORM.
+
+### 🐳 Docker & Despliegue
+- **Simplificación del Contenedor**: Eliminación del entrypoint script `docker-entrypoint.sh` y la dependencia de volumen persistente local. El contenedor ahora se inicia directamente con el usuario no privilegiado `node`.
+
+### 🔒 Seguridad
+- **Políticas de Secretos**: Modificación de las directrices en `AGENTS.md` prohibiendo la lectura/escritura del archivo `.env` por parte de agentes de IA para salvaguardar secretos locales de producción.
+
 ## [1.1.0] - 2026-07-17
 
 ### ✨ Características

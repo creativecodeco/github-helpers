@@ -78,7 +78,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
 
     while (hasMoreRepos && page <= 3) {
       const reposUrl = userToken
-        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner,collaborator,organization_member`
         : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
 
       const repos = await this.fetchGitHub(reposUrl, userToken);
@@ -172,7 +172,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
 
     while (hasMoreRepos && page <= 3) {
       const reposUrl = userToken
-        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+        ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner,collaborator,organization_member`
         : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
 
       const repos = await this.fetchGitHub(reposUrl, userToken);
@@ -279,7 +279,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
 
       while (hasMoreRepos && page <= 3) {
         const reposUrl = userToken
-          ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner`
+          ? `https://api.github.com/user/repos?per_page=100&page=${page}&visibility=all&affiliation=owner,collaborator,organization_member`
           : `https://api.github.com/users/${username}/repos?per_page=100&page=${page}`;
 
         const repos = await this.fetchGitHub(reposUrl, userToken);

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
@@ -11,8 +12,8 @@ import { initDatabase } from '@/infrastructure/database/database';
 // Repositories
 import { ApiGitHubRepository } from '@/adapters/repositories/ApiGitHubRepository';
 import { CachedGitHubRepository } from '@/adapters/repositories/CachedGitHubRepository';
-import { SQLiteTokenRepository } from '@/adapters/repositories/SQLiteTokenRepository';
-import { SQLiteMetricsRepository } from '@/adapters/repositories/SQLiteMetricsRepository';
+import { TypeORMTokenRepository } from '@/adapters/repositories/TypeORMTokenRepository';
+import { TypeORMMetricsRepository } from '@/adapters/repositories/TypeORMMetricsRepository';
 
 // Use Cases
 import { GetUserStatsCardUseCase } from '@/use-cases/cards/GetUserStatsCardUseCase';
@@ -23,6 +24,7 @@ import { GetUserStreakCardUseCase } from '@/use-cases/cards/GetUserStreakCardUse
 import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCardUseCase';
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
+import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
 
 // Controllers
 import { CardController } from '@/adapters/controllers/CardController';
@@ -37,8 +39,8 @@ const PORT = process.env.PORT || 3000;
 // Wire up dependencies
 const rawGithubRepo = new ApiGitHubRepository();
 const githubRepo = new CachedGitHubRepository(rawGithubRepo);
-const tokenRepo = new SQLiteTokenRepository();
-const metricsRepo = new SQLiteMetricsRepository();
+const tokenRepo = new TypeORMTokenRepository();
+const metricsRepo = new TypeORMMetricsRepository();
 
 const statsCardUseCase = new GetUserStatsCardUseCase(githubRepo, tokenRepo, metricsRepo);
 const languagesCardUseCase = new GetUserLanguagesCardUseCase(githubRepo, tokenRepo, metricsRepo);
@@ -49,6 +51,7 @@ const trophiesCardUseCase = new GetUserTrophiesCardUseCase(githubRepo, tokenRepo
 
 const registerTokenUseCase = new RegisterUserTokenUseCase(tokenRepo, githubRepo);
 const revokeTokenUseCase = new RevokeUserTokenUseCase(tokenRepo, githubRepo);
+const purgeUserDataUseCase = new PurgeUserDataUseCase();
 
 const cardController = new CardController(
   statsCardUseCase,
@@ -59,7 +62,7 @@ const cardController = new CardController(
   trophiesCardUseCase
 );
 
-const tokenController = new TokenController(registerTokenUseCase, revokeTokenUseCase);
+const tokenController = new TokenController(registerTokenUseCase, revokeTokenUseCase, purgeUserDataUseCase);
 const metricsController = new MetricsController(metricsRepo);
 
 // Trust proxy configuration
@@ -202,6 +205,13 @@ app.get('/api/trophies', cardController.getTrophies);
 
 app.post('/api/tokens/register', tokenController.register);
 app.delete('/api/tokens/revoke', tokenController.revoke);
+app.delete('/api/users/purge', tokenController.purge);
+
+app.get('/api/config', (_req, res) => {
+  res.json({
+    privateStatsComingSoon: process.env.PRIVATE_STATS_COMING_SOON !== 'false'
+  });
+});
 
 app.get('/api/metrics', checkMetricsKey, metricsController.getMetrics);
 app.get('/api/metrics/users', checkMetricsKey, metricsController.getUserMetrics);
@@ -220,6 +230,7 @@ app.get('*all', fallbackFileLimiter, (_req, res) => {
 
 export async function startServer() {
   await initDatabase();
+  await metricsRepo.loadGlobalMetricsCache();
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });

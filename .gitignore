@@ -37,8 +37,8 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
-data/metrics.sqlite-shm
-data/metrics.sqlite-wal
 
 # Agents Customization Skills
 .agents/skills/
+design-system/
+skills-lock.json

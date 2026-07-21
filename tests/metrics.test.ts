@@ -1,17 +1,26 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { SQLiteMetricsRepository } from '@/adapters/repositories/SQLiteMetricsRepository';
-import { SQLiteTokenRepository } from '@/adapters/repositories/SQLiteTokenRepository';
+import 'reflect-metadata';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { TypeORMMetricsRepository } from '@/adapters/repositories/TypeORMMetricsRepository';
+import { TypeORMTokenRepository } from '@/adapters/repositories/TypeORMTokenRepository';
 import { initDatabase } from '@/infrastructure/database/database';
 
-describe('SQLite Metrics Tracker', () => {
-  let metricsRepo: SQLiteMetricsRepository;
-  let tokenRepo: SQLiteTokenRepository;
+describe('TypeORM Metrics Tracker', () => {
+  let metricsRepo: TypeORMMetricsRepository;
+  let tokenRepo: TypeORMTokenRepository;
   const uniqueUsername = `testuser_${Math.random().toString(36).substring(7)}`;
 
   beforeAll(async () => {
     await initDatabase();
-    metricsRepo = new SQLiteMetricsRepository();
-    tokenRepo = new SQLiteTokenRepository();
+    metricsRepo = new TypeORMMetricsRepository();
+    await metricsRepo.loadGlobalMetricsCache();
+    tokenRepo = new TypeORMTokenRepository();
+  });
+
+  afterAll(async () => {
+    const { AppDataSource } = await import('@/infrastructure/database/database');
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
   });
 
   it('should initialize and record global hits correctly', async () => {
@@ -33,14 +42,17 @@ describe('SQLite Metrics Tracker', () => {
       referer: 'https://github.com/camo'
     });
 
+    // Wait a brief moment for async writes to finish
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const updatedMetrics = metricsRepo.getMetrics();
     expect(updatedMetrics.totalRenders).toBe(initialMetrics.totalRenders + 2);
     expect(updatedMetrics.statsRenders).toBe(initialMetrics.statsRenders + 1);
     expect(updatedMetrics.languagesRenders).toBe(initialMetrics.languagesRenders + 1);
   });
 
-  it('should distinguish web vs github traffic per user in SQLite', async () => {
-    // Wait a brief moment for async SQLite writes to finish
+  it('should distinguish web vs github traffic per user in TypeORM', async () => {
+    // Wait a brief moment for async writes to finish
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const userMetrics = await metricsRepo.getUserMetrics(uniqueUsername);
@@ -66,7 +78,7 @@ describe('SQLite Metrics Tracker', () => {
       referer: 'http://localhost:3000'
     });
 
-    // Wait a brief moment for SQLite writes to finish
+    // Wait a brief moment for database writes to finish
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const updatedCount = await metricsRepo.getUniqueUsersCount();

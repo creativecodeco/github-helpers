@@ -48,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const metricsBadge = document.getElementById('metrics-badge');
   const metricsCount = document.getElementById('metrics-count');
 
+  // Private Stats Elements
+  const privateStatsBadge = document.getElementById('private-stats-badge');
+  const tokenFormContainer = document.getElementById('token-form-container');
+
   // Global Loading Overlay
   const globalLoading = document.getElementById('global-loading');
 
@@ -89,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load initial metrics on start
   loadMetrics();
+
 
   // --- Theme Toggle Logic (Home Page Light/Dark Mode) ---
   const savedTheme = localStorage.getItem('site-theme') || 'dark';
@@ -211,11 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Set image sources with cache buster to force rendering updates in preview
     const cacheBuster = `&t=${Date.now()}`;
     statsImg.src = statsUrl + cacheBuster;
+    statsImg.alt = `Tarjeta de estadísticas generales de GitHub para el usuario @${currentUsername}`;
     languagesImg.src = languagesUrl + cacheBuster;
+    languagesImg.alt = `Tarjeta de lenguajes más usados de GitHub para el usuario @${currentUsername}`;
     repoImg.src = repoUrl + cacheBuster;
+    repoImg.alt = `Tarjeta de repositorio destacado de GitHub para el usuario @${currentUsername}${currentRepo ? ` (repo: ${currentRepo})` : ''}`;
     rankImg.src = rankUrl + cacheBuster;
+    rankImg.alt = `Tarjeta de rango de GitHub para el usuario @${currentUsername}`;
     streakImg.src = streakUrl + cacheBuster;
+    streakImg.alt = `Tarjeta de racha de commits de GitHub para el usuario @${currentUsername}`;
     trophiesImg.src = trophiesUrl + cacheBuster;
+    trophiesImg.alt = `Tarjeta de trofeos de GitHub para el usuario @${currentUsername}`;
 
     // 3. Update Markdown Codes
     const markdownStats = `![GitHub Stats](${statsUrl})`;
@@ -232,9 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
     markdownStreakCode.textContent = markdownStreak;
     markdownTrophiesCode.textContent = markdownTrophies;
 
-    // Reveal code output sections
-    codeBlockWrappers.forEach((block) => block.classList.remove('hidden'));
-
     // Re-fetch metrics after a short delay to account for the new renders
     setTimeout(() => {
       loadMetrics();
@@ -245,6 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function showImageLoading(imgElement, placeholderElement) {
     imgElement.classList.add('hidden');
     placeholderElement.classList.remove('hidden');
+
+    // Hide the code block wrapper for this card during loading
+    const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+    if (codeBlock) {
+      codeBlock.classList.add('hidden');
+    }
 
     // Set appropriate SVG loader depending on which card it is
     let svgIcon = '';
@@ -292,115 +306,46 @@ document.addEventListener('DOMContentLoaded', () => {
     placeholderElement.querySelector('p').textContent = 'Consultando datos en GitHub...';
   }
 
-  // Setup Image Load Listeners
-  statsImg.addEventListener('load', () => {
-    statsPlaceholder.classList.add('hidden');
-    statsImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
+  // Setup Image Load Listeners Helper
+  function setupImageEvents(imgElement, placeholderElement, errorText) {
+    imgElement.addEventListener('load', () => {
+      placeholderElement.classList.add('hidden');
+      imgElement.classList.remove('hidden');
+      
+      // Reveal code output section on successful load
+      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+      if (codeBlock) {
+        codeBlock.classList.remove('hidden');
+      }
+      imageFinishedLoading();
+    });
 
-  statsImg.addEventListener('error', () => {
-    statsPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    statsPlaceholder.querySelector('p').textContent =
-      'Error al cargar tarjeta. Verifica el usuario.';
-    imageFinishedLoading();
-  });
+    imgElement.addEventListener('error', () => {
+      placeholderElement.querySelector('.pulse-icon').innerHTML = `
+        <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      `;
+      placeholderElement.querySelector('p').textContent = errorText;
+      
+      // Keep code output section hidden on load failure
+      const codeBlock = imgElement.closest('.card-preview-wrapper')?.querySelector('.code-block-wrapper');
+      if (codeBlock) {
+        codeBlock.classList.add('hidden');
+      }
+      imageFinishedLoading();
+    });
+  }
 
-  languagesImg.addEventListener('load', () => {
-    languagesPlaceholder.classList.add('hidden');
-    languagesImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
-
-  languagesImg.addEventListener('error', () => {
-    languagesPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    languagesPlaceholder.querySelector('p').textContent = 'Error al cargar lenguajes.';
-    imageFinishedLoading();
-  });
-
-  repoImg.addEventListener('load', () => {
-    repoPlaceholder.classList.add('hidden');
-    repoImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
-
-  repoImg.addEventListener('error', () => {
-    repoPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    repoPlaceholder.querySelector('p').textContent = 'Error al cargar repositorio.';
-    imageFinishedLoading();
-  });
-
-  rankImg.addEventListener('load', () => {
-    rankPlaceholder.classList.add('hidden');
-    rankImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
-
-  rankImg.addEventListener('error', () => {
-    rankPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    rankPlaceholder.querySelector('p').textContent = 'Error al cargar rango.';
-    imageFinishedLoading();
-  });
-
-  streakImg.addEventListener('load', () => {
-    streakPlaceholder.classList.add('hidden');
-    streakImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
-
-  streakImg.addEventListener('error', () => {
-    streakPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    streakPlaceholder.querySelector('p').textContent = 'Error al cargar racha de contribuciones.';
-    imageFinishedLoading();
-  });
-
-  trophiesImg.addEventListener('load', () => {
-    trophiesPlaceholder.classList.add('hidden');
-    trophiesImg.classList.remove('hidden');
-    imageFinishedLoading();
-  });
-
-  trophiesImg.addEventListener('error', () => {
-    trophiesPlaceholder.querySelector('.pulse-icon').innerHTML = `
-      <svg class="placeholder-svg error" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    `;
-    trophiesPlaceholder.querySelector('p').textContent = 'Error al cargar trofeos.';
-    imageFinishedLoading();
-  });
+  // Bind image event listeners
+  setupImageEvents(statsImg, statsPlaceholder, 'Error al cargar tarjeta. Verifica el usuario.');
+  setupImageEvents(languagesImg, languagesPlaceholder, 'Error al cargar lenguajes.');
+  setupImageEvents(repoImg, repoPlaceholder, 'Error al cargar repositorio.');
+  setupImageEvents(rankImg, rankPlaceholder, 'Error al cargar rango.');
+  setupImageEvents(streakImg, streakPlaceholder, 'Error al cargar racha de contribuciones.');
+  setupImageEvents(trophiesImg, trophiesPlaceholder, 'Error al cargar trofeos.');
 
   // Setup Clipboard Copy handlers
   setupCopyButton(btnCopyStats, markdownStatsCode);
@@ -615,6 +560,92 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Handle Purge Data
+  const btnOpenPurgeModal = document.getElementById('btn-open-purge-modal');
+  const purgeModal = document.getElementById('purge-modal');
+  const purgeUsername = document.getElementById('purge-username');
+  const purgeToken = document.getElementById('purge-token');
+  const btnClosePurge = document.getElementById('btn-close-purge');
+  const btnConfirmPurge = document.getElementById('btn-confirm-purge');
+
+  if (btnOpenPurgeModal) {
+    btnOpenPurgeModal.addEventListener('click', () => {
+      if (purgeModal) {
+        purgeModal.classList.remove('hidden');
+      }
+      if (purgeUsername) purgeUsername.value = '';
+      if (purgeToken) purgeToken.value = '';
+      updatePurgeConfirmButtonState();
+    });
+  }
+
+  if (btnClosePurge) {
+    btnClosePurge.addEventListener('click', () => {
+      if (purgeModal) {
+        purgeModal.classList.add('hidden');
+      }
+    });
+  }
+
+  function updatePurgeConfirmButtonState() {
+    if (!btnConfirmPurge) return;
+    const hasUsername = purgeUsername && purgeUsername.value.trim() !== '';
+    const hasToken = purgeToken && purgeToken.value.trim() !== '';
+    if (hasUsername && hasToken) {
+      btnConfirmPurge.style.opacity = '1';
+      btnConfirmPurge.style.pointerEvents = 'auto';
+    } else {
+      btnConfirmPurge.style.opacity = '0.5';
+      btnConfirmPurge.style.pointerEvents = 'none';
+    }
+  }
+
+  if (purgeUsername) {
+    purgeUsername.addEventListener('input', updatePurgeConfirmButtonState);
+  }
+  if (purgeToken) {
+    purgeToken.addEventListener('input', updatePurgeConfirmButtonState);
+  }
+
+  if (btnConfirmPurge) {
+    btnConfirmPurge.addEventListener('click', async () => {
+      const username = purgeUsername.value.trim();
+      const token = purgeToken.value.trim();
+
+      if (!username || !token) return;
+
+      try {
+        globalLoading.classList.remove('hidden');
+        const response = await fetch('/api/users/purge', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ username })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          if (purgeModal) {
+            purgeModal.classList.add('hidden');
+          }
+          localStorage.removeItem('registered-github-username');
+          showUnregisteredState();
+          showStatus(data.message, 'success');
+          resetAppUI();
+        } else {
+          alert(data.error || 'Error al intentar purgar los datos.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error de red al intentar purgar los datos.');
+      } finally {
+        globalLoading.classList.add('hidden');
+      }
+    });
+  }
+
   function setupCopyButton(button, codeElement) {
     button.addEventListener('click', async () => {
       const codeText = codeElement.textContent;
@@ -640,4 +671,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // --- Config Load Logic ---
+  async function loadConfig() {
+    try {
+      const response = await fetch('/api/config');
+      if (response.ok) {
+        const config = await response.json();
+        if (config.privateStatsComingSoon === false) {
+          if (privateStatsBadge) {
+            privateStatsBadge.classList.add('hidden');
+          }
+          if (tokenFormContainer) {
+            tokenFormContainer.style.opacity = '1';
+            tokenFormContainer.style.pointerEvents = 'auto';
+            tokenFormContainer.removeAttribute('title');
+          }
+          if (tokenUsername) tokenUsername.removeAttribute('disabled');
+          if (tokenInput) tokenInput.removeAttribute('disabled');
+          if (tokenConsent) tokenConsent.removeAttribute('disabled');
+          if (btnSaveToken) btnSaveToken.removeAttribute('disabled');
+        } else {
+          if (privateStatsBadge) {
+            privateStatsBadge.classList.remove('hidden');
+          }
+          if (tokenFormContainer) {
+            tokenFormContainer.style.opacity = '0.55';
+            tokenFormContainer.style.pointerEvents = 'none';
+            tokenFormContainer.setAttribute('title', 'Esta característica estará disponible próximamente');
+          }
+          if (tokenUsername) tokenUsername.setAttribute('disabled', '');
+          if (tokenInput) tokenInput.setAttribute('disabled', '');
+          if (tokenConsent) tokenConsent.setAttribute('disabled', '');
+          if (btnSaveToken) btnSaveToken.setAttribute('disabled', '');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading config:', error);
+    }
+  }
+  loadConfig();
 });

@@ -6,7 +6,11 @@ import { renderStatsCard } from '@/adapters/presenters/statsCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername } from '@/domain/entities/Validation';
 
+import { SaveUserStatsHistoryUseCase } from '@/use-cases/history/SaveUserStatsHistoryUseCase';
+
 export class GetUserStatsCardUseCase {
+  private readonly saveHistoryUseCase = new SaveUserStatsHistoryUseCase();
+
   constructor(
     private readonly githubRepo: IGitHubRepository,
     private readonly tokenRepo: ITokenRepository,
@@ -35,6 +39,11 @@ export class GetUserStatsCardUseCase {
     const svg = await renderStatsCard(stats, theme, overrides);
 
     this.metricsRepo.recordHit('stats', hitContext);
+
+    // Save snapshot of user stats to history asynchronously
+    this.saveHistoryUseCase.execute(username, stats).catch((err) => {
+      console.error(`Error saving stats history for ${username}:`, err);
+    });
 
     return svg;
   }

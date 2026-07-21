@@ -1,115 +1,54 @@
-import sqlite3 from 'sqlite3';
-import path from 'node:path';
-import fs from 'node:fs';
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import { GlobalMetric } from './entities/GlobalMetric';
+import { UserMetric } from './entities/UserMetric';
+import { RequestLog } from './entities/RequestLog';
+import { UserTokenEntity } from './entities/UserTokenEntity';
+import { UserStatsHistory } from './entities/UserStatsHistory';
 
-const DB_DIR = path.join(__dirname, '../../../data');
-const DB_FILE = path.join(DB_DIR, 'metrics.sqlite');
-
-// Ensure data folder exists
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
-}
-
-// Open Database connection
-export const db = new sqlite3.Database(DB_FILE);
+export const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'postgres',
+  database: process.env.DB_DATABASE || 'github_helpers',
+  synchronize: process.env.DB_SYNCHRONIZE === 'true',
+  logging: process.env.NODE_ENV === 'development',
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  entities: [GlobalMetric, UserMetric, RequestLog, UserTokenEntity, UserStatsHistory],
+  migrations: [],
+  subscribers: []
+});
 
 /**
- * Initialize Database schemas and migrations in serialized sequence.
+ * Initialize Database connection and seed initial values.
  */
-export function initDatabase(): Promise<void> {
-  return new Promise<void>((resolve) => {
-    db.serialize(() => {
-      db.run('PRAGMA journal_mode = WAL;');
+export async function initDatabase(): Promise<void> {
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+    console.log('📦 PostgreSQL Data Source has been initialized!');
 
-      // Table 1: Global Counters
-      db.run(`
-        CREATE TABLE IF NOT EXISTS global_metrics (
-          metric_key TEXT PRIMARY KEY,
-          metric_value INTEGER DEFAULT 0
-        );
-      `);
+    // Initialize global counters if they do not exist
+    const globalMetricRepo = AppDataSource.getRepository(GlobalMetric);
+    const keys = [
+      'totalRenders',
+      'statsRenders',
+      'languagesRenders',
+      'repoRenders',
+      'rankRenders',
+      'streakRenders',
+      'trophiesRenders'
+    ];
 
-      // Initialize global counters
-      const keys = [
-        'totalRenders',
-        'statsRenders',
-        'languagesRenders',
-        'repoRenders',
-        'rankRenders',
-        'streakRenders',
-        'trophiesRenders'
-      ];
-      const insertStmt = db.prepare(
-        'INSERT OR IGNORE INTO global_metrics (metric_key, metric_value) VALUES (?, 0)'
-      );
-      keys.forEach((k) => insertStmt.run(k));
-      insertStmt.finalize();
-
-      // Table 2: User Metrics (web vs github views)
-      db.run(`
-        CREATE TABLE IF NOT EXISTS user_metrics (
-          username TEXT PRIMARY KEY,
-          stats_web INTEGER DEFAULT 0,
-          stats_github INTEGER DEFAULT 0,
-          languages_web INTEGER DEFAULT 0,
-          languages_github INTEGER DEFAULT 0,
-          repo_web INTEGER DEFAULT 0,
-          repo_github INTEGER DEFAULT 0,
-          rank_web INTEGER DEFAULT 0,
-          rank_github INTEGER DEFAULT 0,
-          streak_web INTEGER DEFAULT 0,
-          streak_github INTEGER DEFAULT 0,
-          trophies_web INTEGER DEFAULT 0,
-          trophies_github INTEGER DEFAULT 0,
-          last_updated TEXT
-        );
-      `);
-
-      // Migrate existing databases: add streak and trophies columns if they don't exist yet
-      db.run('ALTER TABLE user_metrics ADD COLUMN streak_web INTEGER DEFAULT 0', () => {
-        /* ignore if already exists */
-      });
-      db.run('ALTER TABLE user_metrics ADD COLUMN streak_github INTEGER DEFAULT 0', () => {
-        /* ignore if already exists */
-      });
-      db.run('ALTER TABLE user_metrics ADD COLUMN trophies_web INTEGER DEFAULT 0', () => {
-        /* ignore if already exists */
-      });
-      db.run('ALTER TABLE user_metrics ADD COLUMN trophies_github INTEGER DEFAULT 0', () => {
-        /* ignore if already exists */
-      });
-
-      // Table 3: Request Event Logs for detailed temporal analytics
-      db.run(`
-        CREATE TABLE IF NOT EXISTS request_log (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          username TEXT,
-          card_type TEXT,
-          source TEXT,
-          user_agent TEXT,
-          referer TEXT,
-          ip_address TEXT,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-
-      // Table 4: User Tokens for Private Repositories Stats
-      db.run(
-        `
-        CREATE TABLE IF NOT EXISTS user_tokens (
-          username TEXT PRIMARY KEY,
-          encrypted_token TEXT NOT NULL,
-          iv TEXT NOT NULL,
-          consent_accepted INTEGER NOT NULL DEFAULT 0,
-          consent_date TEXT NOT NULL,
-          consent_fingerprint TEXT NOT NULL,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        );
-      `,
-        () => {
-          resolve(); // Resolve promise when final setup executes
-        }
-      );
-    });
-  });
+    for (const key of keys) {
+      const exists = await globalMetricRepo.findOneBy({ metric_key: key });
+      if (!exists) {
+        const metric = new GlobalMetric();
+        metric.metric_key = key;
+        metric.metric_value = 0;
+        await globalMetricRepo.save(metric);
+      }
+    }
+  }
 }
