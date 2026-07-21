@@ -44,5 +44,5 @@ design-system/
 skills-lock.json
 
 # Astro compiled assets in root
-public/
+/public/
 
