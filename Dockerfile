@@ -40,6 +40,7 @@ RUN pnpm install --prod --frozen-lockfile
 
 # Copy build output and public directory
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/public ./public
 
 # Ensure the app files are owned by the node user
 RUN chown -R node:node /usr/src/app
