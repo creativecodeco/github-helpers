@@ -8,6 +8,7 @@ export default defineConfig({
     }
   },
   test: {
-    environment: 'happy-dom'
+    environment: 'happy-dom',
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests-e2e/**']
   }
 });

@@ -66,7 +66,7 @@ describe('topReposCard renderer', () => {
   it('should contain star and fork counts', () => {
     const svg = renderTopReposCard(mockRepos, 'dark');
     expect(svg).toContain('1.2k'); // 1200 stars
-    expect(svg).toContain('340');  // 340 forks
+    expect(svg).toContain('340'); // 340 forks
   });
 
   it('should apply theme colors', () => {

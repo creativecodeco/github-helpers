@@ -2,6 +2,19 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.2.2] - 2026-07-21
+
+### 🚀 Nuevas Funcionalidades
+- **Sincronización de Parámetros en URL**: Se añadió lógica para leer y escribir los parámetros `user` y `theme` directamente desde la barra de direcciones del navegador en caliente (utilizando `window.history.pushState`). Esto mantiene una URL única, limpia y fácilmente compartible por usuario con su configuración seleccionada.
+- **Soporte de Búsqueda Dinámica por Parámetro de URL**: El backend de Express en `/` intercepta las solicitudes para parsear tanto `user` como `username` de la consulta y generar las meta-etiquetas de redes sociales en concordancia.
+
+### 🎨 Frontend / UX
+- **Notificaciones Toasts Premium**: Implementado un sistema de toasts flotantes animados en la esquina inferior derecha con curvas de rebote sutiles (`cubic-bezier`), barra de progreso de autodescarte e íconos dinámicos en reemplazo de los textos en línea de copiado.
+
+### 🧪 Pruebas
+- **Pruebas End-to-End (E2E) robustas con Playwright**: Incorporados 7 casos de prueba integrales para simular interacciones completas (carga de componentes, generación de tarjetas con mocks herméticos offline, sincronización de parámetros de URL, control de modales GDPR y toasts de copiado).
+- **Aislamiento en Vitest**: Excluidas las especificaciones de Playwright en la suite de pruebas unitarias en `vitest.config.ts`.
+
 ## [1.2.1] - 2026-07-21
 
 ### 🚀 Nuevas Funcionalidades
@@ -81,4 +94,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.2.1
+**Versión actualmente expuesta / en producción:** v1.2.2

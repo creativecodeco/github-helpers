@@ -29,7 +29,8 @@ export function renderTopReposCard(
   const repoRows = top4
     .map((repo, i) => {
       const y = HEADER_HEIGHT + i * ROW_HEIGHT;
-      const desc = repo.description.length > 52 ? repo.description.slice(0, 49) + '…' : repo.description;
+      const desc =
+        repo.description.length > 52 ? repo.description.slice(0, 49) + '…' : repo.description;
       const repoName = repo.name.length > 28 ? repo.name.slice(0, 25) + '…' : repo.name;
 
       return `

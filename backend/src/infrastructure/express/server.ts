@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
+import fs from 'node:fs';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
@@ -175,6 +176,73 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
+
+app.get('/', (req: Request, res: Response) => {
+  const userParam = req.query.user || req.query.username;
+  const { theme } = req.query;
+  const indexPath = path.join(__dirname, '../../../../public/index.html');
+
+  if (!fs.existsSync(indexPath)) {
+    res.status(404).send('index.html not found. Please build the frontend first.');
+    return;
+  }
+
+  let html = fs.readFileSync(indexPath, 'utf-8');
+
+  // Dynamic preview URLs
+  const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+  const host = req.get('host') || 'github-helpers.creativecode.com.co';
+  const baseUrl = `${protocol}://${host}`;
+
+  let targetUsername = 'creativecode';
+  let targetTheme = 'radical';
+
+  if (typeof userParam === 'string' && /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(userParam)) {
+    targetUsername = userParam;
+  }
+  if (typeof theme === 'string' && /^[a-z\d_]{1,50}$/i.test(theme)) {
+    targetTheme = theme;
+  }
+
+  const imageUrl = `${baseUrl}/api/stats?username=${targetUsername}&theme=${targetTheme}`;
+  const title = `Tarjetas de estadísticas para @${targetUsername} | GitHub Helpers`;
+  const description = `Mira las estadísticas, lenguajes más usados y trofeos de GitHub para @${targetUsername} generados dinámicamente.`;
+
+  // Dynamically replace SEO / OpenGraph tags
+  html = html
+    .replace(
+      /<meta property="og:image" content="[^"]*"\/?>/gi,
+      `<meta property="og:image" content="${imageUrl}" />`
+    )
+    .replace(
+      /<meta property="twitter:image" content="[^"]*"\/?>/gi,
+      `<meta property="twitter:image" content="${imageUrl}" />`
+    )
+    .replace(
+      /<meta property="og:title" content="[^"]*"\/?>/gi,
+      `<meta property="og:title" content="${title}" />`
+    )
+    .replace(
+      /<meta property="twitter:title" content="[^"]*"\/?>/gi,
+      `<meta property="twitter:title" content="${title}" />`
+    )
+    .replace(
+      /<meta property="og:description" content="[^"]*"\/?>/gi,
+      `<meta property="og:description" content="${description}" />`
+    )
+    .replace(
+      /<meta property="twitter:description" content="[^"]*"\/?>/gi,
+      `<meta property="twitter:description" content="${description}" />`
+    )
+    .replace(
+      /<meta name="description" content="[^"]*"\/?>/gi,
+      `<meta name="description" content="${description}" />`
+    )
+    .replace(/<title>[^<]*<\/title>/gi, `<title>${title}</title>`);
+
+  res.setHeader('Content-Type', 'text/html');
+  res.status(200).send(html);
+});
 
 app.use(express.static(path.join(__dirname, '../../../../public')));
 

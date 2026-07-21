@@ -86,7 +86,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -122,7 +125,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -164,7 +170,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -203,7 +212,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -239,7 +251,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -275,7 +290,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -347,7 +365,10 @@ export class CardController {
 
     try {
       const cardWidth = extractCardWidth(req.query);
-      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+      const overrides = {
+        ...extractThemeOverrides(req.query),
+        ...(cardWidth ? { cardWidth } : {})
+      };
 
       const svg = await this.topReposCardUseCase.execute(username, theme as string, overrides);
 
