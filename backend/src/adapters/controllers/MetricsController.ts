@@ -25,4 +25,14 @@ export class MetricsController {
       res.status(500).json({ error: error.message || 'Error desconocido' });
     }
   };
+
+  getRendersHistory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const days = parseInt(req.query.days as string, 10) || 7;
+      const history = await this.metricsRepo.getRendersHistory(days);
+      res.status(200).json(history);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || 'Error al obtener historial' });
+    }
+  };
 }

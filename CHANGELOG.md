@@ -7,8 +7,14 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 ### 🚀 Nuevas Funcionalidades
 - **Sincronización de Parámetros en URL**: Se añadió lógica para leer y escribir los parámetros `user` y `theme` directamente desde la barra de direcciones del navegador en caliente (utilizando `window.history.pushState`). Esto mantiene una URL única, limpia y fácilmente compartible por usuario con su configuración seleccionada.
 - **Soporte de Búsqueda Dinámica por Parámetro de URL**: El backend de Express en `/` intercepta las solicitudes para parsear tanto `user` como `username` de la consulta y generar las meta-etiquetas de redes sociales en concordancia.
-- **Internacionalización de las Tarjetas (i18n)**: Se añadieron diccionarios de traducción en español (`es`) e inglés (`en`) en backend para las 5 tarjetas SVG, adaptando dinámicamente títulos, etiquetas y rangos. Se implementó un selector de idioma ("Idioma de Tarjetas") en el panel del frontend que sincroniza con la query de URL `?locale=en|es` y actualiza las imágenes y códigos markdown.
-- **Panel de Administración de Métricas (`/admin/metrics`)**: Interfaz web segura con vista de analíticas de uso global en tiempo real (KPIs de hits, gráfico Doughnut de distribución de tarjetas, gráfico Stacked Bar para tráfico de GitHub Camo vs Web Directa y tabla de usuarios más activos con fecha de última actualización).
+- **Internacionalización Completa (UI i18n & SVG locale)**: 
+  - Se añadieron diccionarios de traducción en español (`es`) e inglés (`en`) en backend para las 5 tarjetas SVG.
+  - Se implementó un selector de idioma en el panel del frontend que sincroniza con la query de URL `?locale=en|es` y actualiza reactivamente el idioma de la página completa (`index.astro`, modal de tokens privados, modal de purga GDPR y mensajes Toast en caliente) sin recargas.
+- **Panel de Administración de Métricas (`/admin/metrics`)**:
+  - Interfaz web segura con vista de analíticas de uso global en tiempo real (KPIs de hits, gráfico Doughnut de distribución de tarjetas, gráfico Stacked Bar para tráfico de GitHub Camo vs Web Directa y tabla de usuarios).
+  - **Gráfico de Historial Temporal (Line Chart)**: Endpoint `/api/metrics/history` y gráfico interactivo Chart.js para visualizar hits de renders diarios en el panel.
+  - **Auto-Refresco y Polling**: Checkbox de refresco automático cada 30 segundos y botón manual de actualización rápida con spinner animado.
+  - **Búsqueda y Paginación**: Tabla de perfiles con entrada de filtro en tiempo real y paginación de 10 elementos por página.
 
 ### 🎨 Frontend / UX
 - **Notificaciones Toasts Premium**: Implementado un sistema de toasts flotantes animados en la esquina inferior derecha con curvas de rebote sutiles (`cubic-bezier`), barra de progreso de autodescarte e íconos dinámicos en reemplazo de los textos en línea de copiado.
@@ -17,8 +23,7 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 - **Políticas CSP Flexibles**: Se añadió el dominio de entrega de contenido seguro `https://cdn.jsdelivr.net` a la directiva `scriptSrc` en la configuración de Helmet para permitir la carga segura de la librería Chart.js en el dashboard.
 
 ### 🧪 Pruebas
-- **Pruebas End-to-End (E2E) con Playwright**: Incorporados 10 casos de prueba integrales para verificar interacciones (incluyendo cambio de idioma, sincronización de la URL, y el flujo completo de autenticación y carga de gráficos del panel de administración con mocks herméticos robustos).
-- **Pruebas Unitarias de Traducción**: Creado `backend/tests/i18n.test.ts` con 6 tests unitarios en Vitest para validar la correcta sustitución de cadenas de idioma en todas las tarjetas de acuerdo con el parámetro `locale`.
+- **Pruebas End-to-End (E2E) con Playwright**: Incorporados 12 casos de prueba integrales para verificar interacciones (incluyendo cambio de idioma en caliente, traducción de placeholders y textos de UI, búsqueda y paginación de perfiles en el dashboard, sincronización de la URL y el flujo de gráficos con mocks herméticos robustos).- **Pruebas Unitarias de Traducción**: Creado `backend/tests/i18n.test.ts` con 6 tests unitarios en Vitest para validar la correcta sustitución de cadenas de idioma en todas las tarjetas de acuerdo con el parámetro `locale`.
 - **Aislamiento en Vitest**: Excluidas las especificaciones de Playwright en la suite de pruebas unitarias en `vitest.config.ts`.
 
 ## [1.2.1] - 2026-07-21

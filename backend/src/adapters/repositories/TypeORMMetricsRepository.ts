@@ -200,4 +200,30 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       return 0;
     }
   }
+
+  async getRendersHistory(days: number): Promise<any[]> {
+    try {
+      const requestLogRepo = AppDataSource.getRepository(RequestLog);
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+
+      // Group by DATE(created_at) and select counts
+      const rawResults = await requestLogRepo
+        .createQueryBuilder('log')
+        .select("DATE(log.created_at)", "date")
+        .addSelect("COUNT(*)", "count")
+        .where("log.created_at >= :cutoffDate", { cutoffDate })
+        .groupBy("date")
+        .orderBy("date", "ASC")
+        .getRawMany();
+
+      return rawResults.map(r => ({
+        date: r.date,
+        count: parseInt(r.count, 10) || 0
+      }));
+    } catch (err) {
+      console.error('Error fetching renders history:', err);
+      return [];
+    }
+  }
 }

@@ -194,7 +194,33 @@ test.describe('GitHub Helpers App E2E Tests', () => {
     const src = await statsImg.getAttribute('src');
     expect(src).toContain('&locale=en');
   });
-});test.describe('Admin Metrics Dashboard E2E Tests', () => {
+
+  test('should translate the landing page UI dynamically when changing locale', async ({ page }) => {
+    // Initially, it should be Spanish
+    await expect(page.locator('h2.section-title').first()).toContainText('Configuración');
+    
+    // Change to English
+    await page.selectOption('#locale-select', 'en');
+    
+    // Title should update to English
+    await expect(page.locator('h2.section-title').first()).toContainText('Configuration');
+    
+    // Verify placeholders updated
+    const usernameInput = page.locator('#username-input');
+    await expect(usernameInput).toHaveAttribute('placeholder', 'e.g. github');
+
+    // Verify footer version or rights updated
+    const rights = page.locator('[data-i18n="footer_rights"]');
+    await expect(rights).toContainText('All rights reserved.');
+
+    // Switch back to Spanish
+    await page.selectOption('#locale-select', 'es');
+    await expect(page.locator('h2.section-title').first()).toContainText('Configuración');
+    await expect(usernameInput).toHaveAttribute('placeholder', 'ej. github');
+  });
+});
+
+test.describe('Admin Metrics Dashboard E2E Tests', () => {
   test('should show auth screen initially and fail on invalid key', async ({ page }) => {
     // Mock the backend API with a 401 response for invalid keys
     await page.route(/\/api\/metrics/, async (route) => {
@@ -221,7 +247,6 @@ test.describe('GitHub Helpers App E2E Tests', () => {
     await expect(errorMsg).toBeVisible();
     await expect(errorMsg).toContainText('Clave incorrecta');
   });
-
 
   test('should unlock dashboard and render charts/tables on valid key', async ({ page }) => {
     // Add page log listeners
@@ -265,6 +290,16 @@ test.describe('GitHub Helpers App E2E Tests', () => {
           contentType: 'application/json',
           body: JSON.stringify(mockUserMetrics)
         });
+      } else if (url.pathname.includes('/api/metrics/history')) {
+        console.log('RESPONDING WITH HISTORY METRICS');
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            { date: '2026-07-20', count: 150 },
+            { date: '2026-07-21', count: 160 }
+          ])
+        });
       } else {
         console.log('RESPONDING WITH GLOBAL METRICS');
         const key = url.searchParams.get('key');
@@ -302,5 +337,65 @@ test.describe('GitHub Helpers App E2E Tests', () => {
     const tableBody = page.locator('#users-table-body');
     await expect(tableBody).toContainText('@octocat');
     await expect(tableBody).toContainText('150'); // profile views
+  });
+
+  test('should support searching and client-side pagination on user profiles', async ({ page }) => {
+    const validKey = 'correctmetricskey';
+    const mockUserMetrics = Array.from({ length: 15 }, (_, i) => ({
+      username: `user_${i + 1}`,
+      stats_web: 10,
+      stats_github: 5,
+      languages_web: 5,
+      languages_github: 2,
+      profile_views: 20 + i,
+      last_updated: new Date().toISOString()
+    }));
+
+    await page.route(/\/api\/metrics/, async (route) => {
+      const url = new URL(route.request().url());
+      if (url.pathname.includes('/api/metrics/users')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(mockUserMetrics)
+        });
+      } else if (url.pathname.includes('/api/metrics/history')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([])
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ totalRenders: 100 })
+        });
+      }
+    });
+
+    await page.goto('/admin/metrics');
+    await page.fill('#metrics-key-input', validKey);
+    await page.click('#btn-login-metrics');
+
+    // Wait for analytics panel
+    await expect(page.locator('#analytics-panel')).toBeVisible();
+
+    // With 15 users, table should show page 1 (10 items)
+    const tableBody = page.locator('#users-table-body');
+    await expect(tableBody.locator('tr')).toHaveCount(10);
+    await expect(page.locator('#pagination-info')).toContainText('Mostrando 1-10 de 15');
+
+    // Click Next
+    await page.click('#btn-next-page');
+    await expect(tableBody.locator('tr')).toHaveCount(5);
+    await expect(page.locator('#pagination-info')).toContainText('Mostrando 11-15 de 15');
+
+    // Search for "user_15"
+    await page.fill('#search-users-input', 'user_15');
+    // Slices table to only matching rows (1 item)
+    await expect(tableBody.locator('tr')).toHaveCount(1);
+    await expect(page.locator('#pagination-info')).toContainText('Mostrando 1-1 de 1');
+    await expect(tableBody).toContainText('@user_15');
   });
 });

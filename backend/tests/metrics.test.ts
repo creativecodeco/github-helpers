@@ -126,4 +126,15 @@ describe('TypeORM Metrics Tracker', () => {
     const deletedToken = await tokenRepo.getToken(testUser);
     expect(deletedToken).toBeNull();
   });
+
+  it('should query renders history correctly', async () => {
+    const history = await metricsRepo.getRendersHistory(7);
+    expect(history).toBeDefined();
+    expect(Array.isArray(history)).toBe(true);
+    expect(history.length).toBeGreaterThanOrEqual(1);
+    const firstRecord = history[0];
+    expect(firstRecord).toBeDefined();
+    expect(firstRecord.date).toBeDefined();
+    expect(firstRecord.count).toBeGreaterThanOrEqual(1);
+  });
 });

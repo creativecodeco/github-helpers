@@ -4,107 +4,299 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <BaseLayout title="Métricas de Administración | GitHub Helpers">
   <!-- Dynamic Dashboard Wrapper -->
-  <main class="metrics-dashboard" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; width: 100%;">
-    
+  <main
+    class="metrics-dashboard"
+    style="min-height: 80vh; display: flex; align-items: center; justify-content: center; width: 100%;"
+  >
     <!-- Auth Screen -->
-    <div id="auth-panel" class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div
+      id="auth-panel"
+      class="glass-card"
+      style="width: 100%; max-width: 400px; padding: 32px; display: flex; flex-direction: column; gap: 20px;"
+    >
       <div style="text-align: center;">
-        <h1 style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">Acceso Administrativo</h1>
-        <p style="color: var(--text-secondary); font-size: 0.85rem;">Ingresa la clave de métricas para desbloquear las analíticas en tiempo real</p>
+        <h1
+          style="font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;"
+        >
+          Acceso Administrativo
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Ingresa la clave de métricas para desbloquear las analíticas en tiempo real
+        </p>
       </div>
 
       <div class="input-group">
-        <label for="metrics-key-input" class="input-label">Clave de Métricas (METRICS_KEY)</label>
+        <label for="metrics-key-input" class="input-label">Clave de Métricas</label>
         <div class="input-wrapper" style="height: 42px;">
-          <input type="password" id="metrics-key-input" placeholder="••••••••••••" style="font-size: 0.95rem; padding-left: 12px;" />
+          <input
+            type="password"
+            id="metrics-key-input"
+            placeholder="••••••••••••"
+            style="font-size: 0.95rem; padding-left: 12px;"
+          />
         </div>
       </div>
 
-      <button id="btn-login-metrics" style="width: 100%; height: 42px; border-radius: 8px; border: none; background: var(--accent-color); color: #080c14; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; box-shadow: 0 0 15px var(--accent-glow);">
+      <button
+        id="btn-login-metrics"
+        style="width: 100%; height: 42px; border-radius: 8px; border: none; background: var(--accent-color); color: #080c14; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; box-shadow: 0 0 15px var(--accent-glow);"
+      >
         Validar Acceso
       </button>
 
-      <p id="auth-error-msg" class="hidden" style="color: var(--error-color); font-size: 0.8rem; font-weight: 600; text-align: center; margin-top: 4px;"></p>
+      <p
+        id="auth-error-msg"
+        class="hidden"
+        style="color: var(--error-color); font-size: 0.8rem; font-weight: 600; text-align: center; margin-top: 4px;"
+      >
+      </p>
     </div>
 
     <!-- Analytics Dashboard Content (Initially Hidden) -->
-    <div id="analytics-panel" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 30px;">
-      
+    <div
+      id="analytics-panel"
+      class="hidden"
+      style="width: 100%; display: flex; flex-direction: column; gap: 30px;"
+    >
       <!-- Top Bar -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;"
+      >
         <div>
-          <h1 style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Métricas de Uso</h1>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">Visualiza renderizados, orígenes de tráfico y usuarios más activos</p>
+          <h1
+            style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+          >
+            Métricas de Uso
+          </h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">
+            Visualiza renderizados, orígenes de tráfico y usuarios más activos
+          </p>
         </div>
-        <button id="btn-logout-metrics" style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(248, 81, 73, 0.08); color: var(--error-color); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;">
-          Cerrar Sesión
-        </button>
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+          <!-- Auto Refresh Checkbox -->
+          <label
+            style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; user-select: none;"
+          >
+            <input
+              type="checkbox"
+              id="checkbox-auto-refresh"
+              style="accent-color: var(--accent-color); cursor: pointer;"
+            />
+            Auto-actualizar (30s)
+          </label>
+
+          <!-- Manual Refresh Button -->
+          <button
+            id="btn-refresh-metrics"
+            style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.04); color: var(--text-primary); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
+          >
+            <svg
+              id="refresh-icon"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              style="transition: transform 0.5s ease;"
+              ><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-.73"></path></svg
+            >
+            Refrescar
+          </button>
+
+          <button
+            id="btn-logout-metrics"
+            style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(248, 81, 73, 0.08); color: var(--error-color); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
 
       <!-- KPI Grid -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;"
+      >
         <!-- KPI 1: Renders -->
-        <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
-          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;">Renderizados Totales</div>
-          <div id="kpi-renders" style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);">0</div>
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;"
+        >
+          <div
+            style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;"
+          >
+            Renderizados Totales
+          </div>
+          <div
+            id="kpi-renders"
+            style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary);"
+          >
+            0
+          </div>
           <p style="font-size: 0.75rem; color: #4ade80;">Peticiones acumuladas del sistema</p>
-          <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <div
+            style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              ><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg
+            >
           </div>
         </div>
 
         <!-- KPI 2: Unique Users -->
-        <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
-          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;">Usuarios Únicos</div>
-          <div id="kpi-users" style="font-size: 2.25rem; font-weight: 800; color: var(--accent-color);">0</div>
-          <p style="font-size: 0.75rem; color: var(--accent-color);">Perfiles registrados en base de datos</p>
-          <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;"
+        >
+          <div
+            style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;"
+          >
+            Usuarios Únicos
+          </div>
+          <div
+            id="kpi-users"
+            style="font-size: 2.25rem; font-weight: 800; color: var(--accent-color);"
+          >
+            0
+          </div>
+          <p style="font-size: 0.75rem; color: var(--accent-color);">
+            Perfiles registrados en base de datos
+          </p>
+          <div
+            style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              ><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+              ></path></svg
+            >
           </div>
         </div>
 
         <!-- KPI 3: Profile Views -->
-        <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;">
-          <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;">Vistas de Perfil</div>
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;"
+        >
+          <div
+            style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 1px; text-transform: uppercase;"
+          >
+            Vistas de Perfil
+          </div>
           <div id="kpi-views" style="font-size: 2.25rem; font-weight: 800; color: #a855f7;">0</div>
           <p style="font-size: 0.75rem; color: #a855f7;">Impresiones de insignias Views Badge</p>
-          <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zm11 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+          <div
+            style="position: absolute; right: -10px; bottom: -10px; opacity: 0.05; transform: scale(3.5); color: var(--accent-color);"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              ><path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zm11 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+              ></path></svg
+            >
           </div>
         </div>
-
       </div>
 
       <!-- Charts Row -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
-        
-        <!-- Chart 1: Distribution -->
-        <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 380px;">
-          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Distribución por Tipo de Tarjeta</h2>
-          <div style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; max-height: 300px;">
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;"
+      >
+        <!-- Chart 1: Renders History -->
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 380px;"
+        >
+          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+            Evolución de Peticiones (Últimos 7 días)
+          </h2>
+          <div
+            style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; max-height: 300px;"
+          >
+            <canvas id="chart-history"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Distribution -->
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 380px;"
+        >
+          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+            Distribución por Tipo de Tarjeta
+          </h2>
+          <div
+            style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; max-height: 300px;"
+          >
             <canvas id="chart-distribution"></canvas>
           </div>
         </div>
 
-        <!-- Chart 2: Traffic Sources -->
-        <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 380px;">
-          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Tráfico por Origen (GitHub Camo vs Web Directo)</h2>
-          <div style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; max-height: 300px;">
+        <!-- Chart 3: Traffic Sources -->
+        <div
+          class="glass-card"
+          style="padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 380px;"
+        >
+          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+            Tráfico por Origen (GitHub Camo vs Web Directo)
+          </h2>
+          <div
+            style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center; max-height: 300px;"
+          >
             <canvas id="chart-sources"></canvas>
           </div>
         </div>
-
       </div>
 
       <!-- Recent Users Table -->
-      <div class="glass-card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Perfiles Más Activos</h2>
-        
+      <div
+        class="glass-card"
+        style="padding: 24px; display: flex; flex-direction: column; gap: 16px;"
+      >
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;"
+        >
+          <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+            Perfiles Más Activos
+          </h2>
+
+          <!-- Search Box -->
+          <div
+            style="width: 250px; height: 38px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); border-radius: 8px; display: flex; align-items: center; padding: 0 10px;"
+          >
+            <input
+              type="text"
+              id="search-users-input"
+              placeholder="Buscar usuario..."
+              style="font-size: 0.85rem; height: 100%; border: none; background: transparent; color: var(--text-primary); outline: none; width: 100%;"
+            />
+          </div>
+        </div>
+
         <div style="overflow-x: auto; width: 100%;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+          <table
+            style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;"
+          >
             <thead>
-              <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+              <tr
+                style="border-bottom: 1px solid var(--glass-border); color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+              >
                 <th style="padding: 12px 16px;">Usuario</th>
                 <th style="padding: 12px 16px; text-align: right;">Total Renders (Camo/Web)</th>
                 <th style="padding: 12px 16px; text-align: right;">Vistas de Perfil</th>
@@ -113,18 +305,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             </thead>
             <tbody id="users-table-body">
               <tr>
-                <td colspan="4" style="padding: 30px; text-align: center; color: var(--text-secondary);">Cargando perfiles...</td>
+                <td
+                  colspan="4"
+                  style="padding: 30px; text-align: center; color: var(--text-secondary);"
+                  >Cargando perfiles...</td
+                >
               </tr>
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 16px; font-size: 0.85rem; color: var(--text-secondary); flex-wrap: wrap; gap: 10px;"
+        >
+          <div id="pagination-info">Mostrando 0-0 de 0 perfiles</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button
+              id="btn-prev-page"
+              style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); color: var(--text-primary); cursor: pointer; transition: all 0.2s;"
+              >Anterior</button
+            >
+            <button
+              id="btn-next-page"
+              style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); color: var(--text-primary); cursor: pointer; transition: all 0.2s;"
+              >Siguiente</button
+            >
+          </div>
+        </div>
       </div>
-
     </div>
-
   </main>
 </BaseLayout>
-
 <!-- Chart.js CDN -->
 <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -142,9 +354,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const kpiViews = document.getElementById('kpi-views');
   const usersTableBody = document.getElementById('users-table-body');
 
+  // Interactive controls
+  const btnRefresh = document.getElementById('btn-refresh-metrics');
+  const refreshIcon = document.getElementById('refresh-icon');
+  const checkboxAutoRefresh = document.getElementById(
+    'checkbox-auto-refresh'
+  ) as HTMLInputElement | null;
+  const searchInput = document.getElementById('search-users-input') as HTMLInputElement | null;
+
+  // Pagination elements
+  const paginationInfo = document.getElementById('pagination-info');
+  const btnPrevPage = document.getElementById('btn-prev-page');
+  const btnNextPage = document.getElementById('btn-next-page');
+
   // Chart instances
   let distChart: any = null;
   let sourceChart: any = null;
+  let historyChart: any = null;
+
+  // In-memory users and pagination state
+  let usersList: any[] = [];
+  let filteredUsers: any[] = [];
+  let currentPage = 1;
+  const itemsPerPage = 10;
+
+  // Polling interval reference
+  let pollingInterval: any = null;
 
   async function tryLogin() {
     const key = metricsInput ? metricsInput.value.trim() : '';
@@ -152,7 +387,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       showError('Por favor ingresa una clave');
       return;
     }
-    
+
     btnLogin?.setAttribute('disabled', 'true');
     if (authError) authError.classList.add('hidden');
 
@@ -180,6 +415,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function handleLogout() {
+    stopPolling();
     sessionStorage.removeItem('github-helpers-metrics-key');
     window.location.reload();
   }
@@ -187,12 +423,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   async function initDashboard(key: string) {
     authPanel?.classList.add('hidden');
     analyticsPanel?.classList.remove('hidden');
+    await loadDashboardData(key);
+    setupAutoRefresh();
+  }
+
+  async function loadDashboardData(key: string) {
+    // Spin refresh icon
+    if (refreshIcon) {
+      refreshIcon.style.transform = 'rotate(360deg)';
+      setTimeout(() => {
+        if (refreshIcon) refreshIcon.style.transform = 'none';
+      }, 500);
+    }
 
     try {
       // Fetch global metrics
       const globalRes = await fetch(`/api/metrics?key=${encodeURIComponent(key)}`);
       // Fetch user metrics
       const usersRes = await fetch(`/api/metrics/users?key=${encodeURIComponent(key)}`);
+      // Fetch renders history (last 7 days)
+      const historyRes = await fetch(`/api/metrics/history?days=7&key=${encodeURIComponent(key)}`);
 
       if (!globalRes.ok || !usersRes.ok) {
         handleLogout();
@@ -200,23 +450,107 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
 
       const globalData = await globalRes.json();
-      const usersData = await usersRes.json();
+      const rawUsersData = await usersRes.json();
+      const historyData = historyRes.ok ? await historyRes.json() : [];
 
       // Render KPIs
-      if (kpiRenders) kpiRenders.textContent = Number(globalData.totalRenders || 0).toLocaleString();
-      if (kpiUsers) kpiUsers.textContent = Number(usersData.length || 0).toLocaleString();
+      if (kpiRenders)
+        kpiRenders.textContent = Number(globalData.totalRenders || 0).toLocaleString();
+      if (kpiUsers) kpiUsers.textContent = Number(rawUsersData.length || 0).toLocaleString();
       if (kpiViews) kpiViews.textContent = Number(globalData.viewsRenders || 0).toLocaleString();
 
-      // Build charts
-      renderDistributionChart(globalData);
-      renderTrafficSourcesChart(usersData);
-      renderUsersTable(usersData);
+      // Store users and calculate total renders
+      usersList = rawUsersData
+        .map((u: any) => {
+          const total =
+            (u.stats_web || 0) +
+            (u.stats_github || 0) +
+            (u.languages_web || 0) +
+            (u.languages_github || 0) +
+            (u.repo_web || 0) +
+            (u.repo_github || 0) +
+            (u.rank_web || 0) +
+            (u.rank_github || 0) +
+            (u.streak_web || 0) +
+            (u.streak_github || 0) +
+            (u.trophies_web || 0) +
+            (u.trophies_github || 0);
+          return { ...u, totalRenders: total };
+        })
+        .sort((a: any, b: any) => b.totalRenders - a.totalRenders);
 
+      applyFiltersAndResetPage();
+
+      // Build charts
+      renderHistoryChart(historyData);
+      renderDistributionChart(globalData);
+      renderTrafficSourcesChart(usersList);
     } catch (err) {
       console.error('Error loading dashboard data:', err);
       showError('Error cargando los datos de métricas');
-      handleLogout();
     }
+  }
+
+  function renderHistoryChart(historyData: any[]) {
+    const canvas = document.getElementById('chart-history') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    if (historyChart) {
+      historyChart.destroy();
+    }
+
+    // Fill missing days with 0 to have exactly 7 data points if there's sparse data
+    const labels: string[] = [];
+    const values: number[] = [];
+
+    // Generate last 7 days dates YYYY-MM-DD
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateString = d.toISOString().split('T')[0];
+      labels.push(dateString);
+
+      const dayMatch = historyData.find((h) => h.date && h.date.split('T')[0] === dateString);
+      values.push(dayMatch ? dayMatch.count : 0);
+    }
+
+    // @ts-ignore
+    historyChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Peticiones Diarias',
+            data: values,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+            pointBackgroundColor: '#38bdf8',
+            pointRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#94a3b8', font: { family: 'Outfit', size: 10 } }
+          },
+          y: {
+            grid: { color: '#334155', drawBorder: false },
+            ticks: { color: '#94a3b8', font: { family: 'Outfit', size: 10 }, precision: 0 }
+          }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
   }
 
   function renderDistributionChart(globalData: any) {
@@ -231,29 +565,39 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     distChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['Estadísticas', 'Lenguajes', 'Repositorio Destacado', 'Rango', 'Racha', 'Trofeos', 'Vistas de Perfil'],
-        datasets: [{
-          data: [
-            globalData.statsRenders || 0,
-            globalData.languagesRenders || 0,
-            globalData.repoRenders || 0,
-            globalData.rankRenders || 0,
-            globalData.streakRenders || 0,
-            globalData.trophiesRenders || 0,
-            globalData.viewsRenders || 0
-          ],
-          backgroundColor: [
-            '#38bdf8', // stats
-            '#4ade80', // languages
-            '#f59e0b', // repo
-            '#3b82f6', // rank
-            '#f85149', // streak
-            '#a855f7', // trophies
-            '#e2e8f0'  // views
-          ],
-          borderWidth: 1,
-          borderColor: '#1e293b'
-        }]
+        labels: [
+          'Estadísticas',
+          'Lenguajes',
+          'Repo Destacado',
+          'Rango',
+          'Racha',
+          'Trofeos',
+          'Vistas de Perfil'
+        ],
+        datasets: [
+          {
+            data: [
+              globalData.statsRenders || 0,
+              globalData.languagesRenders || 0,
+              globalData.repoRenders || 0,
+              globalData.rankRenders || 0,
+              globalData.streakRenders || 0,
+              globalData.trophiesRenders || 0,
+              globalData.viewsRenders || 0
+            ],
+            backgroundColor: [
+              '#38bdf8', // stats
+              '#4ade80', // languages
+              '#f59e0b', // repo
+              '#3b82f6', // rank
+              '#f85149', // streak
+              '#a855f7', // trophies
+              '#e2e8f0' // views
+            ],
+            borderWidth: 1,
+            borderColor: '#1e293b'
+          }
+        ]
       },
       options: {
         responsive: true,
@@ -312,7 +656,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
 
     const webData = [statsWeb, langWeb, repoWeb, rankWeb, streakWeb, trophiesWeb];
-    const githubData = [statsGithub, langGithub, repoGithub, rankGithub, streakGithub, trophiesGithub];
+    const githubData = [
+      statsGithub,
+      langGithub,
+      repoGithub,
+      rankGithub,
+      streakGithub,
+      trophiesGithub
+    ];
 
     // @ts-ignore
     sourceChart = new Chart(canvas, {
@@ -366,43 +717,43 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
   }
 
-  function renderUsersTable(usersData: any[]) {
+  function applyFiltersAndResetPage() {
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (query) {
+      filteredUsers = usersList.filter((user) => user.username.toLowerCase().includes(query));
+    } else {
+      filteredUsers = [...usersList];
+    }
+    currentPage = 1;
+    renderCurrentTablePage();
+  }
+
+  function renderCurrentTablePage() {
     if (!usersTableBody) return;
 
-    if (usersData.length === 0) {
+    if (filteredUsers.length === 0) {
       usersTableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="padding: 20px; text-align: center; color: var(--text-secondary);">No hay perfiles registrados en base de datos.</td>
+          <td colspan="4" style="padding: 30px; text-align: center; color: var(--text-secondary);">No se encontraron perfiles.</td>
         </tr>
       `;
+      if (paginationInfo) paginationInfo.textContent = 'Mostrando 0 de 0 perfiles';
+      updatePaginationButtons(0);
       return;
     }
 
-    // Sort by total renders (calculated dynamically) descending
-    const sortedUsers = usersData
-      .map((u) => {
-        const total =
-          (u.stats_web || 0) +
-          (u.stats_github || 0) +
-          (u.languages_web || 0) +
-          (u.languages_github || 0) +
-          (u.repo_web || 0) +
-          (u.repo_github || 0) +
-          (u.rank_web || 0) +
-          (u.rank_github || 0) +
-          (u.streak_web || 0) +
-          (u.streak_github || 0) +
-          (u.trophies_web || 0) +
-          (u.trophies_github || 0);
-        return { ...u, totalRenders: total };
-      })
-      .sort((a, b) => b.totalRenders - a.totalRenders);
+    const totalItems = filteredUsers.length;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const visibleItems = filteredUsers.slice(startIndex, endIndex);
 
-    usersTableBody.innerHTML = sortedUsers
+    usersTableBody.innerHTML = visibleItems
       .map((user) => {
-        const lastAct = user.last_updated ? new Date(user.last_updated).toLocaleString('es-ES') : 'N/A';
+        const lastAct = user.last_updated
+          ? new Date(user.last_updated).toLocaleString('es-ES')
+          : 'N/A';
         return `
-          <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.2s; hover: { background: rgba(255,255,255,0.02) }">
+          <tr style="border-bottom: 1px solid var(--glass-border); transition: background 0.2s;">
             <td style="padding: 14px 16px;">
               <a href="https://github.com/${user.username}" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                 @${user.username}
@@ -422,6 +773,56 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         `;
       })
       .join('');
+
+    if (paginationInfo) {
+      paginationInfo.textContent = `Mostrando ${startIndex + 1}-${endIndex} de ${totalItems} perfiles (Pág. ${currentPage} de ${Math.ceil(totalItems / itemsPerPage)})`;
+    }
+
+    updatePaginationButtons(totalItems);
+  }
+
+  function updatePaginationButtons(totalItems: number) {
+    if (btnPrevPage) {
+      if (currentPage > 1) {
+        btnPrevPage.removeAttribute('disabled');
+        btnPrevPage.style.opacity = '1';
+        btnPrevPage.style.cursor = 'pointer';
+      } else {
+        btnPrevPage.setAttribute('disabled', 'true');
+        btnPrevPage.style.opacity = '0.4';
+        btnPrevPage.style.cursor = 'not-allowed';
+      }
+    }
+
+    if (btnNextPage) {
+      const maxPage = Math.ceil(totalItems / itemsPerPage);
+      if (currentPage < maxPage) {
+        btnNextPage.removeAttribute('disabled');
+        btnNextPage.style.opacity = '1';
+        btnNextPage.style.cursor = 'pointer';
+      } else {
+        btnNextPage.setAttribute('disabled', 'true');
+        btnNextPage.style.opacity = '0.4';
+        btnNextPage.style.cursor = 'not-allowed';
+      }
+    }
+  }
+
+  function setupAutoRefresh() {
+    stopPolling();
+    if (checkboxAutoRefresh && checkboxAutoRefresh.checked) {
+      const key = sessionStorage.getItem('github-helpers-metrics-key') || '';
+      pollingInterval = setInterval(() => {
+        if (key) loadDashboardData(key);
+      }, 30000); // 30 seconds
+    }
+  }
+
+  function stopPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
   }
 
   // Init
@@ -441,4 +842,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
   });
   btnLogout?.addEventListener('click', handleLogout);
+
+  btnRefresh?.addEventListener('click', () => {
+    const key = sessionStorage.getItem('github-helpers-metrics-key') || '';
+    if (key) loadDashboardData(key);
+  });
+
+  checkboxAutoRefresh?.addEventListener('change', setupAutoRefresh);
+
+  searchInput?.addEventListener('input', applyFiltersAndResetPage);
+
+  btnPrevPage?.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderCurrentTablePage();
+    }
+  });
+
+  btnNextPage?.addEventListener('click', () => {
+    const maxPage = Math.ceil(filteredUsers.length / itemsPerPage);
+    if (currentPage < maxPage) {
+      currentPage++;
+      renderCurrentTablePage();
+    }
+  });
 </script>

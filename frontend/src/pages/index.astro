@@ -34,14 +34,16 @@ import Footer from '../components/Footer.astro';
       </div>
       <ThemeToggle />
     </div>
-    <p class="subtitle">
-      Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente
-      para tu README.md.
+    <p class="subtitle" data-i18n="header_subtitle">
+      Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente para tu README.md.
     </p>
     <!-- Live Metrics counter -->
     <div class="hidden metrics-badge" id="metrics-badge">
       <span class="pulse-dot"></span>
-      <span>Usuarios usando las cards: <strong id="metrics-count">Cargando...</strong></span>
+      <span style="display: inline-flex; align-items: center; gap: 4px;">
+        <span data-i18n="header_metrics_label">Usuarios usando las cards: </span>
+        <strong id="metrics-count">Cargando...</strong>
+      </span>
     </div>
   </header>
 
@@ -50,17 +52,18 @@ import Footer from '../components/Footer.astro';
     <div class="left-column" style="display: flex; flex-direction: column; gap: 24px; width: 100%">
       <!-- Left Panel: Input & Settings -->
       <section class="settings-panel glass-card" style="width: 100%">
-        <h2 class="section-title">Configuración</h2>
+        <h2 class="section-title" data-i18n="settings_title">Configuración</h2>
 
         <!-- Step 1: Username & Optional Repo -->
         <div class="input-group">
-          <label for="username-input" class="input-label">Usuario de GitHub</label>
+          <label for="username-input" class="input-label" data-i18n="username_label">Usuario de GitHub</label>
           <div class="input-wrapper">
             <span class="input-prefix">@</span>
             <input
               type="text"
               id="username-input"
               placeholder="ej. github"
+              data-i18n-placeholder="username_placeholder"
               autocomplete="off"
               required
             />
@@ -68,7 +71,7 @@ import Footer from '../components/Footer.astro';
         </div>
 
         <div class="input-group">
-          <label for="repo-input" class="input-label">Repositorio Específico (Opcional)</label>
+          <label for="repo-input" class="input-label" data-i18n="repo_label">Repositorio Específico (Opcional)</label>
           <div class="input-wrapper">
             <span class="input-prefix">
               <svg
@@ -92,6 +95,7 @@ import Footer from '../components/Footer.astro';
               type="text"
               id="repo-input"
               placeholder="ej. github-helpers (o el más popular)"
+              data-i18n-placeholder="repo_placeholder"
               autocomplete="off"
             />
           </div>
@@ -101,13 +105,13 @@ import Footer from '../components/Footer.astro';
           id="btn-generate"
           class="primary-btn full-width-btn"
           style="margin-bottom: 24px; width: 100%"
+          data-i18n="btn_generate"
         >
           Generar Tarjetas
         </button>
 
         <!-- Step 3: Themes -->
-        <div class="themes-group">
-          <span class="input-label">Selecciona un Estilo</span>
+        <div class="themes-group">          <span class="input-label" data-i18n="theme_label">Selecciona un Estilo</span>
           <div class="themes-grid" id="themes-container">
             <button class="theme-option active" data-theme="dark" id="theme-dark">
               <span class="theme-name">Dark</span>
@@ -198,7 +202,7 @@ import Footer from '../components/Footer.astro';
 
         <!-- Card Width Control -->
         <div class="input-group" style="margin-top: 4px;">
-          <label class="input-label">Ancho de Tarjeta</label>
+          <label class="input-label" data-i18n="card_width_label">Ancho de Tarjeta</label>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <button
               class="width-option active"
@@ -206,7 +210,7 @@ import Footer from '../components/Footer.astro';
               id="width-default"
               style="flex: 1; min-width: 100px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(88,166,255,0.12); color: var(--text-primary); cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.2s;"
             >
-              Estándar (495px)
+              <span data-i18n="width_standard">Estándar (495px)</span>
             </button>
             <button
               class="width-option"
@@ -214,7 +218,7 @@ import Footer from '../components/Footer.astro';
               id="width-full"
               style="flex: 1; min-width: 100px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.2s;"
             >
-              Ancho Completo (100%)
+              <span data-i18n="width_full">Ancho Completo (100%)</span>
             </button>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
@@ -223,6 +227,7 @@ import Footer from '../components/Footer.astro';
                 type="text"
                 id="custom-width-input"
                 placeholder="Personalizado, ej: 600"
+                data-i18n-placeholder="custom_width_placeholder"
                 autocomplete="off"
                 style="font-size: 0.85rem;"
               />
@@ -231,23 +236,23 @@ import Footer from '../components/Footer.astro';
               id="btn-apply-width"
               style="padding: 0 14px; height: 36px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(56,189,248,0.08); color: var(--text-primary); cursor: pointer; font-size: 0.82rem; font-weight: 600; white-space: nowrap;"
             >
-              Aplicar
+              <span data-i18n="btn_apply">Aplicar</span>
             </button>
           </div>
         </div>
 
         <!-- Idioma de Tarjetas (i18n) -->
         <div class="input-group" style="margin-top: 16px;">
-          <label for="locale-select" class="input-label">Idioma de Tarjetas</label>
+          <label for="locale-select" class="input-label" data-i18n="locale_label">Idioma de Tarjetas</label>
           <div class="input-wrapper" style="height: 38px;">
             <select
               id="locale-select"
               style="width: 100%; height: 100%; background: transparent; border: none; color: var(--text-primary); font-family: var(--font-family); font-size: 0.85rem; padding-left: 12px; cursor: pointer; outline: none;"
             >
-              <option value="es" style="background: var(--bg-color); color: var(--text-primary);">
+              <option value="es" style="background: var(--bg-color); color: var(--text-primary);" data-i18n="locale_es">
                 Español (es)
               </option>
-              <option value="en" style="background: var(--bg-color); color: var(--text-primary);">
+              <option value="en" style="background: var(--bg-color); color: var(--text-primary);" data-i18n="locale_en">
                 English (en)
               </option>
             </select>
@@ -262,8 +267,7 @@ import Footer from '../components/Footer.astro';
     <section class="preview-panel">
       <!-- Live Preview -->
       <div class="preview-card glass-card">
-        <h2 class="section-title">Vista Previa</h2>
-
+        <h2 class="section-title" data-i18n="preview_title">Vista Previa</h2>
         <div class="cards-preview-container">
           <!-- Profile Views Badge Preview -->
           <CardPreview
@@ -534,6 +538,151 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <script>
+  const TRANSLATIONS = {
+    es: {
+      settings_title: "Configuración",
+      username_label: "Usuario de GitHub",
+      username_placeholder: "ej. github",
+      repo_label: "Repositorio Específico (Opcional)",
+      repo_placeholder: "ej. github-helpers (o el más popular)",
+      btn_generate: "Generar Tarjetas",
+      theme_label: "Selecciona un Estilo",
+      card_width_label: "Ancho de Tarjeta",
+      width_standard: "Estándar (495px)",
+      width_full: "Ancho Completo (100%)",
+      custom_width_placeholder: "Personalizado, ej: 600",
+      btn_apply: "Aplicar",
+      locale_label: "Idioma de Tarjetas",
+      locale_es: "Español (es)",
+      locale_en: "English (en)",
+      preview_title: "Vista Previa",
+      // CardPreview elements
+      title_views: "Contador de Visitas del Perfil",
+      code_label_views: "Contador de Visitas",
+      title_stats: "Estadísticas Generales",
+      code_label_stats: "Estadísticas Generales",
+      title_languages: "Lenguajes más Usados",
+      code_label_languages: "Lenguajes más Usados",
+      title_streak: "Racha de Commits",
+      code_label_streak: "Racha de Commits",
+      title_trophies: "Trofeos de GitHub",
+      code_label_trophies: "Trofeos de GitHub",
+      title_top_repos: "Top Repositorios",
+      code_label_top_repos: "Top Repositorios",
+      placeholder_msg: "Ingresa tu usuario de GitHub para cargar la vista previa",
+      copy_btn: "Copiar",
+      // Footer elements
+      footer_rights: "Todos los derechos reservados.",
+      footer_help: "Ayuda",
+      footer_privacy: "Privacidad",
+      // Private stats elements
+      private_stats_title: "Estadísticas Privadas",
+      private_stats_desc: "Para incluir tus repositorios privados, registra un Token Personal (PAT). Tus datos se cifran en el servidor.",
+      private_stats_guide: "Leer Guía de Ayuda →",
+      private_stats_username: "Usuario de GitHub",
+      private_stats_pat: "Personal Access Token (PAT)",
+      private_stats_consent: "Acepto que esta aplicación guarde mi token cifrado en su base de datos para consultar mis estadísticas. Puedo revocarlo cuando quiera.",
+      private_stats_register_btn: "Registrar Token",
+      private_stats_active_label: "Token Registrado Activo",
+      private_stats_active_desc: "Tus repositorios privados ya se están sumando en las consultas.",
+      private_stats_revoke_label: "Introduce tu token para confirmar revocación",
+      private_stats_revoke_btn: "Revocar Token",
+      private_stats_purge_label: "¿Deseas eliminar todo tu registro de forma permanente?",
+      private_stats_purge_open_btn: "Eliminar todos mis datos",
+      // Purge modal elements
+      purge_modal_title: "Eliminar todos mis datos",
+      purge_modal_desc: "Esta acción es permanente e irreversible. Eliminará tu token cifrado, tu historial de estadísticas, tus métricas de consumo de cards y todos tus registros de logs del servidor.",
+      purge_modal_confirm_label: "Escribe tu usuario de GitHub para confirmar",
+      purge_modal_token_label: "Introduce tu Token de Acceso para autorizar",
+      purge_modal_cancel_btn: "Cancelar",
+      purge_modal_confirm_btn: "Eliminar todo definitivamente",
+      // Subtitle
+      header_subtitle: "Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente para tu README.md.",
+      header_metrics_label: "Usuarios usando las cards: "
+    },
+    en: {
+      settings_title: "Configuration",
+      username_label: "GitHub Username",
+      username_placeholder: "e.g. github",
+      repo_label: "Specific Repository (Optional)",
+      repo_placeholder: "e.g. github-helpers (or the most popular)",
+      btn_generate: "Generate Cards",
+      theme_label: "Select a Style",
+      card_width_label: "Card Width",
+      width_standard: "Standard (495px)",
+      width_full: "Full Width (100%)",
+      custom_width_placeholder: "Custom, e.g. 600",
+      btn_apply: "Apply",
+      locale_label: "Card Language",
+      locale_es: "Spanish (es)",
+      locale_en: "English (en)",
+      preview_title: "Live Preview",
+      // CardPreview elements
+      title_views: "Profile Views Counter Badge",
+      code_label_views: "Views Counter",
+      title_stats: "General Statistics",
+      code_label_stats: "General Statistics",
+      title_languages: "Most Used Languages",
+      code_label_languages: "Most Used Languages",
+      title_streak: "Commit Streak",
+      code_label_streak: "Commit Streak",
+      title_trophies: "GitHub Trophies",
+      code_label_trophies: "GitHub Trophies",
+      title_top_repos: "Top Repositories",
+      code_label_top_repos: "Top Repositories",
+      placeholder_msg: "Enter your GitHub username to load the preview",
+      copy_btn: "Copy",
+      // Footer elements
+      footer_rights: "All rights reserved.",
+      footer_help: "Help",
+      footer_privacy: "Privacy",
+      // Private stats elements
+      private_stats_title: "Private Statistics",
+      private_stats_desc: "To include your private repositories, register a Personal Access Token (PAT). Your data is encrypted on the server.",
+      private_stats_guide: "Read Help Guide →",
+      private_stats_username: "GitHub Username",
+      private_stats_pat: "Personal Access Token (PAT)",
+      private_stats_consent: "I agree that this application saves my encrypted token in its database to query my statistics. I can revoke it at any time.",
+      private_stats_register_btn: "Register Token",
+      private_stats_active_label: "Active Registered Token",
+      private_stats_active_desc: "Your private repositories are now included in the queries.",
+      private_stats_revoke_label: "Enter your token to confirm revocation",
+      private_stats_revoke_btn: "Revoke Token",
+      private_stats_purge_label: "Do you want to delete your entire record permanently?",
+      private_stats_purge_open_btn: "Delete all my data",
+      // Purge modal elements
+      purge_modal_title: "Delete all my data",
+      purge_modal_desc: "This action is permanent and irreversible. It will delete your encrypted token, your statistics history, your card consumption metrics, and all your log records from the server.",
+      purge_modal_confirm_label: "Type your GitHub username to confirm",
+      purge_modal_token_label: "Enter your Access Token to authorize",
+      purge_modal_cancel_btn: "Cancel",
+      purge_modal_confirm_btn: "Permanently delete everything",
+      // Subtitle
+      header_subtitle: "Boost your project visibility. Generate aesthetic real-time metrics and cards for your README.md.",
+      header_metrics_label: "Users active with cards: "
+    }
+  };
+
+  function updateUiTranslations(locale: string) {
+    const dict = TRANSLATIONS[locale as 'es' | 'en'] || TRANSLATIONS.es;
+    
+    // 1. Text elements
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (key && dict[key as keyof typeof dict]) {
+        el.textContent = dict[key as keyof typeof dict];
+      }
+    });
+
+    // 2. Placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (key && dict[key as keyof typeof dict]) {
+        (el as HTMLInputElement).placeholder = dict[key as keyof typeof dict];
+      }
+    });
+  }
+
   // Elements
   const usernameInput = document.getElementById('username-input') as HTMLInputElement | null;
   const repoInput = document.getElementById('repo-input') as HTMLInputElement | null;
@@ -610,14 +759,14 @@ import Footer from '../components/Footer.astro';
 
   localeSelect?.addEventListener('change', () => {
     currentLocale = localeSelect.value;
+    updateUiTranslations(currentLocale);
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('locale', currentLocale);
+    window.history.pushState({}, '', newUrl.toString());
     if (currentUsername) {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('locale', currentLocale);
-      window.history.pushState({}, '', newUrl.toString());
       updateCards();
     }
   });
-
   // --- Card Width Control ---
   const widthOptions = document.querySelectorAll('.width-option') as NodeListOf<HTMLButtonElement>;
   const customWidthInput = document.getElementById('custom-width-input') as HTMLInputElement | null;
@@ -1183,15 +1332,15 @@ import Footer from '../components/Footer.astro';
     const consentAccepted = tokenConsent.checked;
 
     if (!username) {
-      showStatus('Por favor, ingresa tu usuario de GitHub.', 'error');
+      showStatus(currentLocale === 'en' ? 'Please enter your GitHub username.' : 'Por favor, ingresa tu usuario de GitHub.', 'error');
       return;
     }
     if (!token) {
-      showStatus('Por favor, ingresa tu Personal Access Token (PAT).', 'error');
+      showStatus(currentLocale === 'en' ? 'Please enter your Personal Access Token (PAT).' : 'Por favor, ingresa tu Personal Access Token (PAT).', 'error');
       return;
     }
     if (!consentAccepted) {
-      showStatus('Debes aceptar el almacenamiento cifrado de datos.', 'error');
+      showStatus(currentLocale === 'en' ? 'You must accept the encrypted data storage consent.' : 'Debes aceptar el almacenamiento cifrado de datos.', 'error');
       return;
     }
 
@@ -1218,7 +1367,7 @@ import Footer from '../components/Footer.astro';
       }
     } catch (err) {
       console.error(err);
-      showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+      showStatus(currentLocale === 'en' ? 'Network error trying to communicate with the server.' : 'Error de red al intentar comunicarse con el servidor.', 'error');
     } finally {
       globalLoading.classList.add('hidden');
     }
@@ -1233,12 +1382,14 @@ import Footer from '../components/Footer.astro';
     const token = tokenRevokeInput.value.trim();
 
     if (!username) {
-      showStatus('No se reconoce ningún usuario registrado.', 'error');
+      showStatus(currentLocale === 'en' ? 'No registered user recognized.' : 'No se reconoce ningún usuario registrado.', 'error');
       return;
     }
     if (!token) {
       showStatus(
-        'Debes ingresar un token de GitHub válido tuyo para verificar tu propiedad antes de revocar.',
+        currentLocale === 'en'
+          ? 'You must enter a valid GitHub token of yours to verify ownership before revoking.'
+          : 'Debes ingresar un token de GitHub válido tuyo para verificar tu propiedad antes de revocar.',
         'error'
       );
       return;
@@ -1266,7 +1417,7 @@ import Footer from '../components/Footer.astro';
       }
     } catch (err) {
       console.error(err);
-      showStatus('Error de red al intentar comunicarse con el servidor.', 'error');
+      showStatus(currentLocale === 'en' ? 'Network error trying to communicate with the server.' : 'Error de red al intentar comunicarse con el servidor.', 'error');
     } finally {
       globalLoading.classList.add('hidden');
     }
@@ -1390,14 +1541,23 @@ import Footer from '../components/Footer.astro';
       if (!codeText) return;
       try {
         await navigator.clipboard.writeText(codeText);
-        showToast('Código copiado al portapapeles con éxito', 'success');
+        showToast(
+          currentLocale === 'en'
+            ? 'Code copied to clipboard successfully'
+            : 'Código copiado al portapapeles con éxito',
+          'success'
+        );
       } catch (err) {
         console.error('Error al copiar al portapapeles:', err);
-        showToast('Error al copiar al portapapeles', 'error');
+        showToast(
+          currentLocale === 'en'
+            ? 'Failed to copy to clipboard'
+            : 'Error al copiar al portapapeles',
+          'error'
+        );
       }
     });
   }
-
   // --- Config Load Logic ---
   async function loadConfig() {
     try {
@@ -1462,6 +1622,8 @@ import Footer from '../components/Footer.astro';
       }
     }
 
+    updateUiTranslations(currentLocale);
+
     if (userParam && usernameInput) {
       usernameInput.value = userParam;
       currentUsername = userParam;
@@ -1469,7 +1631,6 @@ import Footer from '../components/Footer.astro';
       updateCards();
     }
   }
-
   loadConfig().then(() => {
     initParamsFromUrl();
   });

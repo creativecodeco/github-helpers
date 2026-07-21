@@ -306,6 +306,7 @@ app.get('/api/config', (_req, res) => {
 });
 
 app.get('/api/metrics', checkMetricsKey, metricsController.getMetrics);
+app.get('/api/metrics/history', checkMetricsKey, metricsController.getRendersHistory);
 app.get('/api/metrics/users', checkMetricsKey, metricsController.getUserMetrics);
 app.get('/api/metrics/users/count', metricsController.getUniqueUsersCount);
 

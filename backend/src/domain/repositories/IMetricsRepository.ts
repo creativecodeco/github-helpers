@@ -10,4 +10,5 @@ export interface IMetricsRepository {
   getAllUserMetrics(): Promise<any[]>;
   getUniqueUsersCount(): Promise<number>;
   getOrIncrementProfileViews(username: string, increment: boolean): Promise<number>;
+  getRendersHistory(days: number): Promise<any[]>;
 }
