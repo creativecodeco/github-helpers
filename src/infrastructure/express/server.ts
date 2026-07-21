@@ -96,10 +96,16 @@ app.use(
           "'self'",
           'data:',
           'https://www.google-analytics.com',
-          'https://analytics.google.com'
+          'https://analytics.google.com',
+          'https://www.googletagmanager.com'
         ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        connectSrc: ["'self'", 'https://www.google-analytics.com', 'https://analytics.google.com'],
+        connectSrc: [
+          "'self'",
+          'https://www.google-analytics.com',
+          'https://analytics.google.com',
+          'https://stats.g.doubleclick.net'
+        ],
         objectSrc: ["'none'"],
         frameSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -228,7 +234,8 @@ const fallbackFileLimiter = rateLimit({
   legacyHeaders: false
 });
 
-app.get('*all', fallbackFileLimiter, (_req, res) => {
+// Serve index.html as fallback only for page routes, returning a standard 404 for missing static files
+app.get(/^\/(?!api|_astro|.*\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml)$).*$/, fallbackFileLimiter, (_req, res) => {
   res.sendFile(path.join(__dirname, '../../../public/index.html'));
 });
 
