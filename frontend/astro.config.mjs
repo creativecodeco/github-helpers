@@ -6,5 +6,10 @@ export default defineConfig({
   outDir: '../public',
   build: {
     format: 'file'
+  },
+  vite: {
+    ssr: {
+      noExternal: ['cookie']
+    }
   }
 });
