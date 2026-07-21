@@ -13,7 +13,8 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
     repoRenders: 0,
     rankRenders: 0,
     streakRenders: 0,
-    trophiesRenders: 0
+    trophiesRenders: 0,
+    viewsRenders: 0
   };
 
   constructor() {}
@@ -144,6 +145,56 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       return await userMetricRepo.count();
     } catch (err) {
       console.error('Error fetching unique users count:', err);
+      return 0;
+    }
+  }
+
+  async getOrIncrementProfileViews(username: string, increment: boolean): Promise<number> {
+    try {
+      const userMetricRepo = AppDataSource.getRepository(UserMetric);
+      
+      // Ensure user row exists in user_metrics
+      await AppDataSource.createQueryBuilder()
+        .insert()
+        .into(UserMetric)
+        .values({ username: username.toLowerCase() })
+        .orIgnore()
+        .execute();
+
+      if (increment) {
+        // Increment global counters
+        await AppDataSource.createQueryBuilder()
+          .update(GlobalMetric)
+          .set({ metric_value: () => 'metric_value + 1' })
+          .where('metric_key = :key', { key: 'totalRenders' })
+          .execute();
+
+        await AppDataSource.createQueryBuilder()
+          .update(GlobalMetric)
+          .set({ metric_value: () => 'metric_value + 1' })
+          .where('metric_key = :key', { key: 'viewsRenders' })
+          .execute();
+
+        // Increment user's profile views and set last updated
+        await AppDataSource.createQueryBuilder()
+          .update(UserMetric)
+          .set({
+            profile_views: () => 'profile_views + 1',
+            last_updated: new Date()
+          })
+          .where('username = :username', { username: username.toLowerCase() })
+          .execute();
+
+        // Update local cache
+        this.globalMetricsCache.totalRenders += 1;
+        this.globalMetricsCache.viewsRenders += 1;
+      }
+
+      // Fetch current views
+      const row = await userMetricRepo.findOneBy({ username: username.toLowerCase() });
+      return row ? row.profile_views : 0;
+    } catch (err) {
+      console.error(`Error in getOrIncrementProfileViews for ${username}:`, err);
       return 0;
     }
   }

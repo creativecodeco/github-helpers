@@ -25,6 +25,7 @@ import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCar
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
+import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewUseCase';
 
 // Controllers
 import { CardController } from '@/adapters/controllers/CardController';
@@ -52,6 +53,7 @@ const trophiesCardUseCase = new GetUserTrophiesCardUseCase(githubRepo, tokenRepo
 const registerTokenUseCase = new RegisterUserTokenUseCase(tokenRepo, githubRepo);
 const revokeTokenUseCase = new RevokeUserTokenUseCase(tokenRepo, githubRepo);
 const purgeUserDataUseCase = new PurgeUserDataUseCase();
+const recordProfileViewUseCase = new RecordProfileViewUseCase(metricsRepo);
 
 const cardController = new CardController(
   statsCardUseCase,
@@ -59,7 +61,8 @@ const cardController = new CardController(
   repoCardUseCase,
   rankCardUseCase,
   streakCardUseCase,
-  trophiesCardUseCase
+  trophiesCardUseCase,
+  recordProfileViewUseCase
 );
 
 const tokenController = new TokenController(registerTokenUseCase, revokeTokenUseCase, purgeUserDataUseCase);
@@ -200,8 +203,9 @@ app.get('/api/stats', cardController.getStats);
 app.get('/api/languages', cardController.getLanguages);
 app.get('/api/repo', cardController.getRepo);
 app.get('/api/rank', cardController.getRank);
-app.get('/api/streak', cardController.getStreak);
-app.get('/api/trophies', cardController.getTrophies);
+app.get('/api/cards/streak', cardController.getStreak);
+app.get('/api/cards/trophies', cardController.getTrophies);
+app.get('/api/views', cardController.getProfileViews);
 
 app.post('/api/tokens/register', tokenController.register);
 app.delete('/api/tokens/revoke', tokenController.revoke);

@@ -41,6 +41,9 @@ export class UserMetric {
   @Column({ type: 'integer', default: 0 })
   trophies_github!: number;
 
+  @Column({ type: 'integer', default: 0 })
+  profile_views!: number;
+
   @Column({ type: 'timestamp with time zone', nullable: true })
   last_updated!: Date;
 }

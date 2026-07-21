@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const trophiesImg = document.getElementById('trophies-img');
   const trophiesPlaceholder = document.getElementById('trophies-placeholder');
 
+  const viewsImg = document.getElementById('views-img');
+  const viewsPlaceholder = document.getElementById('views-placeholder');
+
   const codeBlockWrappers = document.querySelectorAll('.code-block-wrapper');
   const markdownStatsCode = document.getElementById('markdown-stats-code');
   const markdownLanguagesCode = document.getElementById('markdown-languages-code');
@@ -31,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const markdownRankCode = document.getElementById('markdown-rank-code');
   const markdownStreakCode = document.getElementById('markdown-streak-code');
   const markdownTrophiesCode = document.getElementById('markdown-trophies-code');
+  const markdownViewsCode = document.getElementById('markdown-views-code');
 
   const btnCopyStats = document.getElementById('btn-copy-stats');
   const btnCopyLanguages = document.getElementById('btn-copy-languages');
@@ -38,6 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyRank = document.getElementById('btn-copy-rank');
   const btnCopyStreak = document.getElementById('btn-copy-streak');
   const btnCopyTrophies = document.getElementById('btn-copy-trophies');
+  const btnCopyViews = document.getElementById('btn-copy-views');
+
+  const viewsLabel = document.getElementById('views-label');
+  const viewsColor = document.getElementById('views-color');
+  const viewsStyle = document.getElementById('views-style');
 
   // Theme Toggle Elements
   const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -173,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let completedImagesCount = 0;
-  const totalImagesToLoad = 6;
+  const totalImagesToLoad = 7;
 
   function imageFinishedLoading() {
     completedImagesCount++;
@@ -205,6 +214,15 @@ document.addEventListener('DOMContentLoaded', () => {
       repoUrl += `&repo=${encodeURIComponent(currentRepo)}`;
     }
 
+    const labelVal = viewsLabel ? viewsLabel.value.trim() : '';
+    const colorVal = viewsColor ? viewsColor.value.trim() : '';
+    const styleVal = viewsStyle ? viewsStyle.value : '';
+
+    let viewsUrl = `${origin}/api/views?username=${currentUsername}&theme=${currentTheme}`;
+    if (labelVal) viewsUrl += `&label=${encodeURIComponent(labelVal)}`;
+    if (colorVal) viewsUrl += `&color=${encodeURIComponent(colorVal)}`;
+    if (styleVal) viewsUrl += `&style=${encodeURIComponent(styleVal)}`;
+
     // 1. Show Loading State
     showImageLoading(statsImg, statsPlaceholder);
     showImageLoading(languagesImg, languagesPlaceholder);
@@ -212,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showImageLoading(rankImg, rankPlaceholder);
     showImageLoading(streakImg, streakPlaceholder);
     showImageLoading(trophiesImg, trophiesPlaceholder);
+    showImageLoading(viewsImg, viewsPlaceholder);
 
     // 2. Set image sources with cache buster to force rendering updates in preview
     const cacheBuster = `&t=${Date.now()}`;
@@ -227,6 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
     streakImg.alt = `Tarjeta de racha de commits de GitHub para el usuario @${currentUsername}`;
     trophiesImg.src = trophiesUrl + cacheBuster;
     trophiesImg.alt = `Tarjeta de trofeos de GitHub para el usuario @${currentUsername}`;
+    viewsImg.src = viewsUrl + cacheBuster;
+    viewsImg.alt = `Contador de visitas de GitHub para el usuario @${currentUsername}`;
 
     // 3. Update Markdown Codes
     const markdownStats = `![GitHub Stats](${statsUrl})`;
@@ -235,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const markdownRank = `![Rango de Desarrollador](${rankUrl})`;
     const markdownStreak = `![Racha de Contribuciones](${streakUrl})`;
     const markdownTrophies = `![Trofeos de GitHub](${trophiesUrl})`;
+    const markdownViews = `![Visitas de Perfil](${viewsUrl})`;
 
     markdownStatsCode.textContent = markdownStats;
     markdownLanguagesCode.textContent = markdownLanguages;
@@ -242,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     markdownRankCode.textContent = markdownRank;
     markdownStreakCode.textContent = markdownStreak;
     markdownTrophiesCode.textContent = markdownTrophies;
+    markdownViewsCode.textContent = markdownViews;
 
     // Re-fetch metrics after a short delay to account for the new renders
     setTimeout(() => {
@@ -346,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupImageEvents(rankImg, rankPlaceholder, 'Error al cargar rango.');
   setupImageEvents(streakImg, streakPlaceholder, 'Error al cargar racha de contribuciones.');
   setupImageEvents(trophiesImg, trophiesPlaceholder, 'Error al cargar trofeos.');
+  setupImageEvents(viewsImg, viewsPlaceholder, 'Error al cargar contador de visitas.');
 
   // Setup Clipboard Copy handlers
   setupCopyButton(btnCopyStats, markdownStatsCode);
@@ -354,6 +378,24 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCopyButton(btnCopyRank, markdownRankCode);
   setupCopyButton(btnCopyStreak, markdownStreakCode);
   setupCopyButton(btnCopyTrophies, markdownTrophiesCode);
+  setupCopyButton(btnCopyViews, markdownViewsCode);
+
+  // Setup views badge options change listeners
+  if (viewsStyle) {
+    viewsStyle.addEventListener('change', () => {
+      if (currentUsername) updateCards();
+    });
+  }
+  if (viewsLabel) {
+    viewsLabel.addEventListener('change', () => {
+      if (currentUsername) updateCards();
+    });
+  }
+  if (viewsColor) {
+    viewsColor.addEventListener('change', () => {
+      if (currentUsername) updateCards();
+    });
+  }
 
   // --- Private Token Management UI Logic ---
   const tokenUsername = document.getElementById('token-username');
@@ -448,6 +490,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (trophiesImg) trophiesImg.classList.add('hidden');
     if (trophiesPlaceholder) trophiesPlaceholder.classList.remove('hidden');
+
+    if (viewsImg) viewsImg.classList.add('hidden');
+    if (viewsPlaceholder) viewsPlaceholder.classList.remove('hidden');
+
+    if (viewsLabel) viewsLabel.value = 'Profile views';
+    if (viewsColor) viewsColor.value = '';
+    if (viewsStyle) viewsStyle.value = 'flat';
 
     // Hide code block wrappers
     if (codeBlockWrappers) {

@@ -38,7 +38,8 @@ export async function initDatabase(): Promise<void> {
       'repoRenders',
       'rankRenders',
       'streakRenders',
-      'trophiesRenders'
+      'trophiesRenders',
+      'viewsRenders'
     ];
 
     for (const key of keys) {

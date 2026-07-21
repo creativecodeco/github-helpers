@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { TypeORMMetricsRepository } from '@/adapters/repositories/TypeORMMetricsRepository';
 import { TypeORMTokenRepository } from '@/adapters/repositories/TypeORMTokenRepository';
-import { initDatabase } from '@/infrastructure/database/database';
+import { initDatabase, AppDataSource } from '@/infrastructure/database/database';
 
 describe('TypeORM Metrics Tracker', () => {
   let metricsRepo: TypeORMMetricsRepository;
@@ -10,6 +10,8 @@ describe('TypeORM Metrics Tracker', () => {
   const uniqueUsername = `testuser_${Math.random().toString(36).substring(7)}`;
 
   beforeAll(async () => {
+    process.env.DB_SYNCHRONIZE = 'true';
+    AppDataSource.setOptions({ synchronize: true });
     await initDatabase();
     metricsRepo = new TypeORMMetricsRepository();
     await metricsRepo.loadGlobalMetricsCache();

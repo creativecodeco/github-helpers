@@ -283,6 +283,35 @@
                 </button>
               </div>
             </div>
+
+            <!-- Step 3: Visitor Counter Options -->
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--glass-border); display: flex; flex-direction: column; gap: 12px;">
+              <span class="input-label" style="font-weight: 600;">Opciones del Contador de Visitas</span>
+              
+              <div class="input-group" style="margin-bottom: 0;">
+                <label for="views-label" class="input-label" style="font-size: 0.8rem;">Etiqueta (Label)</label>
+                <div class="input-wrapper" style="height: 36px;">
+                  <input type="text" id="views-label" placeholder="Profile views" style="font-size: 0.85rem;" value="Profile views" autocomplete="off" />
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px;">
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                  <label for="views-color" class="input-label" style="font-size: 0.8rem;">Color acento (Opcional)</label>
+                  <div class="input-wrapper" style="height: 36px;">
+                    <input type="text" id="views-color" placeholder="ej. blue o hex" style="font-size: 0.85rem;" autocomplete="off" />
+                  </div>
+                </div>
+                
+                <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                  <label for="views-style" class="input-label" style="font-size: 0.8rem;">Estilo</label>
+                  <select id="views-style" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 8px; padding: 0 10px; font-size: 0.85rem; height: 36px; cursor: pointer; width: 100%; outline: none;">
+                    <option value="flat" style="background: var(--glass-bg); color: var(--text-primary);">flat</option>
+                    <option value="flat-square" style="background: var(--glass-bg); color: var(--text-primary);">flat-square</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </section>
 
           <!-- Private Token Panel -->
@@ -899,6 +928,76 @@
                       class="copy-btn"
                       id="btn-copy-trophies"
                       aria-label="Copiar markdown de trofeos de GitHub"
+                    >
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      <svg
+                        class="hidden icon-check"
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span class="copy-text">Copiar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Profile Views Badge Preview -->
+              <div class="card-preview-wrapper">
+                <h3 class="card-title-label">Contador de Visitas del Perfil</h3>
+                <div class="image-frame" id="views-frame" style="min-height: auto; padding: 20px 0;">
+                  <img id="views-img" alt="Contador de visitas de GitHub" class="hidden" style="max-height: 20px; object-fit: contain;" />
+                  <div class="placeholder-card" id="views-placeholder">
+                    <div class="pulse-icon">
+                      <svg
+                        class="placeholder-svg"
+                        viewBox="0 0 24 24"
+                        width="36"
+                        height="36"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </div>
+                    <p style="font-size: 0.8rem;">Ingresa tu usuario de GitHub para cargar el contador de visitas</p>
+                  </div>
+                </div>
+                <!-- Code Block 7: Views Badge -->
+                <div class="hidden code-block-wrapper">
+                  <span class="code-label">Contador de Visitas</span>
+                  <div class="code-container">
+                    <pre><code id="markdown-views-code">Cargando...</code></pre>
+                    <button
+                      class="copy-btn"
+                      id="btn-copy-views"
+                      aria-label="Copiar markdown del contador de visitas"
                     >
                       <svg
                         class="icon-copy"

@@ -6,6 +6,7 @@ export interface Metrics {
   rankRenders: number;
   streakRenders: number;
   trophiesRenders: number;
+  viewsRenders: number;
 }
 
 export interface HitContext {

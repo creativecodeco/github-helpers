@@ -5,6 +5,8 @@ import { GetFeaturedRepoCardUseCase } from '@/use-cases/cards/GetFeaturedRepoCar
 import { GetUserRankCardUseCase } from '@/use-cases/cards/GetUserRankCardUseCase';
 import { GetUserStreakCardUseCase } from '@/use-cases/cards/GetUserStreakCardUseCase';
 import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCardUseCase';
+import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewUseCase';
+import { renderViewsBadge } from '@/adapters/presenters/viewsBadge';
 
 const GITHUB_USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 const GITHUB_REPO_REGEX = /^[a-z\d-_.]{1,100}$/i;
@@ -45,7 +47,8 @@ export class CardController {
     private readonly repoCardUseCase: GetFeaturedRepoCardUseCase,
     private readonly rankCardUseCase: GetUserRankCardUseCase,
     private readonly streakCardUseCase: GetUserStreakCardUseCase,
-    private readonly trophiesCardUseCase: GetUserTrophiesCardUseCase
+    private readonly trophiesCardUseCase: GetUserTrophiesCardUseCase,
+    private readonly recordProfileViewUseCase: RecordProfileViewUseCase
   ) {}
 
   getStats = async (req: Request, res: Response): Promise<void> => {
@@ -264,6 +267,42 @@ export class CardController {
       console.error(`Error in getTrophies for ${username}:`, error);
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+    }
+  };
+
+  getProfileViews = async (req: Request, res: Response): Promise<void> => {
+    const { username, theme, color, label, style } = req.query;
+
+    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+      return;
+    }
+
+    try {
+      const userAgent = req.headers['user-agent'] as string | undefined;
+      const referer = req.headers['referer'] as string | undefined;
+
+      const viewsCount = await this.recordProfileViewUseCase.execute(username, userAgent, referer);
+
+      const svg = renderViewsBadge(
+        viewsCount,
+        label as string | undefined,
+        color as string | undefined,
+        theme as string | undefined,
+        style as string | undefined
+      );
+
+      res.setHeader('Content-Type', 'image/svg+xml');
+      // Prevent GitHub Camo caching to keep it real-time
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.status(200).send(svg);
+    } catch (error: any) {
+      console.error(`Error in getProfileViews for ${username}:`, error);
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
     }
   };
 }
