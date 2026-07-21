@@ -1,5 +1,6 @@
 import { UserStats } from '@/domain/entities/UserStats';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 // Helper to convert avatar to Base64 to bypass GitHub camo block
 async function fetchAvatarBase64(url: string): Promise<string> {
@@ -32,6 +33,7 @@ export async function renderStatsCard(
   overrides?: Record<string, string>
 ): Promise<string> {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
   const avatarBase64 = await fetchAvatarBase64(stats.avatarUrl);
 
   const cardWidth = 495;
@@ -93,7 +95,7 @@ export async function renderStatsCard(
           <svg class="stat-icon" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.commit}
           </svg>
-          <text x="24" y="14" class="label">Commits:</text>
+          <text x="24" y="14" class="label">${t.stats.commits}</text>
           <text x="100" y="14" class="value">${stats.totalCommits}</text>
         </g>
         
@@ -102,7 +104,7 @@ export async function renderStatsCard(
           <svg class="stat-icon glow" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.star}
           </svg>
-          <text x="24" y="14" class="label">Estrellas:</text>
+          <text x="24" y="14" class="label">${t.stats.stars}</text>
           <text x="100" y="14" class="value">${stats.totalStars}</text>
         </g>
 
@@ -111,7 +113,7 @@ export async function renderStatsCard(
           <svg class="stat-icon" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.followers}
           </svg>
-          <text x="24" y="14" class="label">Seguidores:</text>
+          <text x="24" y="14" class="label">${t.stats.followers}</text>
           <text x="110" y="14" class="value">${stats.followers}</text>
         </g>
       </g>
@@ -123,7 +125,7 @@ export async function renderStatsCard(
           <svg class="stat-icon" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.pr}
           </svg>
-          <text x="24" y="14" class="label">PRs:</text>
+          <text x="24" y="14" class="label">${t.stats.prs}</text>
           <text x="100" y="14" class="value">${stats.totalPRs}</text>
         </g>
 
@@ -132,7 +134,7 @@ export async function renderStatsCard(
           <svg class="stat-icon" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.issue}
           </svg>
-          <text x="24" y="14" class="label">Issues:</text>
+          <text x="24" y="14" class="label">${t.stats.issues}</text>
           <text x="100" y="14" class="value">${stats.totalIssues}</text>
         </g>
 
@@ -141,7 +143,7 @@ export async function renderStatsCard(
           <svg class="stat-icon" viewBox="0 0 24 24" width="18" height="18" x="0" y="0">
             ${ICONS.fork}
           </svg>
-          <text x="24" y="14" class="label">Forks:</text>
+          <text x="24" y="14" class="label">${t.stats.forks}</text>
           <text x="110" y="14" class="value">${stats.forksReceived}</text>
         </g>
       </g>

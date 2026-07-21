@@ -1,6 +1,7 @@
 import { UserStats } from '@/domain/entities/UserStats';
 import { LanguageStat } from '@/domain/entities/LanguageStat';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 interface TrophyData {
   category: string;
@@ -28,10 +29,12 @@ export function renderTrophiesCard(
   overrides?: Record<string, string>
 ): string {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
+  const isEn = overrides?.locale === 'en';
 
   // 1. Commits Trophy
   let commitsRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let commitsTitle = 'Novato';
+  let commitsTitle = isEn ? 'Novice' : 'Novato';
   if (stats.totalCommits >= 2000) {
     commitsRank = 'S';
     commitsTitle = 'Commit Master';
@@ -126,7 +129,7 @@ export function renderTrophiesCard(
       category: 'STARS',
       title: starsTitle,
       rank: starsRank,
-      valueText: `${stats.totalStars} stars`,
+      valueText: `${stats.totalStars} ${isEn ? 'stars' : 'estrellas'}`,
       color: RANK_COLORS[starsRank]
     },
     {
@@ -140,21 +143,21 @@ export function renderTrophiesCard(
       category: 'FOLLOWERS',
       title: followersTitle,
       rank: followersRank,
-      valueText: `${stats.followers} followers`,
+      valueText: `${stats.followers} ${isEn ? 'followers' : 'seguidores'}`,
       color: RANK_COLORS[followersRank]
     },
     {
       category: 'REPOSITORIES',
       title: reposTitle,
       rank: reposRank,
-      valueText: `${stats.publicRepos} repos`,
+      valueText: `${stats.publicRepos} ${isEn ? 'repos' : 'repositorios'}`,
       color: RANK_COLORS[reposRank]
     },
     {
       category: 'LANGUAGES',
       title: langTitle,
       rank: langRank,
-      valueText: `${validLanguages.length} lang`,
+      valueText: `${validLanguages.length} ${isEn ? 'languages' : 'lenguajes'}`,
       color: RANK_COLORS[langRank]
     }
   ];

@@ -121,19 +121,33 @@ Las tarjetas se pueden incrustar en cualquier archivo Markdown usando la siguien
 
 ### 1. Tarjeta de Estadísticas Generales
 ```markdown
-![Estadísticas de GitHub](http://tu-servidor.com/api/stats?username=tu-usuario&theme=neon)
+![Estadísticas de GitHub](http://tu-servidor.com/api/stats?username=tu-usuario&theme=neon&locale=en)
 ```
 - **Parámetros:**
   - `username` (Obligatorio): Nombre de usuario en GitHub. Valida con regex `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i`.
   - `theme` (Opcional): `dark` (por defecto), `light`, `neon`, `glassmorphism`, `solarized`, `radical`, `tokyonight`.
+  - `locale` o `lang` (Opcional): `es` (Español, por defecto) o `en` (Inglés). Traduce dinámicamente los textos internos de la tarjeta.
 
 ### 2. Tarjeta de Lenguajes más Usados
 ```markdown
-![Lenguajes de GitHub](http://tu-servidor.com/api/languages?username=tu-usuario&theme=tokyonight)
+![Lenguajes de GitHub](http://tu-servidor.com/api/languages?username=tu-usuario&theme=tokyonight&locale=en)
 ```
 - **Parámetros:**
   - `username` (Obligatorio): Nombre de usuario en GitHub.
   - `theme` (Opcional): Mismos temas que la tarjeta de estadísticas.
+  - `locale` (Opcional): `es` o `en` para traducción.
+
+---
+
+## 📊 Panel de Administración de Métricas (`/admin/metrics`)
+
+El servicio cuenta con una interfaz web segura de analíticas en la dirección `/admin/metrics`.
+- **Acceso:** Protegido mediante un formulario de autenticación glassmorphic que valida contra la clave configurada en la variable de entorno `METRICS_KEY`.
+- **Analíticas en Tiempo Real:**
+  - Métricas KPI para renderizados totales, usuarios únicos registrados y vistas de insignias de perfil.
+  - Gráfico de dona (Doughnut) de distribución de tipos de tarjetas solicitadas.
+  - Gráfico de barras apiladas (Stacked Bar) de tráfico por origen (GitHub Camo vs Web Directa).
+  - Listado de usuarios/perfiles más activos con fecha de última actualización y hits de perfil.
 
 ---
 

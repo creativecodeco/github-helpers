@@ -1,5 +1,6 @@
 import { RepoStats } from '@/domain/entities/RepoStats';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 export function renderTopReposCard(
   repos: RepoStats[],
@@ -7,6 +8,7 @@ export function renderTopReposCard(
   overrides?: Record<string, string>
 ): string {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
   const cardWidth = 495;
   const cardHeight = 300;
   const widthAttr = overrides?.cardWidth || `${cardWidth}`;
@@ -90,7 +92,7 @@ export function renderTopReposCard(
         <path d="M3 2.75A2.75 2.75 0 0 1 5.75 0h14.5a.75.75 0 0 1 .75.75v20.5a.75.75 0 0 1-.75.75h-6a.75.75 0 0 1 0-1.5h5.25v-4H5.75A2.75 2.75 0 0 1 3 14.25v-11.5zm1.5 0v11.5c0 .69.56 1.25 1.25 1.25H20v-9.5H5.75a2.75 2.75 0 0 1-2.75-2.75c0-.69.56-1.25 1.25-1.25h12.75a.75.75 0 0 1 0 1.5H4.5z"
           fill="${theme.accent}" transform="scale(0.82)" />
       </g>
-      <text x="44" y="26" class="tr-title">Top Repositorios</text>
+      <text x="44" y="26" class="tr-title">${t.topRepos.title}</text>
       <text x="473" y="22" text-anchor="end" class="tr-brand">CreativeCode.com.co</text>
 
       <!-- Divider -->

@@ -173,5 +173,134 @@ test.describe('GitHub Helpers App E2E Tests', () => {
     expect(page.url()).toContain('theme=synthwave');
     expect(page.url()).toContain('user=creativecode');
   });
-});
 
+  test('should synchronize and propagate the locale parameter correctly', async ({ page }) => {
+    // Generate cards
+    await page.fill('#username-input', 'creativecode');
+    await page.click('#btn-generate');
+
+    // Change language to english
+    await page.selectOption('#locale-select', 'en');
+
+    // URL should update to include locale=en
+    expect(page.url()).toContain('locale=en');
+
+    // Preview code blocks should contain &locale=en
+    const statsCode = page.locator('#markdown-stats-code');
+    await expect(statsCode).toContainText('&locale=en');
+
+    // Image source should contain &locale=en
+    const statsImg = page.locator('#stats-img');
+    const src = await statsImg.getAttribute('src');
+    expect(src).toContain('&locale=en');
+  });
+});test.describe('Admin Metrics Dashboard E2E Tests', () => {
+  test('should show auth screen initially and fail on invalid key', async ({ page }) => {
+    // Mock the backend API with a 401 response for invalid keys
+    await page.route(/\/api\/metrics/, async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Acceso no autorizado' })
+      });
+    });
+
+    // Go to admin metrics dashboard
+    await page.goto('/admin/metrics');
+
+    // Verify login panel is visible
+    await expect(page.locator('#auth-panel')).toBeVisible();
+    await expect(page.locator('#analytics-panel')).toBeHidden();
+
+    // Type invalid key and validate
+    await page.fill('#metrics-key-input', 'invalidkey');
+    await page.click('#btn-login-metrics');
+
+    // Error message should be visible
+    const errorMsg = page.locator('#auth-error-msg');
+    await expect(errorMsg).toBeVisible();
+    await expect(errorMsg).toContainText('Clave incorrecta');
+  });
+
+
+  test('should unlock dashboard and render charts/tables on valid key', async ({ page }) => {
+    // Add page log listeners
+    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
+    page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
+
+    const validKey = 'correctmetricskey';
+
+    // Mock backend metrics data
+    const mockGlobalMetrics = {
+      totalRenders: 1250,
+      statsRenders: 400,
+      languagesRenders: 300,
+      repoRenders: 150,
+      rankRenders: 100,
+      streakRenders: 100,
+      trophiesRenders: 100,
+      viewsRenders: 100
+    };
+
+    const mockUserMetrics = [
+      {
+        username: 'octocat',
+        stats_web: 50,
+        stats_github: 20,
+        languages_web: 30,
+        languages_github: 10,
+        profile_views: 150,
+        last_updated: '2026-07-21T10:00:00.000Z'
+      }
+    ];
+
+    // Mock global and user metrics request
+    await page.route(/\/api\/metrics/, async (route) => {
+      const url = new URL(route.request().url());
+      console.log('INTERCEPTED METRICS REQ:', url.toString(), 'Path:', url.pathname);
+      if (url.pathname.includes('/api/metrics/users')) {
+        console.log('RESPONDING WITH USER METRICS');
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(mockUserMetrics)
+        });
+      } else {
+        console.log('RESPONDING WITH GLOBAL METRICS');
+        const key = url.searchParams.get('key');
+        if (key === validKey) {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify(mockGlobalMetrics)
+          });
+        } else {
+          await route.fulfill({
+            status: 401,
+            contentType: 'application/json',
+            body: JSON.stringify({ error: 'Acceso no autorizado' })
+          });
+        }
+      }
+    });
+
+    // Go to admin metrics dashboard
+    await page.goto('/admin/metrics');
+    await page.fill('#metrics-key-input', validKey);
+    await page.click('#btn-login-metrics');
+
+    // Login panel should disappear, analytics panel should show
+    await expect(page.locator('#auth-panel')).toBeHidden();
+    await expect(page.locator('#analytics-panel')).toBeVisible();
+
+    // Check KPIs are rendered correctly
+    await expect(page.locator('#kpi-renders')).toHaveText(/1[.,]250/);
+    await expect(page.locator('#kpi-users')).toHaveText('1');
+    await expect(page.locator('#kpi-views')).toHaveText('100');
+
+    // Check recent user is rendered in table
+    const tableBody = page.locator('#users-table-body');
+    await expect(tableBody).toContainText('@octocat');
+    await expect(tableBody).toContainText('150'); // profile views
+  });
+});

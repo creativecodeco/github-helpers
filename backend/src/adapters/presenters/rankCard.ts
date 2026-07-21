@@ -1,5 +1,6 @@
 import { UserStats } from '@/domain/entities/UserStats';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 export function renderRankCard(
   stats: UserStats,
@@ -7,6 +8,7 @@ export function renderRankCard(
   overrides?: Record<string, string>
 ): string {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
   const cardWidth = 495;
   const cardHeight = 195;
   const widthAttr = overrides?.cardWidth || `${cardWidth}`;
@@ -27,13 +29,13 @@ export function renderRankCard(
   const filledWidth = Math.round((stats.collaborationIndex / 100) * colBarWidth);
 
   // Rank description or rank level explanation
-  let rankDesc = 'Desarrollador en crecimiento';
+  let rankDesc = t.rank.rankGrowing;
   if (stats.rank === 'S+' || stats.rank === 'S') {
-    rankDesc = 'Desarrollador Legendario / Contribuidor Elite';
+    rankDesc = t.rank.rankLegendary;
   } else if (stats.rank === 'A+' || stats.rank === 'A') {
-    rankDesc = 'Desarrollador Sobresaliente / Muy Activo';
+    rankDesc = t.rank.rankOutstanding;
   } else if (stats.rank === 'B+' || stats.rank === 'B') {
-    rankDesc = 'Desarrollador Activo y Colaborativo';
+    rankDesc = t.rank.rankActive;
   }
 
   return `
@@ -64,12 +66,12 @@ export function renderRankCard(
 
       <!-- Right Section: Details -->
       <g transform="translate(150, 52)">
-        <text x="0" y="10" class="title">Rango de Desarrollador</text>
+        <text x="0" y="10" class="title">${t.rank.title}</text>
         <text x="0" y="28" class="subtitle">${rankDesc}</text>
         
         <!-- Collaboration Progress Bar -->
         <g transform="translate(0, 48)">
-          <text x="0" y="12" class="metric-lbl">Índice de Colaboración</text>
+          <text x="0" y="12" class="metric-lbl">${t.rank.collab}</text>
           <text x="280" y="12" text-anchor="end" class="metric-val">${stats.collaborationIndex}%</text>
           
           <!-- Bar container -->

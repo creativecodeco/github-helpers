@@ -97,7 +97,8 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://static.cloudflareinsights.com',
-          'https://www.googletagmanager.com'
+          'https://www.googletagmanager.com',
+          'https://cdn.jsdelivr.net'
         ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         imgSrc: [
@@ -242,6 +243,10 @@ app.get('/', (req: Request, res: Response) => {
 
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(html);
+});
+
+app.get('/admin/metrics', (_req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../../../../public/admin/metrics.html'));
 });
 
 app.use(express.static(path.join(__dirname, '../../../../public')));

@@ -1,5 +1,6 @@
 import { StreakStats } from '@/domain/entities/StreakStats';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 // Friendly month abbreviations
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -25,6 +26,7 @@ export function renderStreakCard(
   overrides?: Record<string, string>
 ): string {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
 
   const cardWidth = 495;
   const cardHeight = 195;
@@ -43,7 +45,7 @@ export function renderStreakCard(
 
   // Date range labels
   const totalRange = stats.firstContributionDate
-    ? `${formatDateFull(stats.firstContributionDate)} - Present`
+    ? `${formatDateFull(stats.firstContributionDate)} - ${t.streak.present}`
     : 'N/A';
 
   const currentStreakRange =
@@ -51,7 +53,7 @@ export function renderStreakCard(
       ? stats.currentStreakStart === stats.currentStreakEnd
         ? formatDate(stats.currentStreakEnd)
         : `${formatDate(stats.currentStreakStart)} - ${formatDate(stats.currentStreakEnd)}`
-      : 'No active streak';
+      : t.streak.noStreak;
 
   const longestStreakRange =
     stats.longestStreak > 0
@@ -88,11 +90,11 @@ export function renderStreakCard(
   <!-- Divider 2 -->
   <line x1="330" y1="28" x2="330" y2="168" stroke="${theme.border}" stroke-width="1.5" opacity="0.8"/>
 
-  <!-- ── Column 1: Total Contributions ── -->
+   <!-- ── Column 1: Total Contributions ── -->
   <!-- Big number -->
   <text x="${col1}" y="100" text-anchor="middle" class="streak-big" fill="${theme.accent}">${stats.totalContributions}</text>
   <!-- Label -->
-  <text x="${col1}" y="124" text-anchor="middle" class="streak-label" fill="${theme.text}">Total Contributions</text>
+  <text x="${col1}" y="124" text-anchor="middle" class="streak-label" fill="${theme.text}">${t.streak.total}</text>
   <!-- Date sub-label -->
   <text x="${col1}" y="143" text-anchor="middle" class="streak-sub" fill="${theme.secondary}">${totalRange}</text>
 
@@ -109,7 +111,7 @@ export function renderStreakCard(
   <text x="${col2}" y="99" text-anchor="middle" class="streak-big" fill="${ringColor}">${stats.currentStreak}</text>
 
   <!-- Label below ring -->
-  <text x="${col2}" y="143" text-anchor="middle" class="streak-label" fill="${theme.title}">Current Streak</text>
+  <text x="${col2}" y="143" text-anchor="middle" class="streak-label" fill="${theme.title}">${t.streak.current}</text>
   <!-- Date sub-label -->
   <text x="${col2}" y="159" text-anchor="middle" class="streak-sub" fill="${theme.secondary}">${currentStreakRange}</text>
 
@@ -117,7 +119,7 @@ export function renderStreakCard(
   <!-- Big number -->
   <text x="${col3}" y="100" text-anchor="middle" class="streak-big" fill="${theme.accent}">${stats.longestStreak}</text>
   <!-- Label -->
-  <text x="${col3}" y="124" text-anchor="middle" class="streak-label" fill="${theme.text}">Longest Streak</text>
+  <text x="${col3}" y="124" text-anchor="middle" class="streak-label" fill="${theme.text}">${t.streak.max}</text>
   <!-- Date sub-label -->
   <text x="${col3}" y="143" text-anchor="middle" class="streak-sub" fill="${theme.secondary}">${longestStreakRange}</text>
 

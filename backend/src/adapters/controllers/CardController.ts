@@ -50,6 +50,16 @@ function extractThemeOverrides(query: Record<string, any>): Record<string, strin
       }
     }
   }
+
+  // Extract locale (es or en, default es)
+  const loc = query.locale || query.lang;
+  if (typeof loc === 'string') {
+    const norm = loc.toLowerCase().trim();
+    if (norm === 'en' || norm === 'es') {
+      overrides.locale = norm;
+    }
+  }
+
   return overrides;
 }
 

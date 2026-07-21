@@ -1,5 +1,6 @@
 import { LanguageStat } from '@/domain/entities/LanguageStat';
 import { getTheme } from './theme';
+import { getTranslations } from './i18n';
 
 export function renderLanguagesCard(
   languages: LanguageStat[],
@@ -8,6 +9,7 @@ export function renderLanguagesCard(
   username?: string
 ): string {
   const theme = getTheme(themeName, overrides);
+  const t = getTranslations(overrides?.locale);
   const cardWidth = 495;
   const cardHeight = 195;
   const widthAttr = overrides?.cardWidth || `${cardWidth}`;
@@ -75,7 +77,7 @@ export function renderLanguagesCard(
       <rect width="${cardWidth}" height="${cardHeight}" rx="12" fill="url(#bg)" stroke="${theme.border}" stroke-width="1.5" />
 
       <!-- Title -->
-      <text x="25" y="42" class="title">Lenguajes Más Usados</text>
+      <text x="25" y="42" class="title">${t.languages.title}</text>
 
       <!-- Stacked Progress Bar -->
       <g clip-path="url(#bar-clip)">

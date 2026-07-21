@@ -235,6 +235,24 @@ import Footer from '../components/Footer.astro';
             </button>
           </div>
         </div>
+
+        <!-- Idioma de Tarjetas (i18n) -->
+        <div class="input-group" style="margin-top: 16px;">
+          <label for="locale-select" class="input-label">Idioma de Tarjetas</label>
+          <div class="input-wrapper" style="height: 38px;">
+            <select
+              id="locale-select"
+              style="width: 100%; height: 100%; background: transparent; border: none; color: var(--text-primary); font-family: var(--font-family); font-size: 0.85rem; padding-left: 12px; cursor: pointer; outline: none;"
+            >
+              <option value="es" style="background: var(--bg-color); color: var(--text-primary);">
+                Español (es)
+              </option>
+              <option value="en" style="background: var(--bg-color); color: var(--text-primary);">
+                English (en)
+              </option>
+            </select>
+          </div>
+        </div>
       </section>
 
       <PrivateTokenModal />
@@ -586,6 +604,19 @@ import Footer from '../components/Footer.astro';
   let currentUsername = '';
   let currentRepo = '';
   let currentCardWidth = ''; // empty = default 495px
+  let currentLocale = 'es';
+
+  const localeSelect = document.getElementById('locale-select') as HTMLSelectElement | null;
+
+  localeSelect?.addEventListener('change', () => {
+    currentLocale = localeSelect.value;
+    if (currentUsername) {
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('locale', currentLocale);
+      window.history.pushState({}, '', newUrl.toString());
+      updateCards();
+    }
+  });
 
   // --- Card Width Control ---
   const widthOptions = document.querySelectorAll('.width-option') as NodeListOf<HTMLButtonElement>;
@@ -710,6 +741,11 @@ import Footer from '../components/Footer.astro';
     } else {
       newUrl.searchParams.delete('theme');
     }
+    if (currentLocale && currentLocale !== 'es') {
+      newUrl.searchParams.set('locale', currentLocale);
+    } else {
+      newUrl.searchParams.delete('locale');
+    }
     window.history.pushState({}, '', newUrl.toString());
 
     updateThemeSelectorsState();
@@ -775,14 +811,16 @@ import Footer from '../components/Footer.astro';
     const widthParam = currentCardWidth
       ? `&card_width=${encodeURIComponent(currentCardWidth)}`
       : '';
-    const statsUrl = `${origin}/api/stats?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
-    const languagesUrl = `${origin}/api/languages?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
-    const rankUrl = `${origin}/api/rank?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
-    const streakUrl = `${origin}/api/streak?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
-    const trophiesUrl = `${origin}/api/trophies?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
-    const topReposUrl = `${origin}/api/top-repos?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
+    const localeParam = currentLocale ? `&locale=${encodeURIComponent(currentLocale)}` : '';
 
-    let repoUrl = `${origin}/api/repo?username=${currentUsername}&theme=${currentTheme}${widthParam}`;
+    const statsUrl = `${origin}/api/stats?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+    const languagesUrl = `${origin}/api/languages?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+    const rankUrl = `${origin}/api/rank?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+    const streakUrl = `${origin}/api/streak?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+    const trophiesUrl = `${origin}/api/trophies?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+    const topReposUrl = `${origin}/api/top-repos?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
+
+    let repoUrl = `${origin}/api/repo?username=${currentUsername}&theme=${currentTheme}${widthParam}${localeParam}`;
     if (currentRepo) {
       repoUrl += `&repo=${encodeURIComponent(currentRepo)}`;
     }
@@ -1406,6 +1444,7 @@ import Footer from '../components/Footer.astro';
     const urlParams = new URLSearchParams(window.location.search);
     const userParam = urlParams.get('user') || urlParams.get('username');
     const themeParam = urlParams.get('theme');
+    const localeParam = urlParams.get('locale');
 
     if (themeParam) {
       currentTheme = themeParam;
@@ -1413,6 +1452,13 @@ import Footer from '../components/Footer.astro';
       if (option) {
         themeOptions.forEach((opt) => opt.classList.remove('active'));
         option.classList.add('active');
+      }
+    }
+
+    if (localeParam === 'en' || localeParam === 'es') {
+      currentLocale = localeParam;
+      if (localeSelect) {
+        localeSelect.value = localeParam;
       }
     }
 
