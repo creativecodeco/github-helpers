@@ -30,5 +30,5 @@ This file documents workspace-specific rules, patterns, and guidelines that all 
 * **release-it**: The repository uses `release-it` to manage semantic versioning and automate changelog generation.
 * **Commands**: Run `pnpm release` from the `main` branch to trigger a new release.
 * **Conventional Commits**: Commit messages must follow the Conventional Commits specification (e.g. `feat: ...`, `fix: ...`, `chore: ...`) to enable automatic changelog generation.
-* **Documentation Synchronization**: AI coding agents MUST update all relevant markdown files (`README.md`, `CHANGELOG.md`, etc.) on every modification that changes architecture, configuration keys, or deployment steps to ensure documentation is always synchronized.
+* **Documentation Synchronization**: AI coding agents MUST update all relevant markdown files (`README.md`, `CHANGELOG.md`, `.agents/ARCHITECTURE.md`, etc.) on every modification that changes architecture, configuration keys, or deployment steps to ensure documentation is always synchronized.
 
