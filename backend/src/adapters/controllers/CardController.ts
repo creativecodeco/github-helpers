@@ -5,6 +5,7 @@ import { GetFeaturedRepoCardUseCase } from '@/use-cases/cards/GetFeaturedRepoCar
 import { GetUserRankCardUseCase } from '@/use-cases/cards/GetUserRankCardUseCase';
 import { GetUserStreakCardUseCase } from '@/use-cases/cards/GetUserStreakCardUseCase';
 import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCardUseCase';
+import { GetUserTopReposCardUseCase } from '@/use-cases/cards/GetUserTopReposCardUseCase';
 import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewUseCase';
 import { renderViewsBadge } from '@/adapters/presenters/viewsBadge';
 
@@ -30,14 +31,36 @@ function renderErrorCard(message: string): string {
 
 function extractThemeOverrides(query: Record<string, any>): Record<string, string> {
   const overrides: Record<string, string> = {};
-  const keys = ['bg', 'text', 'title', 'accent', 'secondary', 'border', 'bgGradient'];
-  for (const key of keys) {
-    const value = query[key];
-    if (typeof value === 'string') {
-      overrides[key] = value;
+  const mappings: Record<string, string[]> = {
+    bg: ['bg', 'bg_color'],
+    text: ['text', 'text_color'],
+    title: ['title', 'title_color'],
+    accent: ['accent', 'icon_color', 'accent_color'],
+    secondary: ['secondary', 'secondary_color'],
+    border: ['border', 'border_color'],
+    bgGradient: ['bgGradient', 'bg_gradient']
+  };
+
+  for (const [targetKey, paramKeys] of Object.entries(mappings)) {
+    for (const key of paramKeys) {
+      const val = query[key];
+      if (typeof val === 'string' && val.trim() !== '') {
+        overrides[targetKey] = val;
+        break;
+      }
     }
   }
   return overrides;
+}
+
+function extractCardWidth(query: Record<string, any>): string | undefined {
+  const fullWidth = query.full_width === 'true' || query.full_width === '1';
+  if (fullWidth) return '100%';
+  const widthVal = query.card_width || query.width;
+  if (typeof widthVal === 'string' && widthVal.trim() !== '') {
+    return widthVal.trim();
+  }
+  return undefined;
 }
 
 export class CardController {
@@ -48,7 +71,8 @@ export class CardController {
     private readonly rankCardUseCase: GetUserRankCardUseCase,
     private readonly streakCardUseCase: GetUserStreakCardUseCase,
     private readonly trophiesCardUseCase: GetUserTrophiesCardUseCase,
-    private readonly recordProfileViewUseCase: RecordProfileViewUseCase
+    private readonly recordProfileViewUseCase: RecordProfileViewUseCase,
+    private readonly topReposCardUseCase: GetUserTopReposCardUseCase
   ) {}
 
   getStats = async (req: Request, res: Response): Promise<void> => {
@@ -61,7 +85,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -96,7 +121,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -137,7 +163,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -175,7 +202,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -210,7 +238,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -245,7 +274,8 @@ export class CardController {
     }
 
     try {
-      const overrides = extractThemeOverrides(req.query);
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
       const hitContext = {
         username,
         userAgent: req.headers['user-agent'],
@@ -303,6 +333,31 @@ export class CardController {
       console.error(`Error in getProfileViews for ${username}:`, error);
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
+    }
+  };
+
+  getTopRepos = async (req: Request, res: Response): Promise<void> => {
+    const { username, theme } = req.query;
+
+    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+      return;
+    }
+
+    try {
+      const cardWidth = extractCardWidth(req.query);
+      const overrides = { ...extractThemeOverrides(req.query), ...(cardWidth ? { cardWidth } : {}) };
+
+      const svg = await this.topReposCardUseCase.execute(username, theme as string, overrides);
+
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=7200');
+      res.status(200).send(svg);
+    } catch (error: any) {
+      console.error(`Error in getTopRepos for ${username}:`, error);
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.status(500).send(renderErrorCard(error.message || 'Error al obtener repositorios'));
     }
   };
 }

@@ -22,6 +22,7 @@ import { GetFeaturedRepoCardUseCase } from '@/use-cases/cards/GetFeaturedRepoCar
 import { GetUserRankCardUseCase } from '@/use-cases/cards/GetUserRankCardUseCase';
 import { GetUserStreakCardUseCase } from '@/use-cases/cards/GetUserStreakCardUseCase';
 import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCardUseCase';
+import { GetUserTopReposCardUseCase } from '@/use-cases/cards/GetUserTopReposCardUseCase';
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
@@ -49,6 +50,7 @@ const repoCardUseCase = new GetFeaturedRepoCardUseCase(githubRepo, tokenRepo, me
 const rankCardUseCase = new GetUserRankCardUseCase(githubRepo, tokenRepo, metricsRepo);
 const streakCardUseCase = new GetUserStreakCardUseCase(githubRepo, metricsRepo);
 const trophiesCardUseCase = new GetUserTrophiesCardUseCase(githubRepo, tokenRepo, metricsRepo);
+const topReposCardUseCase = new GetUserTopReposCardUseCase(githubRepo);
 
 const registerTokenUseCase = new RegisterUserTokenUseCase(tokenRepo, githubRepo);
 const revokeTokenUseCase = new RevokeUserTokenUseCase(tokenRepo, githubRepo);
@@ -62,7 +64,8 @@ const cardController = new CardController(
   rankCardUseCase,
   streakCardUseCase,
   trophiesCardUseCase,
-  recordProfileViewUseCase
+  recordProfileViewUseCase,
+  topReposCardUseCase
 );
 
 const tokenController = new TokenController(
@@ -135,6 +138,7 @@ app.use('/api/repo', publicCardsCors);
 app.use('/api/rank', publicCardsCors);
 app.use('/api/streak', publicCardsCors);
 app.use('/api/trophies', publicCardsCors);
+app.use('/api/top-repos', publicCardsCors);
 
 app.use(express.json());
 
@@ -216,6 +220,7 @@ app.get('/api/rank', cardController.getRank);
 app.get('/api/streak', cardController.getStreak);
 app.get('/api/trophies', cardController.getTrophies);
 app.get('/api/views', cardController.getProfileViews);
+app.get('/api/top-repos', cardController.getTopRepos);
 
 app.post('/api/tokens/register', tokenController.register);
 app.delete('/api/tokens/revoke', tokenController.revoke);

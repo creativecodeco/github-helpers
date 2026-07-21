@@ -2,6 +2,22 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.2.1] - 2026-07-21
+
+### 🚀 Nuevas Funcionalidades
+- **Tarjeta de Top Repositorios** (`/api/top-repos`): Nuevo endpoint SVG que muestra los 4 repositorios más destacados del usuario (por estrellas), con nombre, descripción, lenguaje con color, conteo de estrellas y forks. Soporta todos los temas y ancho personalizado.
+- **5 Nuevos Temas Premium**: Se añadieron `catppuccin_mocha`, `nord`, `cyberpunk`, `gruvbox` y `synthwave` al sistema de temas en `theme.ts`.
+- **Aliases de Color Comunitarios**: El controlador de tarjetas acepta ahora los alias estándar de la comunidad `title_color`, `bg_color`, `icon_color`, `border_color`, `text_color`, `secondary_color` y `bg_gradient`.
+- **Personalización del Ancho de Tarjeta**: Todos los presentadores SVG soportan el parámetro `card_width` (e.g. `card_width=100%`, `card_width=600`, `full_width=true`). La coordenada `viewBox` se mantiene fija para preservar el layout interno.
+
+### 🎨 Frontend
+- **Nuevos botones de tema** en el panel de configuración (Catppuccin, Nord, Cyberpunk, Gruvbox, Synthwave).
+- **Control de Ancho de Tarjeta**: Botones "Estándar (495px)" y "Ancho Completo (100%)" + campo de ancho personalizado con botón "Aplicar". El parámetro `card_width` se inyecta en todas las URLs generadas.
+- **Vista previa de Top Repositorios**: Nueva tarjeta de previsualización con generador de código Markdown.
+
+### 🧪 Pruebas
+- **10 nuevas pruebas unitarias** en `topReposCard.test.ts`: validación de estructura SVG, aplicación de temas, formato K-suffix de conteos, soporte de ancho 100% y personalizado, truncado de descripciones, y los 5 nuevos temas.
+
 ## [1.2.0] - 2026-07-21
 
 ### 🏗️ Arquitectura y Estructura (Monorepo)
@@ -65,4 +81,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.2.0
+**Versión actualmente expuesta / en producción:** v1.2.1

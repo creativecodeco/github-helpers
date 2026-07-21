@@ -36,6 +36,7 @@ export async function renderStatsCard(
 
   const cardWidth = 495;
   const cardHeight = 195;
+  const widthAttr = overrides?.cardWidth || `${cardWidth}`;
 
   // Background style: gradient support
   const backgroundDef = theme.bgGradient
@@ -55,7 +56,7 @@ export async function renderStatsCard(
        <path d="M60 45a10 10 0 100 20 10 10 0 000-20zm0 25c-11.67 0-21 5.33-21 12v3h42v-3c0-6.67-9.33-12-21-12z" fill="${theme.text}" />`;
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${widthAttr}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
       <defs>
         ${backgroundDef}
         <clipPath id="circle-clip">

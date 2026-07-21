@@ -68,6 +68,50 @@ export const THEMES: Record<string, Theme> = {
     secondary: '#565f89',
     border: '#383e5a',
     bgGradient: 'linear-gradient(135deg, #1a1b26 0%, #16161e 100%)'
+  },
+  catppuccin_mocha: {
+    bg: '#1e1e2e',
+    text: '#cdd6f4',
+    title: '#cba6f7',
+    accent: '#89b4fa',
+    secondary: '#a6adc8',
+    border: '#45475a',
+    bgGradient: 'linear-gradient(135deg, #1e1e2e 0%, #11111b 100%)'
+  },
+  nord: {
+    bg: '#2e3440',
+    text: '#d8dee9',
+    title: '#88c0d0',
+    accent: '#81a1c1',
+    secondary: '#e5e9f0',
+    border: '#4c566a',
+    bgGradient: 'linear-gradient(135deg, #2e3440 0%, #242933 100%)'
+  },
+  cyberpunk: {
+    bg: '#090d16',
+    text: '#00f0ff',
+    title: '#ff0055',
+    accent: '#ffe600',
+    secondary: '#7685a0',
+    border: '#ff0055',
+    bgGradient: 'linear-gradient(135deg, #090d16 0%, #1a0022 100%)'
+  },
+  gruvbox: {
+    bg: '#282828',
+    text: '#ebdbb2',
+    title: '#fabd2f',
+    accent: '#fe8019',
+    secondary: '#a89984',
+    border: '#504945'
+  },
+  synthwave: {
+    bg: '#1a102f',
+    text: '#f0e6f6',
+    title: '#ff7edb',
+    accent: '#36f9f6',
+    secondary: '#b39ddb',
+    border: '#ff7edb',
+    bgGradient: 'linear-gradient(135deg, #1a102f 0%, #2d124d 100%)'
   }
 };
 

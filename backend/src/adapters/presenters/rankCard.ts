@@ -9,6 +9,7 @@ export function renderRankCard(
   const theme = getTheme(themeName, overrides);
   const cardWidth = 495;
   const cardHeight = 195;
+  const widthAttr = overrides?.cardWidth || `${cardWidth}`;
 
   // Background style: gradient support
   const backgroundDef = theme.bgGradient
@@ -36,7 +37,7 @@ export function renderRankCard(
   }
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${widthAttr}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
       <defs>
         ${backgroundDef}
         <style>

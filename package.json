@@ -1,6 +1,6 @@
 {
   "name": "github-helpers",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "API server and interactive web frontend to generate beautiful GitHub readme stats cards and metrics",
   "scripts": {
     "build": "pnpm --filter github-helpers-frontend build && pnpm --filter github-helpers-backend build",

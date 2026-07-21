@@ -434,4 +434,28 @@ export class ApiGitHubRepository implements IGitHubRepository {
   clearCache(_username: string): void {
     // No-op for the raw API client
   }
+
+  async getUserTopRepos(username: string, limit: number = 4): Promise<RepoStats[]> {
+    const reposUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=stars&direction=desc`;
+    const repos = await this.fetchGitHub(reposUrl);
+
+    const sorted = (repos as any[])
+      .filter((r: any) => !r.fork)
+      .sort((a: any, b: any) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
+      .slice(0, limit);
+
+    return sorted.map((repo: any) => {
+      const language = repo.language || 'Markdown';
+      return {
+        name: repo.name,
+        owner: repo.owner.login,
+        description: repo.description || 'Sin descripción disponible.',
+        stars: repo.stargazers_count || 0,
+        forks: repo.forks_count || 0,
+        language,
+        languageColor: LANGUAGE_COLORS[language] || DEFAULT_COLOR,
+        license: repo.license ? repo.license.spdx_id || repo.license.name : 'No License'
+      };
+    });
+  }
 }

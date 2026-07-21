@@ -1,6 +1,6 @@
 {
   "name": "github-helpers-backend",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Backend API server for GitHub Helpers",
   "main": "dist/server.js",
   "scripts": {

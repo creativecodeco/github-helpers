@@ -14,6 +14,7 @@ export class CachedGitHubRepository implements IGitHubRepository {
   private languagesCache = new Map<string, CacheEntry<LanguageStat[]>>();
   private repoCache = new Map<string, CacheEntry<RepoStats>>();
   private streakCache = new Map<string, CacheEntry<StreakStats>>();
+  private topReposCache = new Map<string, CacheEntry<RepoStats[]>>();
 
   private readonly CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
@@ -62,6 +63,19 @@ export class CachedGitHubRepository implements IGitHubRepository {
     return data;
   }
 
+  async getUserTopRepos(username: string, limit: number = 4): Promise<RepoStats[]> {
+    const cacheKey = `${username.toLowerCase()}:top:${limit}`;
+    const cached = this.topReposCache.get(cacheKey);
+
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+      return cached.data;
+    }
+
+    const data = await this.delegate.getUserTopRepos(username, limit);
+    this.topReposCache.set(cacheKey, { data, timestamp: Date.now() });
+    return data;
+  }
+
   async getUserStreak(username: string): Promise<StreakStats> {
     const cacheKey = username.toLowerCase();
     const cached = this.streakCache.get(cacheKey);
@@ -86,6 +100,12 @@ export class CachedGitHubRepository implements IGitHubRepository {
     for (const key of this.repoCache.keys()) {
       if (key.startsWith(`${keyBase}:`)) {
         this.repoCache.delete(key);
+      }
+    }
+
+    for (const key of this.topReposCache.keys()) {
+      if (key.startsWith(`${keyBase}:`)) {
+        this.topReposCache.delete(key);
       }
     }
 

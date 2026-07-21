@@ -161,6 +161,7 @@ export function renderTrophiesCard(
 
   const cardWidth = 495;
   const cardHeight = 195;
+  const widthAttr = overrides?.cardWidth || `${cardWidth}`;
 
   const backgroundDef = theme.bgGradient
     ? `<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -211,7 +212,7 @@ export function renderTrophiesCard(
   });
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${cardWidth}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${widthAttr}" height="${cardHeight}" viewBox="0 0 ${cardWidth} ${cardHeight}">
       <defs>
         ${backgroundDef}
         <style>
