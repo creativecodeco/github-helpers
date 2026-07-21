@@ -498,12 +498,40 @@ import Footer from '../components/Footer.astro';
   let completedImagesCount = 0;
   const totalImagesToLoad = 7;
 
+  function sortCardsByStatus() {
+    const container = document.querySelector('.cards-preview-container');
+    if (!container) return;
+
+    const wrappers = Array.from(container.querySelectorAll('.card-preview-wrapper')) as HTMLElement[];
+
+    // Separate into success and error groups
+    const successCards: HTMLElement[] = [];
+    const errorCards: HTMLElement[] = [];
+
+    wrappers.forEach((wrapper) => {
+      const img = wrapper.querySelector('img.preview-img');
+      const placeholder = wrapper.querySelector('.placeholder-card');
+      // A card is in error state if the placeholder is visible (not hidden) and has the red error SVG
+      const hasErrorSvg = placeholder?.querySelector('svg.error') !== null;
+      if (hasErrorSvg) {
+        errorCards.push(wrapper);
+      } else {
+        successCards.push(wrapper);
+      }
+    });
+
+    // Re-append in order: success first, then errors
+    [...successCards, ...errorCards].forEach((wrapper) => container.appendChild(wrapper));
+  }
+
   function imageFinishedLoading() {
     completedImagesCount++;
     if (completedImagesCount >= totalImagesToLoad) {
       if (globalLoading) {
         globalLoading.classList.add('hidden');
       }
+      // Sort cards: successful ones first, errored ones last
+      sortCardsByStatus();
     }
   }
 
