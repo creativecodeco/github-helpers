@@ -2,7 +2,7 @@
 FROM node:24-alpine AS builder
 
 # Install pnpm globally
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.15.1 --ignore-scripts
 
 WORKDIR /usr/src/app
 
@@ -12,7 +12,7 @@ COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
 
 # Install all dependencies (including devDependencies)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy compiler settings, frontend and backend source files
 COPY backend ./backend
@@ -25,7 +25,7 @@ RUN pnpm run build
 FROM node:24-alpine AS runner
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.15.1 --ignore-scripts
 
 WORKDIR /usr/src/app
 
@@ -37,7 +37,7 @@ COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # Copy build output and public directory
 COPY --from=builder /usr/src/app/backend/dist ./backend/dist

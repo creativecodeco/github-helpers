@@ -35,7 +35,7 @@ describe('security.ts tests', () => {
     const fingerprint2 = generateConsentFingerprint(ip, ua);
 
     expect(fingerprint1).toBe(fingerprint2);
-    expect(fingerprint1.length).toBe(64); // SHA-256 hex length
+    expect(fingerprint1).toHaveLength(64); // SHA-256 hex length
   });
 
   it('should reject token with dangerous scopes', async () => {

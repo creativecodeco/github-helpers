@@ -2,6 +2,34 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.3.0] - 2026-07-22
+
+### 🔒 Seguridad y Correcciones SonarCloud
+- **Resolución de Vulnerabilidades**:
+  - Se añadieron cabeceras seguras `rel="noopener noreferrer"` en todos los enlaces del frontend con `target="_blank"`.
+  - Se configuró la descarga segura de `pnpm@11.15.1` y se añadió el flag `--ignore-scripts` en las etapas del Dockerfile para mitigar riesgos en dependencias de ciclo de vida.
+- **Reducción de Complejidad Cognitiva**:
+  - Refactorizado `ApiGitHubRepository` desglosando la complejidad de las consultas y formateo de datos en múltiples métodos auxiliares privados.
+  - Refactorizado `SaveUserStatsHistoryUseCase` extrayendo las sub-rutinas en métodos privados `updateEntry` y `createEntry` de baja complejidad.
+  - Simplificación del código de `trophiesCard` abstrayendo la correspondencia de rangos en un helper específico.
+- **Optimización de Estructuras y Desempeño**:
+  - Reemplazados los operadores ternarios anidados de `ApiGitHubRepository` y `streakCard` por sentencias condicionales explícitas.
+  - Reemplazado el uso ineficiente de `.replace` encadenado con expresiones regulares por `.replaceAll()` en `topReposCard`.
+  - Conversión del arreglo de ámbitos sensibles `dangerousScopes` en `security.ts` a un `Set` para búsquedas en tiempo O(1) con `.has()`.
+  - Marcados los mapas de caché privada en `CachedGitHubRepository` como de solo lectura (`readonly`).
+  - Removido el constructor inútil en `TypeORMMetricsRepository`.
+  - Reemplazados los parseadores nativos globales (`parseInt` y `parseFloat`) por sus métodos estáticos de `Number` correspondientes para consistencia de tipos.
+
+### 🎨 Accesibilidad (WCAG AA)
+- **Contraste de Color en global.css**:
+  - Ajustados los botones y estados (`.primary-btn`, `.danger-btn`, `.copy-btn.copied`) con colores WCAG AA complacientes (> 4.5:1 de ratio).
+  - Eliminado el uso de fondos semitransparentes `rgba` en el botón de light-mode, reemplazándolo por color sólido para garantizar relaciones de contraste superiores a 9.4:1 de forma estática.
+
+### 🧪 Pruebas Unitarias
+- **Migración a Aserciones Semánticas**:
+  - Se reemplazaron todas las aserciones de longitud basadas en `.length` con `.toBe()` por la aserción semántica dedicada `.toHaveLength()` en las suites de pruebas unitarias (`history`, `purge`, `security`, `github`).
+  - Reemplazada la aserción estática obvia `expect(1+1).toBe(2)` en `sample.test.ts` por una validación dinámica.
+
 ## [1.2.2] - 2026-07-21
 
 ### 🚀 Nuevas Funcionalidades
@@ -105,4 +133,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.2.2
+**Versión actualmente expuesta / en producción:** v1.3.0

@@ -41,7 +41,7 @@ describe('User Stats History Tracking', () => {
       order: { recorded_at: 'ASC' }
     });
 
-    expect(entries.length).toBe(1);
+    expect(entries).toHaveLength(1);
     expect(entries[0].stars).toBe(10);
     expect(entries[0].commits).toBe(50);
     expect(entries[0].prs).toBe(5);
@@ -62,7 +62,7 @@ describe('User Stats History Tracking', () => {
     });
 
     // Should still be 1 row, but with merged languages and updated stats
-    expect(entries.length).toBe(1);
+    expect(entries).toHaveLength(1);
     expect(entries[0].stars).toBe(10);
     expect(entries[0].languages).toEqual({ TypeScript: 5000, JavaScript: 2000 });
 
@@ -73,7 +73,7 @@ describe('User Stats History Tracking', () => {
       where: { username: testUser }
     });
 
-    expect(entriesAfterUpdate.length).toBe(1);
+    expect(entriesAfterUpdate).toHaveLength(1);
     expect(entriesAfterUpdate[0].stars).toBe(15);
     expect(entriesAfterUpdate[0].languages).toEqual({ TypeScript: 5000, JavaScript: 2000 });
   });
@@ -92,7 +92,7 @@ describe('User Stats History Tracking', () => {
     });
 
     // Should now have 2 entries
-    expect(entries.length).toBe(2);
+    expect(entries).toHaveLength(2);
     expect(entries[1].stars).toBe(20);
     // Should inherit languages from the previous entry during creation
     expect(entries[1].languages).toEqual({ TypeScript: 5000, JavaScript: 2000 });

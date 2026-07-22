@@ -76,7 +76,7 @@ describe('github.ts integration tests (Mocked)', () => {
     const callCountBefore = mockFetch.mock.calls.length;
     const cachedStats = await githubRepo.getUserStats('testuser');
     expect(cachedStats).toEqual(stats);
-    expect(mockFetch.mock.calls.length).toBe(callCountBefore);
+    expect(mockFetch.mock.calls).toHaveLength(callCountBefore);
   });
 
   it('should calculate and sort languages correctly', async () => {
@@ -114,7 +114,7 @@ describe('github.ts integration tests (Mocked)', () => {
     const langs = await githubRepo.getUserLanguages('testuser-lang');
 
     // Total size = 500. JavaScript = 300 (60%), TypeScript = 200 (40%)
-    expect(langs.length).toBe(2);
+    expect(langs).toHaveLength(2);
     expect(langs[0].name).toBe('JavaScript');
     expect(langs[0].percentage).toBe(60);
     expect(langs[1].name).toBe('TypeScript');

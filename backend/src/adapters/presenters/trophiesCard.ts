@@ -3,10 +3,12 @@ import { LanguageStat } from '@/domain/entities/LanguageStat';
 import { getTheme } from './theme';
 import { getTranslations } from './i18n';
 
+type TrophyRank = 'S' | 'A' | 'B' | 'C';
+
 interface TrophyData {
   category: string;
   title: string;
-  rank: 'S' | 'A' | 'B' | 'C';
+  rank: TrophyRank;
   valueText: string;
   color: string;
 }
@@ -22,6 +24,17 @@ const RANK_COLORS = {
 const TROPHY_PATH =
   'M19 5h-2V3H7v2H5C3.9 5 3 5.9 3 7v3c0 2.8 2.2 5 5 5h1.2c.6 1.8 2.2 3.1 4.1 3.4V20H10v2h4v-2h-3.3v-1.6c1.9-.3 3.5-1.6 4.1-3.4H16c2.8 0 5-2.2 5-5V7c0-1.1-.9-2-2-2zM5 10V7h2v3c0 1.1-.9 2-2 2s-2-.9-2-2zm14 0c0 1.1-.9 2-2 2s-2-.9-2-2V7h2v3z';
 
+function getTrophyRankAndTitle(
+  value: number,
+  thresholds: { S: number; A: number; B: number },
+  titles: { S: string; A: string; B: string; C: string }
+): { rank: TrophyRank; title: string } {
+  if (value >= thresholds.S) return { rank: 'S', title: titles.S };
+  if (value >= thresholds.A) return { rank: 'A', title: titles.A };
+  if (value >= thresholds.B) return { rank: 'B', title: titles.B };
+  return { rank: 'C', title: titles.C };
+}
+
 export function renderTrophiesCard(
   stats: UserStats,
   languages: LanguageStat[],
@@ -29,93 +42,50 @@ export function renderTrophiesCard(
   overrides?: Record<string, string>
 ): string {
   const theme = getTheme(themeName, overrides);
-  const t = getTranslations(overrides?.locale);
   const isEn = overrides?.locale === 'en';
 
   // 1. Commits Trophy
-  let commitsRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let commitsTitle = isEn ? 'Novice' : 'Novato';
-  if (stats.totalCommits >= 2000) {
-    commitsRank = 'S';
-    commitsTitle = 'Commit Master';
-  } else if (stats.totalCommits >= 500) {
-    commitsRank = 'A';
-    commitsTitle = 'Hard Committer';
-  } else if (stats.totalCommits >= 100) {
-    commitsRank = 'B';
-    commitsTitle = 'Commits Pro';
-  }
+  const { rank: commitsRank, title: commitsTitle } = getTrophyRankAndTitle(
+    stats.totalCommits,
+    { S: 2000, A: 500, B: 100 },
+    { S: 'Commit Master', A: 'Hard Committer', B: 'Commits Pro', C: isEn ? 'Novice' : 'Novato' }
+  );
 
   // 2. Stars Trophy
-  let starsRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let starsTitle = 'Spark';
-  if (stats.totalStars >= 100) {
-    starsRank = 'S';
-    starsTitle = 'Starlight Master';
-  } else if (stats.totalStars >= 50) {
-    starsRank = 'A';
-    starsTitle = 'Supernova';
-  } else if (stats.totalStars >= 10) {
-    starsRank = 'B';
-    starsTitle = 'Constellation';
-  }
+  const { rank: starsRank, title: starsTitle } = getTrophyRankAndTitle(
+    stats.totalStars,
+    { S: 100, A: 50, B: 10 },
+    { S: 'Starlight Master', A: 'Supernova', B: 'Constellation', C: 'Spark' }
+  );
 
   // 3. PRs Trophy
-  let prsRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let prsTitle = 'First Pull';
-  if (stats.totalPRs >= 100) {
-    prsRank = 'S';
-    prsTitle = 'PR Master';
-  } else if (stats.totalPRs >= 30) {
-    prsRank = 'A';
-    prsTitle = 'PR Champion';
-  } else if (stats.totalPRs >= 10) {
-    prsRank = 'B';
-    prsTitle = 'Hyper Puller';
-  }
+  const { rank: prsRank, title: prsTitle } = getTrophyRankAndTitle(
+    stats.totalPRs,
+    { S: 100, A: 30, B: 10 },
+    { S: 'PR Master', A: 'PR Champion', B: 'Hyper Puller', C: 'First Pull' }
+  );
 
   // 4. Followers Trophy
-  let followersRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let followersTitle = 'First Friend';
-  if (stats.followers >= 100) {
-    followersRank = 'S';
-    followersTitle = 'Crowd Leader';
-  } else if (stats.followers >= 50) {
-    followersRank = 'A';
-    followersTitle = 'Influencer';
-  } else if (stats.followers >= 10) {
-    followersRank = 'B';
-    followersTitle = 'Social Dev';
-  }
+  const { rank: followersRank, title: followersTitle } = getTrophyRankAndTitle(
+    stats.followers,
+    { S: 100, A: 50, B: 10 },
+    { S: 'Crowd Leader', A: 'Influencer', B: 'Social Dev', C: 'First Friend' }
+  );
 
   // 5. Repositories Trophy
-  let reposRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let reposTitle = 'First Repo';
-  if (stats.publicRepos >= 50) {
-    reposRank = 'S';
-    reposTitle = 'Monorepo Builder';
-  } else if (stats.publicRepos >= 20) {
-    reposRank = 'A';
-    reposTitle = 'Project Manager';
-  } else if (stats.publicRepos >= 5) {
-    reposRank = 'B';
-    reposTitle = 'Creator';
-  }
+  const { rank: reposRank, title: reposTitle } = getTrophyRankAndTitle(
+    stats.publicRepos,
+    { S: 50, A: 20, B: 5 },
+    { S: 'Monorepo Builder', A: 'Project Manager', B: 'Creator', C: 'First Repo' }
+  );
 
   // 6. MultiLanguage Trophy
   const validLanguages = languages.filter((lang) => lang.name !== 'Otros');
-  let langRank: 'S' | 'A' | 'B' | 'C' = 'C';
-  let langTitle = 'Bilingual';
-  if (validLanguages.length >= 5) {
-    langRank = 'S';
-    langTitle = 'Language Wizard';
-  } else if (validLanguages.length >= 4) {
-    langRank = 'A';
-    langTitle = 'Rainbow Coder';
-  } else if (validLanguages.length >= 3) {
-    langRank = 'B';
-    langTitle = 'Polyglot';
-  }
+  const { rank: langRank, title: langTitle } = getTrophyRankAndTitle(
+    validLanguages.length,
+    { S: 5, A: 4, B: 3 },
+    { S: 'Language Wizard', A: 'Rainbow Coder', B: 'Polyglot', C: 'Bilingual' }
+  );
 
   const trophies: TrophyData[] = [
     {

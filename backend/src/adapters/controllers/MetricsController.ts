@@ -28,7 +28,7 @@ export class MetricsController {
 
   getRendersHistory = async (req: Request, res: Response): Promise<void> => {
     try {
-      const days = parseInt(req.query.days as string, 10) || 7;
+      const days = Number.parseInt(req.query.days as string, 10) || 7;
       const history = await this.metricsRepo.getRendersHistory(days);
       res.status(200).json(history);
     } catch (error: any) {

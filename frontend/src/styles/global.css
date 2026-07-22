@@ -223,7 +223,7 @@ body {
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  background: linear-gradient(135deg, #0277bd 0%, #0369a1 100%);
   color: white;
   border: none;
   font-family: var(--font-family);
@@ -244,7 +244,7 @@ body {
 }
 
 .danger-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   color: white;
   border: none;
   font-family: var(--font-family);
@@ -501,8 +501,8 @@ body {
 }
 
 .copy-btn.copied {
-  background: #10b981;
-  border-color: #10b981;
+  background: #047857;
+  border-color: #047857;
   color: white;
 }
 
@@ -698,8 +698,8 @@ body.light-mode .code-container code {
 }
 
 body.light-mode .copy-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: #f1f5f9;
+  border-color: #e2e8f0;
   color: #334155;
 }
 
@@ -710,8 +710,8 @@ body.light-mode .copy-btn:hover {
 }
 
 body.light-mode .copy-btn.copied {
-  background: #10b981;
-  border-color: #10b981;
+  background: #047857;
+  border-color: #047857;
   color: white;
 }
 

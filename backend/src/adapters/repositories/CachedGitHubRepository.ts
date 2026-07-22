@@ -10,11 +10,11 @@ interface CacheEntry<T> {
 }
 
 export class CachedGitHubRepository implements IGitHubRepository {
-  private statsCache = new Map<string, CacheEntry<UserStats>>();
-  private languagesCache = new Map<string, CacheEntry<LanguageStat[]>>();
-  private repoCache = new Map<string, CacheEntry<RepoStats>>();
-  private streakCache = new Map<string, CacheEntry<StreakStats>>();
-  private topReposCache = new Map<string, CacheEntry<RepoStats[]>>();
+  private readonly statsCache = new Map<string, CacheEntry<UserStats>>();
+  private readonly languagesCache = new Map<string, CacheEntry<LanguageStat[]>>();
+  private readonly repoCache = new Map<string, CacheEntry<RepoStats>>();
+  private readonly streakCache = new Map<string, CacheEntry<StreakStats>>();
+  private readonly topReposCache = new Map<string, CacheEntry<RepoStats[]>>();
 
   private readonly CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 

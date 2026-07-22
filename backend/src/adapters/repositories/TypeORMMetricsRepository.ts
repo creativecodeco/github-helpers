@@ -17,8 +17,6 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
     viewsRenders: 0
   };
 
-  constructor() {}
-
   async loadGlobalMetricsCache() {
     try {
       const globalMetricRepo = AppDataSource.getRepository(GlobalMetric);
@@ -219,7 +217,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
 
       return rawResults.map(r => ({
         date: r.date,
-        count: parseInt(r.count, 10) || 0
+        count: Number.parseInt(r.count, 10) || 0
       }));
     } catch (err) {
       console.error('Error fetching renders history:', err);

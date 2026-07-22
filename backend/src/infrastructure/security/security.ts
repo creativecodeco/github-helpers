@@ -53,10 +53,11 @@ export function decryptToken(encryptedText: string, ivHex: string): string {
 /**
  * Generate a secure fingerprint for consent audit based on client IP and User-Agent
  */
-export function generateConsentFingerprint(ip: string, userAgent: string): string {
-  const cleanIp = ip || 'unknown-ip';
-  const cleanUserAgent = userAgent || 'unknown-ua';
-  return crypto.createHash('sha256').update(`${cleanIp}-${cleanUserAgent}`).digest('hex');
+export function generateConsentFingerprint(
+  ip: string = 'unknown-ip',
+  userAgent: string = 'unknown-ua'
+): string {
+  return crypto.createHash('sha256').update(`${ip || 'unknown-ip'}-${userAgent || 'unknown-ua'}`).digest('hex');
 }
 
 /**
@@ -90,7 +91,7 @@ export async function validateTokenScopes(
     if (scopesHeader) {
       const scopes = scopesHeader.split(',').map((s) => s.trim().toLowerCase());
 
-      const dangerousScopes = [
+      const dangerousScopes = new Set([
         'repo',
         'write:repo_hook',
         'write:org',
@@ -100,11 +101,11 @@ export async function validateTokenScopes(
         'admin:repo_hook',
         'admin:org_hook',
         'delete_repo'
-      ];
+      ]);
 
       const hasDangerous = scopes.some(
         (scope) =>
-          dangerousScopes.includes(scope) ||
+          dangerousScopes.has(scope) ||
           scope.startsWith('write:') ||
           scope.includes('delete') ||
           scope.includes('admin')

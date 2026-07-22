@@ -68,10 +68,10 @@ describe('GDPR Purge User Data', () => {
     expect(await metricRepo.findOneBy({ username: testUser })).not.toBeNull();
 
     const initialHistory = await historyRepo.find({ where: { username: testUser } });
-    expect(initialHistory.length).toBe(1);
+    expect(initialHistory).toHaveLength(1);
 
     const initialLogs = await logRepo.find({ where: { username: testUser } });
-    expect(initialLogs.length).toBe(1);
+    expect(initialLogs).toHaveLength(1);
 
     // 3. Execute purge
     await purgeUseCase.execute(testUser);
@@ -81,9 +81,9 @@ describe('GDPR Purge User Data', () => {
     expect(await metricRepo.findOneBy({ username: testUser })).toBeNull();
 
     const afterHistory = await historyRepo.find({ where: { username: testUser } });
-    expect(afterHistory.length).toBe(0);
+    expect(afterHistory).toHaveLength(0);
 
     const afterLogs = await logRepo.find({ where: { username: testUser } });
-    expect(afterLogs.length).toBe(0);
+    expect(afterLogs).toHaveLength(0);
   });
 });

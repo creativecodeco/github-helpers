@@ -48,19 +48,23 @@ export function renderStreakCard(
     ? `${formatDateFull(stats.firstContributionDate)} - ${t.streak.present}`
     : 'N/A';
 
-  const currentStreakRange =
-    stats.currentStreak > 0
-      ? stats.currentStreakStart === stats.currentStreakEnd
-        ? formatDate(stats.currentStreakEnd)
-        : `${formatDate(stats.currentStreakStart)} - ${formatDate(stats.currentStreakEnd)}`
-      : t.streak.noStreak;
+  let currentStreakRange = t.streak.noStreak;
+  if (stats.currentStreak > 0) {
+    if (stats.currentStreakStart === stats.currentStreakEnd) {
+      currentStreakRange = formatDate(stats.currentStreakEnd);
+    } else {
+      currentStreakRange = `${formatDate(stats.currentStreakStart)} - ${formatDate(stats.currentStreakEnd)}`;
+    }
+  }
 
-  const longestStreakRange =
-    stats.longestStreak > 0
-      ? stats.longestStreakStart === stats.longestStreakEnd
-        ? `${formatDateFull(stats.longestStreakStart)}`
-        : `${formatDateFull(stats.longestStreakStart)} - ${formatDateFull(stats.longestStreakEnd)}`
-      : 'N/A';
+  let longestStreakRange = 'N/A';
+  if (stats.longestStreak > 0) {
+    if (stats.longestStreakStart === stats.longestStreakEnd) {
+      longestStreakRange = formatDateFull(stats.longestStreakStart);
+    } else {
+      longestStreakRange = `${formatDateFull(stats.longestStreakStart)} - ${formatDateFull(stats.longestStreakEnd)}`;
+    }
+  }
 
   // Column x centers
   const col1 = 82;
