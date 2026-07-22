@@ -1,4 +1,5 @@
 import { getTheme } from './theme';
+import { escapeXml } from '@/utils/escape';
 
 const COLOR_MAP: Record<string, string> = {
   brightgreen: '#4c1',
@@ -34,6 +35,7 @@ function resolveColor(colorParam?: string, themeParam?: string): string {
   return theme.accent;
 }
 
+
 export function renderViewsBadge(
   count: number,
   label?: string,
@@ -41,15 +43,18 @@ export function renderViewsBadge(
   themeParam?: string,
   styleParam?: string
 ): string {
-  const labelText = label && label.trim() !== '' ? label : 'Profile views';
-  const countText = count.toLocaleString();
+  const rawLabel = typeof label === 'string' && label.trim() !== '' ? label : 'Profile views';
+  const rawCount = count.toLocaleString();
+
+  const labelText = escapeXml(rawLabel);
+  const countText = escapeXml(rawCount);
 
   const isFlat = styleParam?.toLowerCase() !== 'flat-square';
   const rightColor = resolveColor(colorParam, themeParam);
 
-  // Dynamic L/R width calculation (approximate characters width)
-  const LWidth = Math.max(77, Math.round(labelText.length * 6.2 + 10));
-  const RWidth = Math.max(30, Math.round(countText.length * 7.5 + 10));
+  // Dynamic L/R width calculation (approximate characters width of raw text)
+  const LWidth = Math.max(77, Math.round(rawLabel.length * 6.2 + 10));
+  const RWidth = Math.max(30, Math.round(rawCount.length * 7.5 + 10));
   const totalWidth = LWidth + RWidth;
 
   return `

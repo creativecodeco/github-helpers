@@ -8,11 +8,23 @@ export class RecordProfileViewUseCase {
     validateUsername(username);
 
     const ua = (userAgent || '').toLowerCase();
-    const ref = (referer || '').toLowerCase();
+    const ref = referer || '';
 
     // Determine if the request originated from GitHub profile view
-    const isGitHubSource =
-      ua.includes('github-camo') || ref.includes('github.com') || ref.includes('camo');
+    let isGitHubSource = ua.includes('github-camo');
+    if (!isGitHubSource && ref) {
+      try {
+        const parsed = new URL(ref);
+        const host = parsed.hostname.toLowerCase();
+        isGitHubSource =
+          host === 'github.com' ||
+          host.endsWith('.github.com') ||
+          host === 'camo.githubusercontent.com' ||
+          host.endsWith('.githubusercontent.com');
+      } catch {
+        isGitHubSource = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)*(github\.com|githubusercontent\.com)(\/|$)/i.test(ref);
+      }
+    }
 
     return await this.metricsRepo.getOrIncrementProfileViews(username, isGitHubSource);
   }

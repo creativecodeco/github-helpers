@@ -41,11 +41,23 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
     const ip = context?.ip || '';
 
     let source = 'web';
-    if (
-      userAgent.toLowerCase().includes('github-camo') ||
-      referer.toLowerCase().includes('github.com') ||
-      referer.toLowerCase().includes('camo')
-    ) {
+    const uaLower = userAgent.toLowerCase();
+    let isGitHub = uaLower.includes('github-camo');
+    if (!isGitHub && referer) {
+      try {
+        const parsed = new URL(referer);
+        const host = parsed.hostname.toLowerCase();
+        isGitHub =
+          host === 'github.com' ||
+          host.endsWith('.github.com') ||
+          host === 'camo.githubusercontent.com' ||
+          host.endsWith('.githubusercontent.com');
+      } catch {
+        isGitHub = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)*(github\.com|githubusercontent\.com)(\/|$)/i.test(referer);
+      }
+    }
+
+    if (isGitHub) {
       source = 'github';
     }
 

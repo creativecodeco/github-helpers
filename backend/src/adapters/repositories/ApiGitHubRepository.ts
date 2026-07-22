@@ -55,6 +55,9 @@ export class ApiGitHubRepository implements IGitHubRepository {
     userToken?: string,
     extraHeaders: Record<string, string> = {}
   ): Promise<any> {
+    if (!url.startsWith('https://api.github.com/')) {
+      throw new Error('Forbidden URL target: Only GitHub API requests are allowed.');
+    }
     const mergedHeaders = { ...this.getHeaders(userToken), ...extraHeaders };
     const response = await fetch(url, { headers: mergedHeaders });
 
@@ -433,6 +436,9 @@ export class ApiGitHubRepository implements IGitHubRepository {
   }
 
   async getUserStreak(username: string): Promise<StreakStats> {
+    if (!/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(username)) {
+      throw new Error('Invalid username format');
+    }
     const url = `https://github.com/users/${username}/contributions`;
     const response = await fetch(url, {
       headers: {

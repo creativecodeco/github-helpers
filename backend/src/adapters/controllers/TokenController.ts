@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
-
-const GITHUB_USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+import { GITHUB_USERNAME_REGEX } from '@/domain/entities/Validation';
 
 function extractBearerToken(req: Request): string | undefined {
   let token = req.headers['authorization'] || req.body.token;

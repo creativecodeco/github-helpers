@@ -8,18 +8,18 @@ import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCar
 import { GetUserTopReposCardUseCase } from '@/use-cases/cards/GetUserTopReposCardUseCase';
 import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewUseCase';
 import { renderViewsBadge } from '@/adapters/presenters/viewsBadge';
-
-const GITHUB_USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
-const GITHUB_REPO_REGEX = /^[a-z\d-_.]{1,100}$/i;
+import { escapeXml } from '@/utils/escape';
+import { GITHUB_USERNAME_REGEX, GITHUB_REPO_REGEX } from '@/domain/entities/Validation';
 
 function renderErrorCard(message: string): string {
+  const escapedMessage = escapeXml(message);
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195">
       <rect width="495" height="195" rx="12" fill="#0d1117" stroke="#f85149" stroke-width="2" />
       <g transform="translate(25, 45)">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#f85149" transform="scale(1.5)"/>
         <text x="45" y="18" font-family="'Segoe UI', Ubuntu, sans-serif" font-weight="bold" font-size="18" fill="#f85149">Error en GitHub Helpers</text>
-        <text x="45" y="42" font-family="'Segoe UI', Ubuntu, sans-serif" font-size="14" fill="#c9d1d9">${message}</text>
+        <text x="45" y="42" font-family="'Segoe UI', Ubuntu, sans-serif" font-size="14" fill="#c9d1d9">${escapedMessage}</text>
         <text x="0" y="95" font-family="'Segoe UI', Ubuntu, sans-serif" font-size="11" fill="#8b949e">Verifica el nombre de usuario o intenta más tarde.</text>
       </g>
       <text x="470" y="25" text-anchor="end" font-family="'Segoe UI', Ubuntu, sans-serif" font-weight="600" font-size="9px" fill="#8b949e" opacity="0.6">
@@ -187,12 +187,17 @@ export class CardController {
 
       const viewsCount = await this.recordProfileViewUseCase.execute(username, userAgent, referer);
 
+      const cleanLabel = typeof label === 'string' ? label : undefined;
+      const cleanColor = typeof color === 'string' ? color : undefined;
+      const cleanTheme = typeof theme === 'string' ? theme : undefined;
+      const cleanStyle = typeof style === 'string' ? style : undefined;
+
       const svg = renderViewsBadge(
         viewsCount,
-        label as string | undefined,
-        color as string | undefined,
-        theme as string | undefined,
-        style as string | undefined
+        cleanLabel,
+        cleanColor,
+        cleanTheme,
+        cleanStyle
       );
 
       res.setHeader('Content-Type', 'image/svg+xml');
