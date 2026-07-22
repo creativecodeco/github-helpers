@@ -1,7 +1,6 @@
 import { UserStats } from '@/domain/entities/UserStats';
 import { LanguageStat } from '@/domain/entities/LanguageStat';
 import { getTheme } from './theme';
-import { getTranslations } from './i18n';
 
 type TrophyRank = 'S' | 'A' | 'B' | 'C';
 

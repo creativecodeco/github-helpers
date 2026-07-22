@@ -284,6 +284,18 @@ export class ApiGitHubRepository implements IGitHubRepository {
     return topLanguages;
   }
 
+  private updateBestRepo(repos: any[], currentBest: any): any {
+    let best = currentBest;
+    for (const repo of repos) {
+      if (!repo.fork) {
+        if (!best || (repo.stargazers_count || 0) > (best.stargazers_count || 0)) {
+          best = repo;
+        }
+      }
+    }
+    return best;
+  }
+
   private async findBestRepo(username: string, userToken?: string): Promise<any> {
     let bestRepo: any = null;
     let page = 1;
@@ -298,13 +310,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
       if (repos.length === 0) {
         hasMoreRepos = false;
       } else {
-        for (const repo of repos) {
-          if (!repo.fork) {
-            if (!bestRepo || (repo.stargazers_count || 0) > (bestRepo.stargazers_count || 0)) {
-              bestRepo = repo;
-            }
-          }
-        }
+        bestRepo = this.updateBestRepo(repos, bestRepo);
         page++;
       }
     }
