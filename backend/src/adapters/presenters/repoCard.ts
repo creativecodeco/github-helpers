@@ -1,5 +1,5 @@
 import { RepoStats } from '@/domain/entities/RepoStats';
-import { getTheme } from './theme';
+import { getTheme, getBackgroundDef } from './theme';
 
 const ICONS = {
   repo: `<path d="M3 2.75A2.75 2.75 0 0 1 5.75 0h14.5a.75.75 0 0 1 .75.75v20.5a.75.75 0 0 1-.75.75h-6a.75.75 0 0 1 0-1.5h5.25v-4H5.75A2.75 2.75 0 0 1 3 14.25v-11.5zm1.5 0v11.5c0 .69.56 1.25 1.25 1.25H20v-9.5H5.75a2.75 2.75 0 0 1-2.75-2.75c0-.69.56-1.25 1.25-1.25h12.75a.75.75 0 0 1 0 1.5H4.5z"/>`,
@@ -38,15 +38,7 @@ export function renderRepoCard(
   const widthAttr = overrides?.cardWidth || `${cardWidth}`;
 
   // Background style: gradient support
-  const backgroundDef = theme.bgGradient
-    ? `<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-         <stop offset="0%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[0] || theme.bg}" />
-         <stop offset="100%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[1] || theme.bg}" />
-       </linearGradient>`
-    : `<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-         <stop offset="0%" stop-color="${theme.bg}" />
-         <stop offset="100%" stop-color="${theme.bg}" />
-       </linearGradient>`;
+  const backgroundDef = getBackgroundDef(theme, 'bg');
 
   // Wrap description text
   const descLines = wrapText(repo.description, 64).slice(0, 2); // max 2 lines

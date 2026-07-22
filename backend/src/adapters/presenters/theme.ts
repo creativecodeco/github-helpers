@@ -148,3 +148,15 @@ export function getTheme(themeName?: string, overrides?: Record<string, string>)
     bgGradient: overrides.bgGradient || baseTheme.bgGradient
   };
 }
+
+export function getBackgroundDef(theme: Theme, gradientId: string = 'bg'): string {
+  return theme.bgGradient
+    ? `<linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+         <stop offset="0%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[0] || theme.bg}" />
+         <stop offset="100%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[1] || theme.bg}" />
+       </linearGradient>`
+    : `<linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+         <stop offset="0%" stop-color="${theme.bg}" />
+         <stop offset="100%" stop-color="${theme.bg}" />
+       </linearGradient>`;
+}

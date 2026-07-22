@@ -1,5 +1,5 @@
 import { LanguageStat } from '@/domain/entities/LanguageStat';
-import { getTheme } from './theme';
+import { getTheme, getBackgroundDef } from './theme';
 import { getTranslations } from './i18n';
 
 export function renderLanguagesCard(
@@ -15,15 +15,7 @@ export function renderLanguagesCard(
   const widthAttr = overrides?.cardWidth || `${cardWidth}`;
 
   // Background style: gradient support
-  const backgroundDef = theme.bgGradient
-    ? `<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-         <stop offset="0%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[0] || theme.bg}" />
-         <stop offset="100%" stop-color="${theme.bgGradient.match(/#[0-9a-fA-F]{3,8}/g)?.[1] || theme.bg}" />
-       </linearGradient>`
-    : `<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-         <stop offset="0%" stop-color="${theme.bg}" />
-         <stop offset="100%" stop-color="${theme.bg}" />
-       </linearGradient>`;
+  const backgroundDef = getBackgroundDef(theme, 'bg');
 
   // Filter languages with percentage > 0 to render in the bar
   const validLanguages = languages.filter((l) => l.percentage > 0);
