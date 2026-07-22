@@ -85,7 +85,12 @@ export class CardController {
     private readonly topReposCardUseCase: GetUserTopReposCardUseCase
   ) {}
 
-  getStats = async (req: Request, res: Response): Promise<void> => {
+  private readonly handleCardRequest = async (
+    req: Request,
+    res: Response,
+    cardName: string,
+    executeUseCase: (username: string, theme: string, overrides: Record<string, string>, hitContext?: any) => Promise<string>
+  ): Promise<void> => {
     const { username, theme } = req.query;
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
@@ -107,7 +112,7 @@ export class CardController {
         ip: req.ip
       };
 
-      const svg = await this.statsCardUseCase.execute(
+      const svg = await executeUseCase(
         username,
         theme as string,
         overrides,
@@ -118,214 +123,53 @@ export class CardController {
       res.setHeader('Cache-Control', 'public, max-age=7200');
       res.status(200).send(svg);
     } catch (error: any) {
-      console.error(`Error in getStats for ${username}:`, error);
+      console.error(`Error in get${cardName} for ${username}:`, error);
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
     }
+  };
+
+  getStats = async (req: Request, res: Response): Promise<void> => {
+    await this.handleCardRequest(req, res, 'Stats', (u, t, o, h) =>
+      this.statsCardUseCase.execute(u, t, o, h)
+    );
   };
 
   getLanguages = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-      const hitContext = {
-        username,
-        userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
-      };
-
-      const svg = await this.languagesCardUseCase.execute(
-        username,
-        theme as string,
-        overrides,
-        hitContext
-      );
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getLanguages for ${username}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
-    }
+    await this.handleCardRequest(req, res, 'Languages', (u, t, o, h) =>
+      this.languagesCardUseCase.execute(u, t, o, h)
+    );
   };
 
   getRepo = async (req: Request, res: Response): Promise<void> => {
-    const { username, repo, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
+    const { repo } = req.query;
     if (repo && (typeof repo !== 'string' || !GITHUB_REPO_REGEX.test(repo))) {
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(400).send(renderErrorCard('Repositorio de GitHub inválido'));
       return;
     }
 
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-      const hitContext = {
-        username,
-        userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
-      };
-
-      const svg = await this.repoCardUseCase.execute(
-        username,
-        (repo as string) || undefined,
-        theme as string,
-        overrides,
-        hitContext
-      );
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getRepo for ${username}/${repo || 'featured'}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res
-        .status(500)
-        .send(renderErrorCard(error.message || 'Error al obtener datos del repositorio'));
-    }
+    await this.handleCardRequest(req, res, 'Repo', (u, t, o, h) =>
+      this.repoCardUseCase.execute(u, repo as string | undefined, t, o, h)
+    );
   };
 
   getRank = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-      const hitContext = {
-        username,
-        userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
-      };
-
-      const svg = await this.rankCardUseCase.execute(
-        username,
-        theme as string,
-        overrides,
-        hitContext
-      );
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getRank for ${username}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
-    }
+    await this.handleCardRequest(req, res, 'Rank', (u, t, o, h) =>
+      this.rankCardUseCase.execute(u, t, o, h)
+    );
   };
 
   getStreak = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-      const hitContext = {
-        username,
-        userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
-      };
-
-      const svg = await this.streakCardUseCase.execute(
-        username,
-        theme as string,
-        overrides,
-        hitContext
-      );
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getStreak for ${username}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
-    }
+    await this.handleCardRequest(req, res, 'Streak', (u, t, o, h) =>
+      this.streakCardUseCase.execute(u, t, o, h)
+    );
   };
 
   getTrophies = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-      const hitContext = {
-        username,
-        userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
-      };
-
-      const svg = await this.trophiesCardUseCase.execute(
-        username,
-        theme as string,
-        overrides,
-        hitContext
-      );
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getTrophies for ${username}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
-    }
+    await this.handleCardRequest(req, res, 'Trophies', (u, t, o, h) =>
+      this.trophiesCardUseCase.execute(u, t, o, h)
+    );
   };
 
   getProfileViews = async (req: Request, res: Response): Promise<void> => {
@@ -352,7 +196,6 @@ export class CardController {
       );
 
       res.setHeader('Content-Type', 'image/svg+xml');
-      // Prevent GitHub Camo caching to keep it real-time
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
@@ -365,30 +208,8 @@ export class CardController {
   };
 
   getTopRepos = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme } = req.query;
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
-      return;
-    }
-
-    try {
-      const cardWidth = extractCardWidth(req.query);
-      const overrides = {
-        ...extractThemeOverrides(req.query),
-        ...(cardWidth ? { cardWidth } : {})
-      };
-
-      const svg = await this.topReposCardUseCase.execute(username, theme as string, overrides);
-
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
-    } catch (error: any) {
-      console.error(`Error in getTopRepos for ${username}:`, error);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener repositorios'));
-    }
+    await this.handleCardRequest(req, res, 'TopRepos', (u, t, o) =>
+      this.topReposCardUseCase.execute(u, t, o)
+    );
   };
 }

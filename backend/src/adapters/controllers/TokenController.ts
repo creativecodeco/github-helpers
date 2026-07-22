@@ -5,6 +5,18 @@ import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
 
 const GITHUB_USERNAME_REGEX = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 
+function extractBearerToken(req: Request): string | undefined {
+  let token = req.headers['authorization'] || req.body.token;
+  if (typeof token !== 'string') return undefined;
+  if (token.startsWith('Bearer ')) {
+    return token.slice(7);
+  }
+  if (token.startsWith('token ')) {
+    return token.slice(6);
+  }
+  return token;
+}
+
 export class TokenController {
   constructor(
     private readonly registerUseCase: RegisterUserTokenUseCase,
@@ -54,22 +66,14 @@ export class TokenController {
 
   revoke = async (req: Request, res: Response): Promise<void> => {
     const { username } = req.body;
-
-    let providedToken = req.headers['authorization'] || req.body.token;
-    if (providedToken && typeof providedToken === 'string') {
-      if (providedToken.startsWith('Bearer ')) {
-        providedToken = providedToken.slice(7);
-      } else if (providedToken.startsWith('token ')) {
-        providedToken = providedToken.slice(6);
-      }
-    }
+    const providedToken = extractBearerToken(req);
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
       res.status(400).json({ error: 'Usuario de GitHub inválido.' });
       return;
     }
 
-    if (!providedToken || typeof providedToken !== 'string' || providedToken.trim() === '') {
+    if (!providedToken || providedToken.trim() === '') {
       res.status(400).json({
         error: 'Se requiere proveer un token de GitHub válido para confirmar tu identidad.'
       });
@@ -89,21 +93,14 @@ export class TokenController {
 
   purge = async (req: Request, res: Response): Promise<void> => {
     const { username } = req.body;
-    let providedToken = req.headers['authorization'] || req.body.token;
-    if (providedToken && typeof providedToken === 'string') {
-      if (providedToken.startsWith('Bearer ')) {
-        providedToken = providedToken.slice(7);
-      } else if (providedToken.startsWith('token ')) {
-        providedToken = providedToken.slice(6);
-      }
-    }
+    const providedToken = extractBearerToken(req);
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
       res.status(400).json({ error: 'Usuario de GitHub inválido.' });
       return;
     }
 
-    if (!providedToken || typeof providedToken !== 'string' || providedToken.trim() === '') {
+    if (!providedToken || providedToken.trim() === '') {
       res.status(400).json({
         error:
           'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'

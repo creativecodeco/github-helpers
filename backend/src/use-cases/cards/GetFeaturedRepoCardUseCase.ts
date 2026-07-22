@@ -1,7 +1,7 @@
 import { IGitHubRepository } from '@/domain/repositories/IGitHubRepository';
 import { IMetricsRepository } from '@/domain/repositories/IMetricsRepository';
 import { ITokenRepository } from '@/domain/repositories/ITokenRepository';
-import { decryptToken } from '@/infrastructure/security/security';
+import { getDecryptedToken } from '@/infrastructure/security/security';
 import { renderRepoCard } from '@/adapters/presenters/repoCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername, validateRepo } from '@/domain/entities/Validation';
@@ -25,16 +25,7 @@ export class GetFeaturedRepoCardUseCase {
       validateRepo(repoName);
     }
 
-    let userToken: string | undefined;
-    try {
-      const tokenInfo = await this.tokenRepo.getToken(username);
-      if (tokenInfo) {
-        userToken = decryptToken(tokenInfo.encrypted_token, tokenInfo.iv);
-      }
-    } catch (e) {
-      console.warn(`Could not decrypt token for user ${username}:`, e);
-    }
-
+    const userToken = await getDecryptedToken(username, this.tokenRepo);
     const repoStats = await this.githubRepo.getFeaturedRepo(username, repoName, userToken);
     const svg = renderRepoCard(repoStats, theme, overrides);
 

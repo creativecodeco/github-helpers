@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { ITokenRepository } from '@/domain/repositories/ITokenRepository';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -115,7 +116,7 @@ export async function validateTokenScopes(
         return {
           valid: false,
           reason:
-            'El token posee permisos de escritura o administración. Por seguridad, solo se permiten tokens con permisos de lectura (Metadata).'
+            'El token provisto tiene permisos de escritura o administración peligrosos. Por favor, crea un token con los permisos mínimos requeridos (solo lectura de perfil).'
         };
       }
     }
@@ -151,4 +152,19 @@ export async function validateTokenScopes(
       reason: 'Error al comunicarse con la API de GitHub durante la validación.'
     };
   }
+}
+
+export async function getDecryptedToken(
+  username: string,
+  tokenRepo: ITokenRepository
+): Promise<string | undefined> {
+  try {
+    const tokenInfo = await tokenRepo.getToken(username);
+    if (tokenInfo) {
+      return decryptToken(tokenInfo.encrypted_token, tokenInfo.iv);
+    }
+  } catch (e) {
+    console.warn(`Could not decrypt token for user ${username}:`, e);
+  }
+  return undefined;
 }

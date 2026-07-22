@@ -1,7 +1,7 @@
 import { IGitHubRepository } from '@/domain/repositories/IGitHubRepository';
 import { IMetricsRepository } from '@/domain/repositories/IMetricsRepository';
 import { ITokenRepository } from '@/domain/repositories/ITokenRepository';
-import { decryptToken } from '@/infrastructure/security/security';
+import { getDecryptedToken } from '@/infrastructure/security/security';
 import { renderStatsCard } from '@/adapters/presenters/statsCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername } from '@/domain/entities/Validation';
@@ -25,16 +25,7 @@ export class GetUserStatsCardUseCase {
   ): Promise<string> {
     validateUsername(username);
 
-    let userToken: string | undefined;
-    try {
-      const tokenInfo = await this.tokenRepo.getToken(username);
-      if (tokenInfo) {
-        userToken = decryptToken(tokenInfo.encrypted_token, tokenInfo.iv);
-      }
-    } catch (e) {
-      console.warn(`Could not decrypt token for user ${username}:`, e);
-    }
-
+    const userToken = await getDecryptedToken(username, this.tokenRepo);
     const stats = await this.githubRepo.getUserStats(username, userToken);
     const svg = await renderStatsCard(stats, theme, overrides);
 
