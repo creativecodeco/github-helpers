@@ -3,6 +3,7 @@ import { UserStats } from '@/domain/entities/UserStats';
 import { LanguageStat } from '@/domain/entities/LanguageStat';
 import { RepoStats } from '@/domain/entities/RepoStats';
 import { StreakStats } from '@/domain/entities/StreakStats';
+import { logger } from '@/infrastructure/logging/logger';
 
 const LANGUAGE_COLORS: Record<string, string> = {
   JavaScript: '#f1e05a',
@@ -109,7 +110,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
       const searchResult = await this.fetchGitHub(url, userToken, headers);
       return searchResult.total_count || 0;
     } catch (e) {
-      console.warn(`Could not fetch search count for ${url}:`, e);
+      logger.warn(`Could not fetch search count for ${url}`, { url, error: e });
       return 0;
     }
   }
@@ -124,7 +125,113 @@ export class ApiGitHubRepository implements IGitHubRepository {
     return 'C';
   }
 
+  private async fetchGraphQL<T = any>(
+    query: string,
+    variables: Record<string, unknown>,
+    userToken?: string
+  ): Promise<T | null> {
+    const token = userToken || process.env.GITHUB_TOKEN;
+    if (!token) return null;
+
+    try {
+      const response = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'github-helpers-stats',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ query, variables })
+      });
+
+      if (!response.ok) return null;
+
+      const result = await response.json();
+      if (result.errors || !result.data) return null;
+
+      return result.data as T;
+    } catch {
+      return null;
+    }
+  }
+
+  private async getUserStatsViaGraphQL(username: string, userToken?: string): Promise<UserStats | null> {
+    const query = `
+      query GetUserStats($username: String!) {
+        user(login: $username) {
+          login
+          name
+          avatarUrl
+          followers { totalCount }
+          repositories(first: 100, ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER], isFork: false) {
+            totalCount
+            nodes {
+              stargazerCount
+              forkCount
+            }
+          }
+          contributionsCollection {
+            totalCommitContributions
+            totalPullRequestContributions
+            totalIssueContributions
+            restrictedContributionsCount
+          }
+        }
+      }
+    `;
+
+    const data = await this.fetchGraphQL<{ user: any }>(query, { username }, userToken);
+    if (!data || !data.user) return null;
+
+    const u = data.user;
+    const repos = u.repositories?.nodes || [];
+    let totalStars = 0;
+    let forksReceived = 0;
+
+    for (const r of repos) {
+      totalStars += r.stargazerCount || 0;
+      forksReceived += r.forkCount || 0;
+    }
+
+    const cc = u.contributionsCollection || {};
+    const totalCommits = (cc.totalCommitContributions || 0) + (cc.restrictedContributionsCount || 0);
+    const totalPRs = cc.totalPullRequestContributions || 0;
+    const totalIssues = cc.totalIssueContributions || 0;
+    const followers = u.followers?.totalCount || 0;
+
+    const score =
+      totalCommits * 1 +
+      totalPRs * 3 +
+      totalIssues * 1 +
+      totalStars * 5 +
+      followers * 8;
+
+    const rank = this.calculateDeveloperRank(score);
+    const collaborationIndex = Math.min(
+      100,
+      Math.round(((totalPRs + totalIssues) / (totalCommits + totalPRs + totalIssues + 1)) * 100)
+    );
+
+    return {
+      username: u.login,
+      name: u.name || u.login,
+      avatarUrl: u.avatarUrl,
+      followers,
+      publicRepos: u.repositories?.totalCount || 0,
+      totalStars,
+      totalCommits,
+      totalPRs,
+      totalIssues,
+      forksReceived,
+      rank,
+      collaborationIndex
+    };
+  }
+
   async getUserStats(username: string, userToken?: string): Promise<UserStats> {
+    const gqlStats = await this.getUserStatsViaGraphQL(username, userToken);
+    if (gqlStats) return gqlStats;
+
     const userProfile = userToken
       ? await this.fetchGitHub('https://api.github.com/user', userToken)
       : await this.fetchGitHub(`https://api.github.com/users/${username}`);
@@ -230,7 +337,7 @@ export class ApiGitHubRepository implements IGitHubRepository {
               languageMap[lang].size += sizeInKB;
             }
           } catch (err) {
-            console.warn(`Could not fetch languages for repo ${username}/${repo.name}:`, err);
+            logger.warn(`Could not fetch languages for repo ${username}/${repo.name}`, { username, repo: repo.name, error: err });
           }
         })
       );
@@ -239,7 +346,95 @@ export class ApiGitHubRepository implements IGitHubRepository {
     return languageMap;
   }
 
+  private async getUserLanguagesViaGraphQL(username: string, userToken?: string): Promise<LanguageStat[] | null> {
+    const query = `
+      query GetUserLanguages($username: String!) {
+        user(login: $username) {
+          repositories(first: 100, ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER], isFork: false) {
+            nodes {
+              languages(first: 10) {
+                edges {
+                  size
+                  node {
+                    name
+                    color
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.fetchGraphQL<{ user: any }>(query, { username }, userToken);
+    if (!data || !data.user) return null;
+
+    const repos = data.user.repositories?.nodes || [];
+    const languageMap: Record<string, { count: number; size: number; color?: string }> = {};
+    let totalSize = 0;
+
+    for (const r of repos) {
+      const edges = r.languages?.edges || [];
+      for (const edge of edges) {
+        const langName = edge.node.name;
+        const sizeInKB = edge.size / 1024;
+        if (!languageMap[langName]) {
+          languageMap[langName] = {
+            count: 0,
+            size: 0,
+            color: edge.node.color || LANGUAGE_COLORS[langName] || DEFAULT_COLOR
+          };
+        }
+        languageMap[langName].count += 1;
+        languageMap[langName].size += sizeInKB;
+        totalSize += sizeInKB;
+      }
+    }
+
+    const statsArray: LanguageStat[] = [];
+    for (const [name, info] of Object.entries(languageMap)) {
+      statsArray.push({
+        name,
+        count: info.count,
+        size: info.size,
+        percentage: 0,
+        color: info.color || LANGUAGE_COLORS[name] || DEFAULT_COLOR
+      });
+    }
+
+    statsArray.sort((a, b) => b.size - a.size);
+
+    const result = statsArray.map((stat) => ({
+      ...stat,
+      percentage: totalSize > 0 ? Number.parseFloat(((stat.size / totalSize) * 100).toFixed(1)) : 0
+    }));
+
+    const topLanguages = result.slice(0, 6);
+    if (result.length > 6) {
+      const otherLanguages = result.slice(6);
+      const otherSize = otherLanguages.reduce((acc, curr) => acc + curr.size, 0);
+      const otherCount = otherLanguages.reduce((acc, curr) => acc + curr.count, 0);
+      const otherPercentage = Number.parseFloat(((otherSize / totalSize) * 100).toFixed(1));
+
+      if (otherPercentage > 0) {
+        topLanguages.push({
+          name: 'Otros',
+          count: otherCount,
+          size: otherSize,
+          percentage: otherPercentage,
+          color: DEFAULT_COLOR
+        });
+      }
+    }
+
+    return topLanguages;
+  }
+
   async getUserLanguages(username: string, userToken?: string): Promise<LanguageStat[]> {
+    const gqlLangs = await this.getUserLanguagesViaGraphQL(username, userToken);
+    if (gqlLangs && gqlLangs.length > 0) return gqlLangs;
+
     const nonForkRepos = await this.fetchNonForkRepos(username, userToken);
     const languageMap = await this.aggregateRepoLanguages(nonForkRepos, username, userToken);
 
@@ -435,7 +630,74 @@ export class ApiGitHubRepository implements IGitHubRepository {
     return { currentStreak, currentStreakStart, currentStreakEnd };
   }
 
-  async getUserStreak(username: string): Promise<StreakStats> {
+  private async getUserStreakViaGraphQL(username: string, userToken?: string): Promise<StreakStats | null> {
+    const query = `
+      query GetStreakStats($username: String!) {
+        user(login: $username) {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  date
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.fetchGraphQL<{ user: any }>(query, { username }, userToken);
+    if (!data || !data.user) return null;
+
+    const cal = data.user.contributionsCollection?.contributionCalendar;
+    if (!cal) return null;
+
+    const contributions: { date: string; level: number }[] = [];
+    for (const week of cal.weeks || []) {
+      for (const day of week.contributionDays || []) {
+        contributions.push({
+          date: day.date,
+          level: day.contributionCount > 0 ? 1 : 0
+        });
+      }
+    }
+
+    if (contributions.length === 0) return null;
+
+    const totalContributions = cal.totalContributions || 0;
+    const firstContribEntry = contributions.find((c) => c.level > 0);
+    const firstContributionDate = firstContribEntry
+      ? firstContribEntry.date
+      : contributions[0].date;
+
+    const activeDays = new Set(contributions.filter((c) => c.level > 0).map((c) => c.date));
+    const { longestStreak, longestStreakStart, longestStreakEnd } = this.calculateStreakStats(contributions);
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const { currentStreak, currentStreakStart, currentStreakEnd } = this.calculateCurrentStreak(activeDays, today);
+
+    return {
+      username,
+      totalContributions,
+      currentStreak,
+      longestStreak,
+      currentStreakStart,
+      currentStreakEnd,
+      longestStreakStart,
+      longestStreakEnd,
+      firstContributionDate
+    };
+  }
+
+  async getUserStreak(username: string, userToken?: string): Promise<StreakStats> {
+    const gqlStreak = await this.getUserStreakViaGraphQL(username, userToken);
+    if (gqlStreak) return gqlStreak;
+
     if (!/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(username)) {
       throw new Error('Invalid username format');
     }
@@ -490,9 +752,61 @@ export class ApiGitHubRepository implements IGitHubRepository {
     // No-op for the raw API client
   }
 
-  async getUserTopRepos(username: string, limit: number = 4): Promise<RepoStats[]> {
-    const reposUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=stars&direction=desc`;
-    const repos = await this.fetchGitHub(reposUrl);
+  private async getUserTopReposViaGraphQL(username: string, limit: number = 4, userToken?: string): Promise<RepoStats[] | null> {
+    const query = `
+      query GetUserTopRepos($username: String!) {
+        user(login: $username) {
+          repositories(first: 100, ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER], isFork: false, orderBy: { field: STARGAZERS, direction: DESC }) {
+            nodes {
+              name
+              description
+              stargazerCount
+              forkCount
+              owner { login }
+              primaryLanguage {
+                name
+                color
+              }
+              licenseInfo {
+                name
+                spdxId
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.fetchGraphQL<{ user: any }>(query, { username }, userToken);
+    if (!data || !data.user) return null;
+
+    const repos = data.user.repositories?.nodes || [];
+    const topRepos = repos.slice(0, limit);
+
+    return topRepos.map((r: any) => {
+      const langName = r.primaryLanguage?.name || 'Markdown';
+      return {
+        name: r.name,
+        owner: r.owner?.login || username,
+        description: r.description || 'Sin descripción disponible.',
+        stars: r.stargazerCount || 0,
+        forks: r.forkCount || 0,
+        language: langName,
+        languageColor: r.primaryLanguage?.color || LANGUAGE_COLORS[langName] || DEFAULT_COLOR,
+        license: r.licenseInfo ? r.licenseInfo.spdxId || r.licenseInfo.name : 'No License'
+      };
+    });
+  }
+
+  async getUserTopRepos(username: string, limit: number = 4, userToken?: string): Promise<RepoStats[]> {
+    const gqlTopRepos = await this.getUserTopReposViaGraphQL(username, limit, userToken);
+    if (gqlTopRepos && gqlTopRepos.length > 0) return gqlTopRepos;
+
+    const reposUrl = userToken
+      ? `https://api.github.com/user/repos?per_page=100&sort=stars&direction=desc`
+      : `https://api.github.com/users/${username}/repos?per_page=100&sort=stars&direction=desc`;
+
+    const repos = await this.fetchGitHub(reposUrl, userToken);
 
     const sorted = (repos as any[])
       .filter((r: any) => !r.fork)

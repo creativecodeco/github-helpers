@@ -1,6 +1,7 @@
 import { UserStats } from '@/domain/entities/UserStats';
 import { getTheme, getBackgroundDef } from './theme';
 import { getTranslations } from './i18n';
+import { logger } from '@/infrastructure/logging/logger';
 
 // Helper to convert avatar to Base64 to bypass GitHub camo block
 async function fetchAvatarBase64(url: string): Promise<string> {
@@ -12,7 +13,7 @@ async function fetchAvatarBase64(url: string): Promise<string> {
     const mimeType = res.headers.get('content-type') || 'image/jpeg';
     return `data:${mimeType};base64,${buffer.toString('base64')}`;
   } catch (e) {
-    console.warn('Failed to fetch avatar for base64 encoding:', e);
+    logger.warn('Failed to fetch avatar for base64 encoding', { avatarUrl: url, error: e });
     return '';
   }
 }

@@ -63,28 +63,28 @@ export class CachedGitHubRepository implements IGitHubRepository {
     return data;
   }
 
-  async getUserTopRepos(username: string, limit: number = 4): Promise<RepoStats[]> {
-    const cacheKey = `${username.toLowerCase()}:top:${limit}`;
+  async getUserTopRepos(username: string, limit: number = 4, userToken?: string): Promise<RepoStats[]> {
+    const cacheKey = `${username.toLowerCase()}:top:${limit}:${userToken ? 'private' : 'public'}`;
     const cached = this.topReposCache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       return cached.data;
     }
 
-    const data = await this.delegate.getUserTopRepos(username, limit);
+    const data = await this.delegate.getUserTopRepos(username, limit, userToken);
     this.topReposCache.set(cacheKey, { data, timestamp: Date.now() });
     return data;
   }
 
-  async getUserStreak(username: string): Promise<StreakStats> {
-    const cacheKey = username.toLowerCase();
+  async getUserStreak(username: string, userToken?: string): Promise<StreakStats> {
+    const cacheKey = `${username.toLowerCase()}:${userToken ? 'private' : 'public'}`;
     const cached = this.streakCache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       return cached.data;
     }
 
-    const data = await this.delegate.getUserStreak(username);
+    const data = await this.delegate.getUserStreak(username, userToken);
     this.streakCache.set(cacheKey, { data, timestamp: Date.now() });
     return data;
   }

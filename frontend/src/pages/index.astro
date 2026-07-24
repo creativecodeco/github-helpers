@@ -1297,30 +1297,14 @@ import Footer from '@/components/Footer.astro';
   btnLayoutVertical?.addEventListener('click', () => {
     currentReadmeLayout = 'vertical';
     btnLayoutVertical.classList.add('active');
-    btnLayoutVertical.style.background = 'rgba(56,189,248,0.15)';
-    btnLayoutVertical.style.color = 'var(--text-primary)';
-
     btnLayoutGrid?.classList.remove('active');
-    if (btnLayoutGrid) {
-      btnLayoutGrid.style.background = 'transparent';
-      btnLayoutGrid.style.color = 'var(--text-secondary)';
-    }
-
     updateSampleReadmeText();
   });
 
   btnLayoutGrid?.addEventListener('click', () => {
     currentReadmeLayout = 'grid';
     btnLayoutGrid.classList.add('active');
-    btnLayoutGrid.style.background = 'rgba(56,189,248,0.15)';
-    btnLayoutGrid.style.color = 'var(--text-primary)';
-
     btnLayoutVertical?.classList.remove('active');
-    if (btnLayoutVertical) {
-      btnLayoutVertical.style.background = 'transparent';
-      btnLayoutVertical.style.color = 'var(--text-secondary)';
-    }
-
     updateSampleReadmeText();
   });
 
@@ -1332,16 +1316,7 @@ import Footer from '@/components/Footer.astro';
 
   tabReadmeCode?.addEventListener('click', () => {
     tabReadmeCode.classList.add('active');
-    tabReadmeCode.style.background = 'var(--accent-color)';
-    tabReadmeCode.style.color = '#000';
-    tabReadmeCode.style.fontWeight = '700';
-
     tabReadmePreview?.classList.remove('active');
-    if (tabReadmePreview) {
-      tabReadmePreview.style.background = 'transparent';
-      tabReadmePreview.style.color = 'var(--text-secondary)';
-      tabReadmePreview.style.fontWeight = '600';
-    }
 
     sampleReadmeTextareaEl?.classList.remove('hidden');
     sampleReadmeRenderedEl?.classList.add('hidden');
@@ -1349,16 +1324,7 @@ import Footer from '@/components/Footer.astro';
 
   tabReadmePreview?.addEventListener('click', () => {
     tabReadmePreview.classList.add('active');
-    tabReadmePreview.style.background = 'var(--accent-color)';
-    tabReadmePreview.style.color = '#000';
-    tabReadmePreview.style.fontWeight = '700';
-
     tabReadmeCode?.classList.remove('active');
-    if (tabReadmeCode) {
-      tabReadmeCode.style.background = 'transparent';
-      tabReadmeCode.style.color = 'var(--text-secondary)';
-      tabReadmeCode.style.fontWeight = '600';
-    }
 
     sampleReadmeTextareaEl?.classList.add('hidden');
     sampleReadmeRenderedEl?.classList.remove('hidden');

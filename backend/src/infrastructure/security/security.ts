@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { ITokenRepository } from '@/domain/repositories/ITokenRepository';
+import { logger } from '@/infrastructure/logging/logger';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -146,7 +147,7 @@ export async function validateTokenScopes(
 
     return { valid: true };
   } catch (error) {
-    console.error('Error validating token scopes:', error);
+    logger.error('Error validating token scopes', { error });
     return {
       valid: false,
       reason: 'Error al comunicarse con la API de GitHub durante la validación.'
@@ -164,7 +165,7 @@ export async function getDecryptedToken(
       return decryptToken(tokenInfo.encrypted_token, tokenInfo.iv);
     }
   } catch (e) {
-    console.warn(`Could not decrypt token for user ${username}:`, e);
+    logger.warn(`Could not decrypt token for user ${username}`, { username, error: e });
   }
   return undefined;
 }

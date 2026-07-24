@@ -2,6 +2,7 @@ import { ITokenRepository } from '@/domain/repositories/ITokenRepository';
 import { UserToken } from '@/domain/entities/UserToken';
 import { AppDataSource } from '@/infrastructure/database/database';
 import { UserTokenEntity } from '@/infrastructure/database/entities/UserTokenEntity';
+import { logger } from '@/infrastructure/logging/logger';
 
 export class TypeORMTokenRepository implements ITokenRepository {
   async saveToken(
@@ -39,7 +40,7 @@ export class TypeORMTokenRepository implements ITokenRepository {
         )
         .execute();
     } catch (err) {
-      console.error(`Error saving token for user ${username}:`, err);
+      logger.error(`Error saving token for user ${username}`, { username, error: err });
       throw err;
     }
   }
@@ -60,7 +61,7 @@ export class TypeORMTokenRepository implements ITokenRepository {
         updated_at: entity.updated_at.toISOString()
       };
     } catch (err) {
-      console.error(`Error getting token for user ${username}:`, err);
+      logger.error(`Error getting token for user ${username}`, { username, error: err });
       return null;
     }
   }
@@ -70,7 +71,7 @@ export class TypeORMTokenRepository implements ITokenRepository {
       const tokenRepo = AppDataSource.getRepository(UserTokenEntity);
       await tokenRepo.delete({ username: username.toLowerCase() });
     } catch (err) {
-      console.error(`Error deleting token for user ${username}:`, err);
+      logger.error(`Error deleting token for user ${username}`, { username, error: err });
       throw err;
     }
   }

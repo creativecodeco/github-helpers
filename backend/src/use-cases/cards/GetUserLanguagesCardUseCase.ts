@@ -5,6 +5,7 @@ import { getDecryptedToken } from '@/infrastructure/security/security';
 import { renderLanguagesCard } from '@/adapters/presenters/languagesCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername } from '@/domain/entities/Validation';
+import { logger } from '@/infrastructure/logging/logger';
 
 import { SaveUserStatsHistoryUseCase } from '@/use-cases/history/SaveUserStatsHistoryUseCase';
 
@@ -41,7 +42,7 @@ export class GetUserLanguagesCardUseCase {
 
     // Save snapshot of user languages to history asynchronously
     this.saveHistoryUseCase.execute(username, undefined, langRecord).catch((err) => {
-      console.error(`Error saving languages history for ${username}:`, err);
+      logger.error(`Error saving languages history for user ${username}`, { username, error: err });
     });
 
     return svg;

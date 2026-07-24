@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import { logger } from '../logging/logger';
 import { GlobalMetric } from './entities/GlobalMetric';
 import { UserMetric } from './entities/UserMetric';
 import { RequestLog } from './entities/RequestLog';
@@ -27,7 +28,7 @@ export const AppDataSource = new DataSource({
 export async function initDatabase(): Promise<void> {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
-    console.log('📦 PostgreSQL Data Source has been initialized!');
+    logger.info('📦 PostgreSQL Data Source has been initialized!');
 
     // Initialize global counters if they do not exist
     const globalMetricRepo = AppDataSource.getRepository(GlobalMetric);

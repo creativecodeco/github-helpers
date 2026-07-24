@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { logger } from '@/infrastructure/logging/logger';
 import { GetUserStatsCardUseCase } from '@/use-cases/cards/GetUserStatsCardUseCase';
 import { GetUserLanguagesCardUseCase } from '@/use-cases/cards/GetUserLanguagesCardUseCase';
 import { GetFeaturedRepoCardUseCase } from '@/use-cases/cards/GetFeaturedRepoCardUseCase';
@@ -123,7 +124,7 @@ export class CardController {
       res.setHeader('Cache-Control', 'public, max-age=7200');
       res.status(200).send(svg);
     } catch (error: any) {
-      console.error(`Error in get${cardName} for ${username}:`, error);
+      logger.error(`Error rendering card ${cardName} for user ${username}`, { cardName, username, error });
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
     }
@@ -206,7 +207,7 @@ export class CardController {
       res.setHeader('Expires', '0');
       res.status(200).send(svg);
     } catch (error: any) {
-      console.error(`Error in getProfileViews for ${username}:`, error);
+      logger.error(`Error in getProfileViews for user ${username}`, { username, error });
       res.setHeader('Content-Type', 'image/svg+xml');
       res.status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
     }

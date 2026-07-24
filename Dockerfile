@@ -2,9 +2,11 @@
 FROM node:24-alpine AS builder
 
 # Install pnpm globally
-RUN npm install -g pnpm@11.15.1 --ignore-scripts
+RUN npm install -g pnpm@11.17.0 --ignore-scripts
 
 WORKDIR /usr/src/app
+
+ENV ASTRO_TELEMETRY_DISABLED=1
 
 # Copy package and lock files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
@@ -25,7 +27,7 @@ RUN pnpm run build
 FROM node:24-alpine AS runner
 
 # Install pnpm
-RUN npm install -g pnpm@11.15.1 --ignore-scripts
+RUN npm install -g pnpm@11.17.0 --ignore-scripts
 
 WORKDIR /usr/src/app
 

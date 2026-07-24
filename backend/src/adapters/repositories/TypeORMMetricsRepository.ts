@@ -4,6 +4,7 @@ import { AppDataSource } from '@/infrastructure/database/database';
 import { GlobalMetric } from '@/infrastructure/database/entities/GlobalMetric';
 import { UserMetric } from '@/infrastructure/database/entities/UserMetric';
 import { RequestLog } from '@/infrastructure/database/entities/RequestLog';
+import { logger } from '@/infrastructure/logging/logger';
 
 export class TypeORMMetricsRepository implements IMetricsRepository {
   private globalMetricsCache: Metrics = {
@@ -27,7 +28,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
         }
       });
     } catch (err) {
-      console.error('Error loading global metrics cache:', err);
+      logger.error('Error loading global metrics cache:', { error: err });
     }
   }
 
@@ -120,7 +121,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
         this.globalMetricsCache[key] += 1;
       })
       .catch((err) => {
-        console.error('Failed to record metrics hit in TypeORM:', err);
+        logger.error('Failed to record metrics hit in TypeORM:', { error: err });
       });
   }
 
@@ -134,7 +135,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       const row = await userMetricRepo.findOneBy({ username: username.toLowerCase() });
       return row || null;
     } catch (err) {
-      console.error('Error fetching user metrics:', err);
+      logger.error('Error fetching user metrics:', { username, error: err });
       return null;
     }
   }
@@ -146,7 +147,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
         order: { last_updated: 'DESC' }
       });
     } catch (err) {
-      console.error('Error fetching all user metrics:', err);
+      logger.error('Error fetching all user metrics:', { error: err });
       return [];
     }
   }
@@ -156,7 +157,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       const userMetricRepo = AppDataSource.getRepository(UserMetric);
       return await userMetricRepo.count();
     } catch (err) {
-      console.error('Error fetching unique users count:', err);
+      logger.error('Error fetching unique users count:', { error: err });
       return 0;
     }
   }
@@ -206,7 +207,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
       const row = await userMetricRepo.findOneBy({ username: username.toLowerCase() });
       return row ? row.profile_views : 0;
     } catch (err) {
-      console.error(`Error in getOrIncrementProfileViews for ${username}:`, err);
+      logger.error(`Error in getOrIncrementProfileViews for user ${username}`, { username, error: err });
       return 0;
     }
   }
@@ -232,7 +233,7 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
         count: Number.parseInt(r.count, 10) || 0
       }));
     } catch (err) {
-      console.error('Error fetching renders history:', err);
+      logger.error('Error fetching renders history:', { days, error: err });
       return [];
     }
   }

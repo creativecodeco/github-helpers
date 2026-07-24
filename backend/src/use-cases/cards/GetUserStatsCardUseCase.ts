@@ -5,6 +5,7 @@ import { getDecryptedToken } from '@/infrastructure/security/security';
 import { renderStatsCard } from '@/adapters/presenters/statsCard';
 import { HitContext } from '@/domain/entities/Metrics';
 import { validateUsername } from '@/domain/entities/Validation';
+import { logger } from '@/infrastructure/logging/logger';
 
 import { SaveUserStatsHistoryUseCase } from '@/use-cases/history/SaveUserStatsHistoryUseCase';
 
@@ -33,7 +34,7 @@ export class GetUserStatsCardUseCase {
 
     // Save snapshot of user stats to history asynchronously
     this.saveHistoryUseCase.execute(username, stats).catch((err) => {
-      console.error(`Error saving stats history for ${username}:`, err);
+      logger.error(`Error saving stats history for user ${username}`, { username, error: err });
     });
 
     return svg;

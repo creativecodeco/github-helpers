@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { logger } from '@/infrastructure/logging/logger';
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
@@ -54,9 +55,10 @@ export class TokenController {
         ip,
         userAgent
       );
+      logger.info(`Token registered successfully for user ${username}`, { username });
       res.status(200).json(result);
     } catch (error: any) {
-      console.error(`Error registering token for user ${username}:`, error);
+      logger.error(`Error registering token for user ${username}`, { username, error });
       res
         .status(500)
         .json({ error: error.message || 'Error interno del servidor al registrar el token.' });
@@ -81,9 +83,10 @@ export class TokenController {
 
     try {
       const result = await this.revokeUseCase.execute(username, providedToken);
+      logger.info(`Token revoked successfully for user ${username}`, { username });
       res.status(200).json(result);
     } catch (error: any) {
-      console.error(`Error revoking token for user ${username}:`, error);
+      logger.error(`Error revoking token for user ${username}`, { username, error });
       res
         .status(500)
         .json({ error: error.message || 'Error interno del servidor al revocar el token.' });
@@ -135,13 +138,14 @@ export class TokenController {
 
       // 3. Execute purge
       await this.purgeUseCase.execute(username);
+      logger.info(`GDPR data purge completed for user ${username}`, { username });
 
       res.status(200).json({
         message:
           'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
       });
     } catch (error: any) {
-      console.error(`Error purging data for user ${username}:`, error);
+      logger.error(`Error purging data for user ${username}`, { username, error });
       res.status(500).json({
         error: error.message || 'Error interno del servidor al procesar la purga de datos.'
       });

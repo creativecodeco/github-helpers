@@ -723,6 +723,54 @@ body.light-mode .toast {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
 }
 
+/* Sample README Controls & Tabs Base Styles (Dark Mode / Default) */
+.readme-layout-btn {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: var(--transition-smooth);
+}
+
+.readme-layout-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.readme-layout-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--text-primary);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.readme-tab-btn {
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: var(--transition-smooth);
+}
+
+.readme-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.readme-tab-btn.active {
+  background: var(--accent-color);
+  color: #000000;
+  font-weight: 700;
+}
+
 /* Sample README Light Mode Overrides */
 body.light-mode .sample-readme-card {
   background: rgba(255, 255, 255, 0.7);

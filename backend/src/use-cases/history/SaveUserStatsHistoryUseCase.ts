@@ -1,6 +1,7 @@
 import { AppDataSource } from '@/infrastructure/database/database';
 import { UserStatsHistory } from '@/infrastructure/database/entities/UserStatsHistory';
 import { UserStats } from '@/domain/entities/UserStats';
+import { logger } from '@/infrastructure/logging/logger';
 
 export class SaveUserStatsHistoryUseCase {
   private updateEntry(
@@ -65,7 +66,7 @@ export class SaveUserStatsHistoryUseCase {
         await historyRepo.save(newEntry);
       }
     } catch (error) {
-      console.error(`Failed to save user stats history for ${username}:`, error);
+      logger.error(`Failed to save user stats history for ${username}`, { username, error });
     }
   }
 }

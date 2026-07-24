@@ -5,6 +5,10 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 ## [1.4.0] - 2026-07-24
 
 ### 🚀 Nuevas Funcionalidades
+- **Integración con GitHub GraphQL API v4 (`https://api.github.com/graphql`)**:
+  - Migración de consultas de datos de usuarios, lenguajes, repositorios top y rachas de contribución a la API v4 de GraphQL en una sola petición POST.
+  - Uso automático del `GITHUB_TOKEN` del servidor para todas las peticiones globales y del PAT (`userToken`) del usuario registrado cuando está disponible.
+  - Soporte completo para métricas de organizaciones privadas (`ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]`) y contribuciones privadas (`restrictedContributionsCount`).
 - **README.md de Ejemplo Dinámico**:
   - Se implementó un panel reactivo en `index.astro` que genera una plantilla Markdown completa y lista para copiar con el saludo al usuario y la colección de tarjetas que se renderizaron exitosamente.
   - Botón de copiado con retroalimentación vía Toast notification y soporte multilingüe completo (español e inglés).
@@ -15,6 +19,13 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
     - `/help/security`: Explicación del cifrado AES-256-GCM y protección de datos.
     - `/help/revocation`: Proceso de revocación de tokens y eliminación definitiva (GDPR).
   - Hub principal `/help` con tarjetas de categoría navegables y redirección inteligente de hashes (`#github-profile` -> `/help/github-profile`).
+
+### 📝 Sistema de Logging Estructurado & Observabilidad
+- **Módulo Centralizado de Logging (`backend/src/infrastructure/logging/logger.ts`)**:
+  - Implementación de un logger estructurado en formato JSON para producción y formateado en desarrollo.
+  - Enmascaramiento y redactado automático de tokens, secretos y credenciales en metadatos (`[REDACTED]`).
+  - Middleware de Express `requestLoggerMiddleware` para trazabilidad de peticiones HTTP en `/api/*` y `/health` (método, ruta, status, tiempo de respuesta en ms y user-agent).
+  - Migración completa de todas las invocaciones `console.log`, `console.warn` y `console.error` del backend hacia el logger centralizado.
 
 ### 🌐 Arquitectura i18n & Refactorización del Frontend
 - **Módulo Centralizado de Internacionalización (`src/utils/i18n.ts`)**:
@@ -28,6 +39,9 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 ### 🧪 Pruebas Unitarias
 - **Suite para `i18n` Frontend**: Creado `frontend/tests/i18nFrontend.test.ts` para verificar la paridad de claves entre idiomas, interpolación de variables y comportamientos de fallback.
 - **Suite para `readmeGenerator`**: Creado `frontend/tests/sampleReadme.test.ts` para verificar la generación correcta de plantillas Markdown bilingües y la integración con las tarjetas activas.
+
+### 🛠️ Entorno y Gestor de Paquetes
+- **Actualización de pnpm**: Actualizado el gestor de paquetes a `pnpm@11.17.0` en el `Dockerfile` (etapas builder y runner) y en la configuración de `packageManager` de `package.json`.
 
 ## [1.3.0] - 2026-07-22
 

@@ -7,7 +7,7 @@ export interface IGitHubRepository {
   getUserStats(username: string, userToken?: string): Promise<UserStats>;
   getUserLanguages(username: string, userToken?: string): Promise<LanguageStat[]>;
   getFeaturedRepo(username: string, repoName?: string, userToken?: string): Promise<RepoStats>;
-  getUserTopRepos(username: string, limit?: number): Promise<RepoStats[]>;
-  getUserStreak(username: string): Promise<StreakStats>;
+  getUserTopRepos(username: string, limit?: number, userToken?: string): Promise<RepoStats[]>;
+  getUserStreak(username: string, userToken?: string): Promise<StreakStats>;
   clearCache(username: string): void;
 }

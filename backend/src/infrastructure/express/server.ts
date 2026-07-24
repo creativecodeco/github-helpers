@@ -10,6 +10,7 @@ import { escapeXml } from '@/utils/escape';
 
 // Infrastructure
 import { initDatabase } from '@/infrastructure/database/database';
+import { logger, requestLoggerMiddleware } from '@/infrastructure/logging/logger';
 
 // Repositories
 import { ApiGitHubRepository } from '@/adapters/repositories/ApiGitHubRepository';
@@ -50,9 +51,9 @@ const statsCardUseCase = new GetUserStatsCardUseCase(githubRepo, tokenRepo, metr
 const languagesCardUseCase = new GetUserLanguagesCardUseCase(githubRepo, tokenRepo, metricsRepo);
 const repoCardUseCase = new GetFeaturedRepoCardUseCase(githubRepo, tokenRepo, metricsRepo);
 const rankCardUseCase = new GetUserRankCardUseCase(githubRepo, tokenRepo, metricsRepo);
-const streakCardUseCase = new GetUserStreakCardUseCase(githubRepo, metricsRepo);
+const streakCardUseCase = new GetUserStreakCardUseCase(githubRepo, metricsRepo, tokenRepo);
 const trophiesCardUseCase = new GetUserTrophiesCardUseCase(githubRepo, tokenRepo, metricsRepo);
-const topReposCardUseCase = new GetUserTopReposCardUseCase(githubRepo);
+const topReposCardUseCase = new GetUserTopReposCardUseCase(githubRepo, tokenRepo);
 
 const registerTokenUseCase = new RegisterUserTokenUseCase(tokenRepo, githubRepo);
 const revokeTokenUseCase = new RevokeUserTokenUseCase(tokenRepo, githubRepo);
@@ -126,6 +127,8 @@ app.use(
     crossOriginEmbedderPolicy: false
   })
 );
+
+app.use(requestLoggerMiddleware);
 
 const publicCardsCors = cors({
   origin: '*',
@@ -205,8 +208,9 @@ app.get('/', (req: Request, res: Response) => {
 
   // Dynamic preview URLs
   const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-  const host = req.get('host') || 'github-helpers.creativecode.com.co';
-  const baseUrl = `${protocol}://${host}`;
+  const rawHost = req.get('host') || 'github-helpers.creativecode.com.co';
+  const safeHost = rawHost.replace(/[^a-zA-Z0-9.\-:]/g, '');
+  const baseUrl = `${protocol}://${safeHost}`;
 
   let targetUsername = 'creativecode';
   let targetTheme = 'radical';
@@ -218,41 +222,41 @@ app.get('/', (req: Request, res: Response) => {
     targetTheme = theme;
   }
 
-  const imageUrl = `${baseUrl}/api/stats?username=${targetUsername}&theme=${targetTheme}`;
-  const title = `Tarjetas de estadísticas para @${targetUsername} | GitHub Helpers`;
-  const description = `Mira las estadísticas, lenguajes más usados y trofeos de GitHub para @${targetUsername} generados dinámicamente.`;
+  const safeImageUrl = escapeXml(`${baseUrl}/api/stats?username=${encodeURIComponent(targetUsername)}&theme=${encodeURIComponent(targetTheme)}`);
+  const safeTitle = escapeXml(`Tarjetas de estadísticas para @${targetUsername} | GitHub Helpers`);
+  const safeDescription = escapeXml(`Mira las estadísticas, lenguajes más usados y trofeos de GitHub para @${targetUsername} generados dinámicamente.`);
 
-  // Dynamically replace SEO / OpenGraph tags
+  // Dynamically replace SEO / OpenGraph tags safely
   html = html
     .replace(
       /<meta property="og:image" content="[^"]*"\/?>/gi,
-      `<meta property="og:image" content="${imageUrl}" />`
+      `<meta property="og:image" content="${safeImageUrl}" />`
     )
     .replace(
       /<meta property="twitter:image" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:image" content="${imageUrl}" />`
+      `<meta property="twitter:image" content="${safeImageUrl}" />`
     )
     .replace(
       /<meta property="og:title" content="[^"]*"\/?>/gi,
-      `<meta property="og:title" content="${title}" />`
+      `<meta property="og:title" content="${safeTitle}" />`
     )
     .replace(
       /<meta property="twitter:title" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:title" content="${title}" />`
+      `<meta property="twitter:title" content="${safeTitle}" />`
     )
     .replace(
       /<meta property="og:description" content="[^"]*"\/?>/gi,
-      `<meta property="og:description" content="${description}" />`
+      `<meta property="og:description" content="${safeDescription}" />`
     )
     .replace(
       /<meta property="twitter:description" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:description" content="${description}" />`
+      `<meta property="twitter:description" content="${safeDescription}" />`
     )
     .replace(
       /<meta name="description" content="[^"]*"\/?>/gi,
-      `<meta name="description" content="${description}" />`
+      `<meta name="description" content="${safeDescription}" />`
     )
-    .replace(/<title>[^<]*<\/title>/gi, `<title>${title}</title>`);
+    .replace(/<title>[^<]*<\/title>/gi, `<title>${safeTitle}</title>`);
 
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(html);
@@ -330,21 +334,37 @@ const fallbackFileLimiter = rateLimit({
   legacyHeaders: false
 });
 
+const publicDir = path.resolve(__dirname, '../../../../public');
+
 // Serve static HTML pages or index.html fallback for client routing
 app.get(
   /^\/(?!api|_astro|.*\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml)$).*$/,
   fallbackFileLimiter,
   (req: Request, res: Response) => {
     const cleanPath = req.path.replace(/\/$/, '');
-    const htmlFilePath = path.join(__dirname, '../../../../public', `${cleanPath}.html`);
-    const indexFilePath = path.join(__dirname, '../../../../public', cleanPath, 'index.html');
 
-    if (cleanPath && fs.existsSync(htmlFilePath)) {
+    // Prevent path traversal attacks containing '..' or null bytes
+    if (cleanPath.includes('..') || cleanPath.includes('\0')) {
+      res.sendFile(path.join(publicDir, 'index.html'));
+      return;
+    }
+
+    const safeRelativePath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
+    const htmlFilePath = path.resolve(publicDir, `${safeRelativePath}.html`);
+    const indexFilePath = path.resolve(publicDir, safeRelativePath, 'index.html');
+    const defaultIndexPath = path.resolve(publicDir, 'index.html');
+
+    const isInsidePublicDir = (targetPath: string): boolean => {
+      const rel = path.relative(publicDir, targetPath);
+      return Boolean(rel && !rel.startsWith('..') && !path.isAbsolute(rel));
+    };
+
+    if (cleanPath && isInsidePublicDir(htmlFilePath) && fs.existsSync(htmlFilePath)) {
       res.sendFile(htmlFilePath);
-    } else if (cleanPath && fs.existsSync(indexFilePath)) {
+    } else if (cleanPath && isInsidePublicDir(indexFilePath) && fs.existsSync(indexFilePath)) {
       res.sendFile(indexFilePath);
     } else {
-      res.sendFile(path.join(__dirname, '../../../../public/index.html'));
+      res.sendFile(defaultIndexPath);
     }
   }
 );
@@ -353,11 +373,11 @@ export async function startServer() {
   await initDatabase();
   await metricsRepo.loadGlobalMetricsCache();
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    logger.info(`🚀 Server running on http://localhost:${PORT}`, { port: PORT, env: process.env.NODE_ENV || 'development' });
   });
 }
 
 // Automatically boot the server when executed
 startServer().catch((err) => {
-  console.error('Failed to start server:', err);
+  logger.error('Failed to start server:', { error: err });
 });
