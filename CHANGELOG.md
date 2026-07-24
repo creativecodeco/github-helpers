@@ -2,6 +2,33 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.4.0] - 2026-07-24
+
+### 🚀 Nuevas Funcionalidades
+- **README.md de Ejemplo Dinámico**:
+  - Se implementó un panel reactivo en `index.astro` que genera una plantilla Markdown completa y lista para copiar con el saludo al usuario y la colección de tarjetas que se renderizaron exitosamente.
+  - Botón de copiado con retroalimentación vía Toast notification y soporte multilingüe completo (español e inglés).
+- **Reorganización de la Sección de Ayuda en Sub-páginas**:
+  - Reestructuración completa del Centro de Ayuda desde un archivo único en 4 sub-páginas dedicadas:
+    - `/help/github-profile`: Guía paso a paso para crear el perfil especial en GitHub.
+    - `/help/tokens`: Creación y permisos de solo lectura para Personal Access Tokens (PAT).
+    - `/help/security`: Explicación del cifrado AES-256-GCM y protección de datos.
+    - `/help/revocation`: Proceso de revocación de tokens y eliminación definitiva (GDPR).
+  - Hub principal `/help` con tarjetas de categoría navegables y redirección inteligente de hashes (`#github-profile` -> `/help/github-profile`).
+
+### 🌐 Arquitectura i18n & Refactorización del Frontend
+- **Módulo Centralizado de Internacionalización (`src/utils/i18n.ts`)**:
+  - Implementación de un diccionario fuertemente tipado en TypeScript para `'es'` y `'en'` que abarca interfaz, mensajes de estado, toasts de notificación, errores de red, modales y encabezados del README live.
+  - Función auxiliar `t(key, locale, params?)` que reemplaza todas las comparaciones ternarias estáticas dispersas (`currentLocale === 'en' ? ... : ...`) y soporta interpolación de parámetros dinámicos (ej. `{username}`).
+  - Función `updateDomTranslations(locale)` para actualizar automáticamente los atributos `[data-i18n]` y `[data-i18n-placeholder]` en el DOM.
+- **Limpieza de Código y Tipos**:
+  - Eliminación de la variable no utilizada `currentReadmeTab` y de la copia local del objeto `TRANSLATIONS` en `index.astro`.
+  - Corrección de la configuración de TypeScript en `frontend/tsconfig.json` removiendo la opción obsoleta `"baseUrl": "."`.
+
+### 🧪 Pruebas Unitarias
+- **Suite para `i18n` Frontend**: Creado `frontend/tests/i18nFrontend.test.ts` para verificar la paridad de claves entre idiomas, interpolación de variables y comportamientos de fallback.
+- **Suite para `readmeGenerator`**: Creado `frontend/tests/sampleReadme.test.ts` para verificar la generación correcta de plantillas Markdown bilingües y la integración con las tarjetas activas.
+
 ## [1.3.0] - 2026-07-22
 
 ### 🔒 Seguridad y Correcciones SonarCloud
@@ -133,4 +160,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.3.0
+**Versión actualmente expuesta / en producción:** v1.4.0

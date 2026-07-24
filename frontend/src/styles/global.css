@@ -715,6 +715,91 @@ body.light-mode .copy-btn.copied {
   color: white;
 }
 
+/* Toast Light Mode Overrides */
+body.light-mode .toast {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+}
+
+/* Sample README Light Mode Overrides */
+body.light-mode .sample-readme-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .readme-controls-bar {
+  background: rgba(241, 245, 249, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .readme-tabs-wrapper {
+  background: rgba(226, 232, 240, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .readme-layout-btn {
+  color: #475569;
+  background: transparent;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .readme-layout-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+}
+
+body.light-mode .readme-layout-btn.active {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #0284c7 !important;
+  border-color: #38bdf8 !important;
+}
+
+body.light-mode .readme-tab-btn {
+  color: #475569;
+  background: transparent;
+}
+
+body.light-mode .readme-tab-btn:hover {
+  color: #0f172a;
+}
+
+body.light-mode .readme-tab-btn.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+body.light-mode #sample-readme-textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+body.light-mode #sample-readme-textarea::placeholder {
+  color: #64748b !important;
+}
+
+body.light-mode #sample-readme-rendered {
+  background: #ffffff !important;
+  color: #24292f !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+body.light-mode #sample-readme-rendered h1,
+body.light-mode #sample-readme-rendered h3 {
+  color: #1f2328 !important;
+  border-bottom-color: #d0d7de !important;
+}
+
+body.light-mode #sample-readme-rendered p {
+  color: #57606a !important;
+}
+
+body.light-mode #sample-readme-rendered hr {
+  border-top-color: #d0d7de !important;
+}
+
 /* Global Loading Overlay */
 .global-loading {
   position: fixed;

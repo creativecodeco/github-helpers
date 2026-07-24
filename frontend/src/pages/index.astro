@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
-import PrivateTokenModal from '../components/PrivateTokenModal.astro';
-import CardPreview from '../components/CardPreview.astro';
-import Footer from '../components/Footer.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ThemeToggle from '@/components/ThemeToggle.astro';
+import PrivateTokenModal from '@/components/PrivateTokenModal.astro';
+import CardPreview from '@/components/CardPreview.astro';
+import Footer from '@/components/Footer.astro';
 ---
 
 <BaseLayout>
@@ -529,6 +529,111 @@ import Footer from '../components/Footer.astro';
           </CardPreview>
         </div>
       </div>
+
+      <!-- Sample README.md Card / Generator Block -->
+      <div class="sample-readme-card glass-card" style="margin-top: 24px; padding: 24px; border-radius: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <h2 class="section-title" style="margin-bottom: 4px;" data-i18n="sample_readme_title">README.md de Ejemplo</h2>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;" data-i18n="sample_readme_desc">
+              Plantilla completa lista para copiar e insertar en tu repositorio de perfil.
+            </p>
+          </div>
+          <a
+            href="/help/github-profile"
+            class="help-link-btn"
+            style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-color); font-size: 0.82rem; font-weight: 600; text-decoration: none; padding: 8px 14px; border-radius: 8px; background: rgba(56,189,248,0.08); border: 1px solid var(--glass-border); transition: all 0.2s;"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span data-i18n="profile_help_link">¿Cómo crear tu perfil en GitHub?</span> →
+          </a>
+        </div>
+
+        <!-- Layout Controls & View Mode Tabs -->
+        <div class="readme-controls-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border);">
+          <!-- Layout Selector -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;" data-i18n="readme_layout_label">Diseño:</span>
+            <button
+              id="btn-readme-layout-vertical"
+              class="readme-layout-btn active"
+              data-layout="vertical"
+              style="padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s;"
+            >
+              📱 <span data-i18n="readme_layout_vertical">Vertical</span>
+            </button>
+            <button
+              id="btn-readme-layout-grid"
+              class="readme-layout-btn"
+              data-layout="grid"
+              style="padding: 4px 10px; border-radius: 6px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s;"
+            >
+              📊 <span data-i18n="readme_layout_grid">Tabla (2 Col)</span>
+            </button>
+          </div>
+
+          <!-- View Mode Tabs (Code vs Live Preview) -->
+          <div class="readme-tabs-wrapper" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 8px; border: 1px solid var(--glass-border);">
+            <button
+              id="tab-readme-code"
+              class="readme-tab-btn active"
+              style="padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 700; transition: all 0.2s;"
+            >
+              📝 <span data-i18n="tab_readme_code">Código Markdown</span>
+            </button>
+            <button
+              id="tab-readme-preview"
+              class="readme-tab-btn"
+              style="padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s;"
+            >
+              👁️ <span data-i18n="tab_readme_preview">Vista Previa Live</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sample-readme-container" style="position: relative;">
+          <!-- Markdown Code Box -->
+          <textarea
+            id="sample-readme-textarea"
+            readonly
+            rows="8"
+            placeholder="Genera tus tarjetas para ver el README.md de ejemplo..."
+            data-i18n-placeholder="sample_readme_placeholder"
+            style="width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 10px; padding: 14px; color: #f1f5f9; font-family: monospace; font-size: 0.82rem; line-height: 1.5; resize: vertical; outline: none;"
+          ></textarea>
+
+          <!-- Live Preview Render Box (Hidden by default) -->
+          <div
+            id="sample-readme-rendered"
+            class="hidden"
+            style="width: 100%; min-height: 180px; max-height: 400px; overflow-y: auto; background: rgba(13, 17, 23, 0.9); border: 1px solid var(--glass-border); border-radius: 10px; padding: 18px; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9rem; line-height: 1.6;"
+          >
+            <div id="rendered-readme-content">
+              <p style="color: var(--text-secondary); text-align: center; margin-top: 40px;" data-i18n="sample_readme_placeholder">
+                Genera tus tarjetas para ver el README.md de ejemplo...
+              </p>
+            </div>
+          </div>
+
+          <button
+            id="btn-copy-sample-readme"
+            class="primary-btn full-width-btn"
+            style="margin-top: 12px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span data-i18n="btn_copy_sample_readme">Copiar README.md Completo</span>
+          </button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -538,150 +643,8 @@ import Footer from '../components/Footer.astro';
 </BaseLayout>
 
 <script>
-  const TRANSLATIONS = {
-    es: {
-      settings_title: "Configuración",
-      username_label: "Usuario de GitHub",
-      username_placeholder: "ej. github",
-      repo_label: "Repositorio Específico (Opcional)",
-      repo_placeholder: "ej. github-helpers (o el más popular)",
-      btn_generate: "Generar Tarjetas",
-      theme_label: "Selecciona un Estilo",
-      card_width_label: "Ancho de Tarjeta",
-      width_standard: "Estándar (495px)",
-      width_full: "Ancho Completo (100%)",
-      custom_width_placeholder: "Personalizado, ej: 600",
-      btn_apply: "Aplicar",
-      locale_label: "Idioma de Tarjetas",
-      locale_es: "Español (es)",
-      locale_en: "English (en)",
-      preview_title: "Vista Previa",
-      // CardPreview elements
-      title_views: "Contador de Visitas del Perfil",
-      code_label_views: "Contador de Visitas",
-      title_stats: "Estadísticas Generales",
-      code_label_stats: "Estadísticas Generales",
-      title_languages: "Lenguajes más Usados",
-      code_label_languages: "Lenguajes más Usados",
-      title_streak: "Racha de Commits",
-      code_label_streak: "Racha de Commits",
-      title_trophies: "Trofeos de GitHub",
-      code_label_trophies: "Trofeos de GitHub",
-      title_top_repos: "Top Repositorios",
-      code_label_top_repos: "Top Repositorios",
-      placeholder_msg: "Ingresa tu usuario de GitHub para cargar la vista previa",
-      copy_btn: "Copiar",
-      // Footer elements
-      footer_rights: "Todos los derechos reservados.",
-      footer_help: "Ayuda",
-      footer_privacy: "Privacidad",
-      // Private stats elements
-      private_stats_title: "Estadísticas Privadas",
-      private_stats_desc: "Para incluir tus repositorios privados, registra un Token Personal (PAT). Tus datos se cifran en el servidor.",
-      private_stats_guide: "Leer Guía de Ayuda →",
-      private_stats_username: "Usuario de GitHub",
-      private_stats_pat: "Personal Access Token (PAT)",
-      private_stats_consent: "Acepto que esta aplicación guarde mi token cifrado en su base de datos para consultar mis estadísticas. Puedo revocarlo cuando quiera.",
-      private_stats_register_btn: "Registrar Token",
-      private_stats_active_label: "Token Registrado Activo",
-      private_stats_active_desc: "Tus repositorios privados ya se están sumando en las consultas.",
-      private_stats_revoke_label: "Introduce tu token para confirmar revocación",
-      private_stats_revoke_btn: "Revocar Token",
-      private_stats_purge_label: "¿Deseas eliminar todo tu registro de forma permanente?",
-      private_stats_purge_open_btn: "Eliminar todos mis datos",
-      // Purge modal elements
-      purge_modal_title: "Eliminar todos mis datos",
-      purge_modal_desc: "Esta acción es permanente e irreversible. Eliminará tu token cifrado, tu historial de estadísticas, tus métricas de consumo de cards y todos tus registros de logs del servidor.",
-      purge_modal_confirm_label: "Escribe tu usuario de GitHub para confirmar",
-      purge_modal_token_label: "Introduce tu Token de Acceso para autorizar",
-      purge_modal_cancel_btn: "Cancelar",
-      purge_modal_confirm_btn: "Eliminar todo definitivamente",
-      // Subtitle
-      header_subtitle: "Potencia la visibilidad de tus proyectos. Genera métricas y tarjetas estéticas en caliente para tu README.md.",
-      header_metrics_label: "Usuarios usando las cards: "
-    },
-    en: {
-      settings_title: "Configuration",
-      username_label: "GitHub Username",
-      username_placeholder: "e.g. github",
-      repo_label: "Specific Repository (Optional)",
-      repo_placeholder: "e.g. github-helpers (or the most popular)",
-      btn_generate: "Generate Cards",
-      theme_label: "Select a Style",
-      card_width_label: "Card Width",
-      width_standard: "Standard (495px)",
-      width_full: "Full Width (100%)",
-      custom_width_placeholder: "Custom, e.g. 600",
-      btn_apply: "Apply",
-      locale_label: "Card Language",
-      locale_es: "Spanish (es)",
-      locale_en: "English (en)",
-      preview_title: "Live Preview",
-      // CardPreview elements
-      title_views: "Profile Views Counter Badge",
-      code_label_views: "Views Counter",
-      title_stats: "General Statistics",
-      code_label_stats: "General Statistics",
-      title_languages: "Most Used Languages",
-      code_label_languages: "Most Used Languages",
-      title_streak: "Commit Streak",
-      code_label_streak: "Commit Streak",
-      title_trophies: "GitHub Trophies",
-      code_label_trophies: "GitHub Trophies",
-      title_top_repos: "Top Repositories",
-      code_label_top_repos: "Top Repositories",
-      placeholder_msg: "Enter your GitHub username to load the preview",
-      copy_btn: "Copy",
-      // Footer elements
-      footer_rights: "All rights reserved.",
-      footer_help: "Help",
-      footer_privacy: "Privacy",
-      // Private stats elements
-      private_stats_title: "Private Statistics",
-      private_stats_desc: "To include your private repositories, register a Personal Access Token (PAT). Your data is encrypted on the server.",
-      private_stats_guide: "Read Help Guide →",
-      private_stats_username: "GitHub Username",
-      private_stats_pat: "Personal Access Token (PAT)",
-      private_stats_consent: "I agree that this application saves my encrypted token in its database to query my statistics. I can revoke it at any time.",
-      private_stats_register_btn: "Register Token",
-      private_stats_active_label: "Active Registered Token",
-      private_stats_active_desc: "Your private repositories are now included in the queries.",
-      private_stats_revoke_label: "Enter your token to confirm revocation",
-      private_stats_revoke_btn: "Revoke Token",
-      private_stats_purge_label: "Do you want to delete your entire record permanently?",
-      private_stats_purge_open_btn: "Delete all my data",
-      // Purge modal elements
-      purge_modal_title: "Delete all my data",
-      purge_modal_desc: "This action is permanent and irreversible. It will delete your encrypted token, your statistics history, your card consumption metrics, and all your log records from the server.",
-      purge_modal_confirm_label: "Type your GitHub username to confirm",
-      purge_modal_token_label: "Enter your Access Token to authorize",
-      purge_modal_cancel_btn: "Cancel",
-      purge_modal_confirm_btn: "Permanently delete everything",
-      // Subtitle
-      header_subtitle: "Boost your project visibility. Generate aesthetic real-time metrics and cards for your README.md.",
-      header_metrics_label: "Users active with cards: "
-    }
-  };
-
-  function updateUiTranslations(locale: string) {
-    const dict = TRANSLATIONS[locale as 'es' | 'en'] || TRANSLATIONS.es;
-    
-    // 1. Text elements
-    document.querySelectorAll('[data-i18n]').forEach((el) => {
-      const key = el.getAttribute('data-i18n');
-      if (key && dict[key as keyof typeof dict]) {
-        el.textContent = dict[key as keyof typeof dict];
-      }
-    });
-
-    // 2. Placeholders
-    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      if (key && dict[key as keyof typeof dict]) {
-        (el as HTMLInputElement).placeholder = dict[key as keyof typeof dict];
-      }
-    });
-  }
+  import { generateSampleReadme, type CardItem } from '@/utils/readmeGenerator';
+  import { t, updateDomTranslations } from '@/utils/i18n';
 
   // Elements
   const usernameInput = document.getElementById('username-input') as HTMLInputElement | null;
@@ -754,12 +717,13 @@ import Footer from '../components/Footer.astro';
   let currentRepo = '';
   let currentCardWidth = ''; // empty = default 495px
   let currentLocale = 'es';
+  let currentReadmeLayout: 'vertical' | 'grid' = 'vertical';
 
   const localeSelect = document.getElementById('locale-select') as HTMLSelectElement | null;
 
   localeSelect?.addEventListener('change', () => {
     currentLocale = localeSelect.value;
-    updateUiTranslations(currentLocale);
+    updateDomTranslations(currentLocale);
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('locale', currentLocale);
     window.history.pushState({}, '', newUrl.toString());
@@ -932,6 +896,110 @@ import Footer from '../components/Footer.astro';
     [...successCards, ...errorCards].forEach((wrapper) => container.appendChild(wrapper));
   }
 
+  function renderLiveReadmeHtml(username: string, activeCards: CardItem[], locale: string, layout: 'vertical' | 'grid'): string {
+    const cleanUser = username.trim() || 'username';
+
+    if (activeCards.length === 0) {
+      return `<h1 style="font-size: 1.4rem; color: #fff; border-bottom: 1px solid #30363d; padding-bottom: 8px; margin-top: 0;">${t('readme_preview_greeting', locale, { username: cleanUser })}</h1>
+      <p style="color: #8b949e; margin-bottom: 0;">${t('readme_preview_welcome', locale)}</p>`;
+    }
+
+    const titleText = t('readme_preview_greeting', locale, { username: cleanUser });
+    const descText = t('readme_preview_desc', locale);
+    const sectionTitle = t('readme_preview_section_title', locale);
+
+    let cardsHtml: string;
+
+    if (layout === 'grid') {
+      const rows: string[] = [];
+      for (let i = 0; i < activeCards.length; i += 2) {
+        const c1 = activeCards[i];
+        const c2 = activeCards[i + 1];
+        if (c2) {
+          rows.push(`<tr>
+            <td valign="top" style="padding: 6px; width: 50%;">
+              <img src="${c1.url}" alt="${c1.title}" style="width: 100%; border-radius: 6px; display: block;" />
+            </td>
+            <td valign="top" style="padding: 6px; width: 50%;">
+              <img src="${c2.url}" alt="${c2.title}" style="width: 100%; border-radius: 6px; display: block;" />
+            </td>
+          </tr>`);
+        } else {
+          rows.push(`<tr>
+            <td valign="top" style="padding: 6px; width: 50%;">
+              <img src="${c1.url}" alt="${c1.title}" style="width: 100%; border-radius: 6px; display: block;" />
+            </td>
+            <td style="width: 50%;"></td>
+          </tr>`);
+        }
+      }
+      cardsHtml = `<table style="width: 100%; border-collapse: collapse;">${rows.join('')}</table>`;
+    } else {
+      cardsHtml = activeCards
+        .map(
+          (c) => `<div style="margin-bottom: 12px;">
+          <img src="${c.url}" alt="${c.title}" style="max-width: 100%; border-radius: 6px; display: block;" />
+        </div>`
+        )
+        .join('');
+    }
+
+    const footerText = t('readme_preview_footer', locale);
+
+    return `
+      <h1 style="font-size: 1.4rem; color: #fff; border-bottom: 1px solid #30363d; padding-bottom: 8px; margin-top: 0; margin-bottom: 12px;">${titleText}</h1>
+      <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 16px;">${descText}</p>
+      <h3 style="font-size: 1.1rem; color: #e6edf3; margin-bottom: 10px;">${sectionTitle}</h3>
+      ${cardsHtml}
+      <hr style="border: 0; border-top: 1px solid #30363d; margin: 20px 0 10px 0;" />
+      <p style="font-size: 0.8rem; color: #8b949e; font-style: italic; margin: 0;">${footerText}</p>
+    `;
+  }
+
+  function updateSampleReadmeText() {
+    const textarea = document.getElementById('sample-readme-textarea') as HTMLTextAreaElement | null;
+    const renderedContainer = document.getElementById('rendered-readme-content');
+    if (!textarea || !currentUsername) {
+      if (textarea) textarea.value = '';
+      if (renderedContainer) {
+        renderedContainer.innerHTML = `<p style="color: var(--text-secondary); text-align: center; margin-top: 40px;">${t('sample_readme_placeholder', currentLocale)}</p>`;
+      }
+      return;
+    }
+
+    const cardsConfig = [
+      { id: 'views', titleKey: 'title_views' as TranslationKey, getUrl: () => viewsImg?.src },
+      { id: 'stats', titleKey: 'title_stats' as TranslationKey, getUrl: () => statsImg?.src },
+      { id: 'languages', titleKey: 'title_languages' as TranslationKey, getUrl: () => languagesImg?.src },
+      { id: 'streak', titleKey: 'title_streak' as TranslationKey, getUrl: () => streakImg?.src },
+      { id: 'rank', titleKey: 'title_rank' as TranslationKey, getUrl: () => rankImg?.src },
+      { id: 'trophies', titleKey: 'title_trophies' as TranslationKey, getUrl: () => trophiesImg?.src },
+      { id: 'top-repos', titleKey: 'title_top_repos' as TranslationKey, getUrl: () => topReposImg?.src },
+      { id: 'repo', titleKey: 'title_repo' as TranslationKey, getUrl: () => repoImg?.src },
+    ];
+
+    const activeCards: CardItem[] = [];
+
+    cardsConfig.forEach((cfg) => {
+      const img = document.getElementById(`${cfg.id}-img`) as HTMLImageElement | null;
+      const placeholder = document.getElementById(`${cfg.id}-placeholder`);
+      const hasError = placeholder ? placeholder.querySelector('svg.error') !== null : false;
+      const rawUrl = cfg.getUrl();
+
+      if (img && !img.classList.contains('hidden') && !hasError && rawUrl) {
+        const cleanUrl = rawUrl.replace(/&t=\d+/, '');
+        const title = t(cfg.titleKey, currentLocale);
+        activeCards.push({ id: cfg.id, title, url: cleanUrl });
+      }
+    });
+
+    textarea.value = generateSampleReadme(currentUsername, activeCards, currentLocale, currentReadmeLayout);
+
+    if (renderedContainer) {
+      renderedContainer.innerHTML = renderLiveReadmeHtml(currentUsername, activeCards, currentLocale, currentReadmeLayout);
+    }
+  }
+
   function imageFinishedLoading() {
     if (!isGeneratingAllCards) return;
 
@@ -942,6 +1010,7 @@ import Footer from '../components/Footer.astro';
       }
       // Sort cards: successful ones first, errored ones last
       sortCardsByStatus();
+      updateSampleReadmeText();
       isGeneratingAllCards = false;
     }
   }
@@ -1073,6 +1142,8 @@ import Footer from '../components/Footer.astro';
 
     const markdownViews = `![Visitas de Perfil](${viewsUrl})`;
     if (markdownViewsCode) markdownViewsCode.textContent = markdownViews;
+
+    updateSampleReadmeText();
   }
 
   // Manage image load cycles
@@ -1204,6 +1275,95 @@ import Footer from '../components/Footer.astro';
   setupCopyButton(btnCopyTopRepos, markdownTopReposCode);
   setupCopyButton(btnCopyViews, markdownViewsCode);
 
+  // Setup Sample README.md copy button
+  const btnCopySampleReadme = document.getElementById('btn-copy-sample-readme');
+  const sampleReadmeTextarea = document.getElementById('sample-readme-textarea') as HTMLTextAreaElement | null;
+
+  btnCopySampleReadme?.addEventListener('click', async () => {
+    if (!sampleReadmeTextarea || !sampleReadmeTextarea.value) return;
+    try {
+      await navigator.clipboard.writeText(sampleReadmeTextarea.value);
+      showToast(t('msg_copy_readme_success', currentLocale), 'success');
+    } catch (err) {
+      console.error('Error copying sample README:', err);
+      showToast(t('msg_copy_readme_error', currentLocale), 'error');
+    }
+  });
+
+  // Setup Sample README Layout Selector Buttons
+  const btnLayoutVertical = document.getElementById('btn-readme-layout-vertical');
+  const btnLayoutGrid = document.getElementById('btn-readme-layout-grid');
+
+  btnLayoutVertical?.addEventListener('click', () => {
+    currentReadmeLayout = 'vertical';
+    btnLayoutVertical.classList.add('active');
+    btnLayoutVertical.style.background = 'rgba(56,189,248,0.15)';
+    btnLayoutVertical.style.color = 'var(--text-primary)';
+
+    btnLayoutGrid?.classList.remove('active');
+    if (btnLayoutGrid) {
+      btnLayoutGrid.style.background = 'transparent';
+      btnLayoutGrid.style.color = 'var(--text-secondary)';
+    }
+
+    updateSampleReadmeText();
+  });
+
+  btnLayoutGrid?.addEventListener('click', () => {
+    currentReadmeLayout = 'grid';
+    btnLayoutGrid.classList.add('active');
+    btnLayoutGrid.style.background = 'rgba(56,189,248,0.15)';
+    btnLayoutGrid.style.color = 'var(--text-primary)';
+
+    btnLayoutVertical?.classList.remove('active');
+    if (btnLayoutVertical) {
+      btnLayoutVertical.style.background = 'transparent';
+      btnLayoutVertical.style.color = 'var(--text-secondary)';
+    }
+
+    updateSampleReadmeText();
+  });
+
+  // Setup View Mode Tabs (Code vs Live Preview)
+  const tabReadmeCode = document.getElementById('tab-readme-code');
+  const tabReadmePreview = document.getElementById('tab-readme-preview');
+  const sampleReadmeTextareaEl = document.getElementById('sample-readme-textarea');
+  const sampleReadmeRenderedEl = document.getElementById('sample-readme-rendered');
+
+  tabReadmeCode?.addEventListener('click', () => {
+    tabReadmeCode.classList.add('active');
+    tabReadmeCode.style.background = 'var(--accent-color)';
+    tabReadmeCode.style.color = '#000';
+    tabReadmeCode.style.fontWeight = '700';
+
+    tabReadmePreview?.classList.remove('active');
+    if (tabReadmePreview) {
+      tabReadmePreview.style.background = 'transparent';
+      tabReadmePreview.style.color = 'var(--text-secondary)';
+      tabReadmePreview.style.fontWeight = '600';
+    }
+
+    sampleReadmeTextareaEl?.classList.remove('hidden');
+    sampleReadmeRenderedEl?.classList.add('hidden');
+  });
+
+  tabReadmePreview?.addEventListener('click', () => {
+    tabReadmePreview.classList.add('active');
+    tabReadmePreview.style.background = 'var(--accent-color)';
+    tabReadmePreview.style.color = '#000';
+    tabReadmePreview.style.fontWeight = '700';
+
+    tabReadmeCode?.classList.remove('active');
+    if (tabReadmeCode) {
+      tabReadmeCode.style.background = 'transparent';
+      tabReadmeCode.style.color = 'var(--text-secondary)';
+      tabReadmeCode.style.fontWeight = '600';
+    }
+
+    sampleReadmeTextareaEl?.classList.add('hidden');
+    sampleReadmeRenderedEl?.classList.remove('hidden');
+  });
+
   // Setup views badge options change listeners (real-time updates)
   viewsStyle?.addEventListener('change', () => {
     updateViewsCard();
@@ -1321,6 +1481,10 @@ import Footer from '../components/Footer.astro';
         wrapper.classList.add('hidden');
       });
     }
+
+    if (sampleReadmeTextarea) {
+      sampleReadmeTextarea.value = '';
+    }
   }
 
   // Handle register
@@ -1332,15 +1496,15 @@ import Footer from '../components/Footer.astro';
     const consentAccepted = tokenConsent.checked;
 
     if (!username) {
-      showStatus(currentLocale === 'en' ? 'Please enter your GitHub username.' : 'Por favor, ingresa tu usuario de GitHub.', 'error');
+      showStatus(t('msg_enter_username', currentLocale), 'error');
       return;
     }
     if (!token) {
-      showStatus(currentLocale === 'en' ? 'Please enter your Personal Access Token (PAT).' : 'Por favor, ingresa tu Personal Access Token (PAT).', 'error');
+      showStatus(t('msg_enter_token', currentLocale), 'error');
       return;
     }
     if (!consentAccepted) {
-      showStatus(currentLocale === 'en' ? 'You must accept the encrypted data storage consent.' : 'Debes aceptar el almacenamiento cifrado de datos.', 'error');
+      showStatus(t('msg_accept_consent', currentLocale), 'error');
       return;
     }
 
@@ -1363,11 +1527,11 @@ import Footer from '../components/Footer.astro';
           submitUsername();
         }
       } else {
-        showStatus(data.error || 'Error al registrar el token.', 'error');
+        showStatus(data.error || t('msg_register_token_error', currentLocale), 'error');
       }
     } catch (err) {
       console.error(err);
-      showStatus(currentLocale === 'en' ? 'Network error trying to communicate with the server.' : 'Error de red al intentar comunicarse con el servidor.', 'error');
+      showStatus(t('msg_network_error', currentLocale), 'error');
     } finally {
       globalLoading.classList.add('hidden');
     }
@@ -1382,16 +1546,11 @@ import Footer from '../components/Footer.astro';
     const token = tokenRevokeInput.value.trim();
 
     if (!username) {
-      showStatus(currentLocale === 'en' ? 'No registered user recognized.' : 'No se reconoce ningún usuario registrado.', 'error');
+      showStatus(t('msg_no_registered_user', currentLocale), 'error');
       return;
     }
     if (!token) {
-      showStatus(
-        currentLocale === 'en'
-          ? 'You must enter a valid GitHub token of yours to verify ownership before revoking.'
-          : 'Debes ingresar un token de GitHub válido tuyo para verificar tu propiedad antes de revocar.',
-        'error'
-      );
+      showStatus(t('msg_token_required_revoke', currentLocale), 'error');
       return;
     }
 
@@ -1413,11 +1572,11 @@ import Footer from '../components/Footer.astro';
         showStatus(data.message, 'success');
         resetAppUI();
       } else {
-        showStatus(data.error || 'Error al revocar el token.', 'error');
+        showStatus(data.error || t('msg_revoke_token_error', currentLocale), 'error');
       }
     } catch (err) {
       console.error(err);
-      showStatus(currentLocale === 'en' ? 'Network error trying to communicate with the server.' : 'Error de red al intentar comunicarse con el servidor.', 'error');
+      showStatus(t('msg_network_error', currentLocale), 'error');
     } finally {
       globalLoading.classList.add('hidden');
     }
@@ -1541,20 +1700,10 @@ import Footer from '../components/Footer.astro';
       if (!codeText) return;
       try {
         await navigator.clipboard.writeText(codeText);
-        showToast(
-          currentLocale === 'en'
-            ? 'Code copied to clipboard successfully'
-            : 'Código copiado al portapapeles con éxito',
-          'success'
-        );
+        showToast(t('msg_copy_code_success', currentLocale), 'success');
       } catch (err) {
         console.error('Error al copiar al portapapeles:', err);
-        showToast(
-          currentLocale === 'en'
-            ? 'Failed to copy to clipboard'
-            : 'Error al copiar al portapapeles',
-          'error'
-        );
+        showToast(t('msg_copy_code_error', currentLocale), 'error');
       }
     });
   }
@@ -1622,7 +1771,7 @@ import Footer from '../components/Footer.astro';
       }
     }
 
-    updateUiTranslations(currentLocale);
+    updateDomTranslations(currentLocale);
 
     if (userParam && usernameInput) {
       usernameInput.value = userParam;

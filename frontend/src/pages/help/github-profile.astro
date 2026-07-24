@@ -1,0 +1,275 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Cómo Crear tu Perfil en GitHub (README.md) | GitHub Helpers"
+  description="Guía paso a paso para habilitar el repositorio especial username/username en GitHub y mostrar tus tarjetas de estadísticas en tiempo real."
+>
+  <header class="app-header">
+    <div class="header-top-row">
+      <a href="/" class="logo" style="text-decoration: none">
+        <svg
+          class="logo-icon"
+          viewBox="0 0 24 24"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="url(#logo-grad)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <h1 style="margin: 0">GitHub <span class="accent-text">Helpers</span></h1>
+      </a>
+    </div>
+  </header>
+
+  <main class="help-content">
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/help">Centro de Ayuda</a>
+      <span class="separator">/</span>
+      <span class="current">Perfil de GitHub</span>
+    </nav>
+
+    <div class="help-header">
+      <h2>Paso a Paso: Cómo Crear tu Perfil Especial en GitHub (README.md)</h2>
+      <p style="color: var(--text-secondary); margin-top: 10px">
+        Descubre cómo mostrar un panel estético con tus métricas de código en la parte superior de tu perfil público de GitHub.
+      </p>
+    </div>
+
+    <section class="help-section">
+      <p>
+        GitHub te permite mostrar un panel de presentación único en tu página de perfil pública cuando creas un repositorio especial que lleva tu mismo nombre de usuario. Sigue estas instrucciones para habilitarlo en pocos minutos:
+      </p>
+
+      <ol class="steps-list">
+        <li>
+          <div class="step-title">
+            <span class="step-badge">1</span> Crear Nuevo Repositorio en GitHub
+          </div>
+          <p>
+            Ve a tu cuenta de GitHub, haz clic en el botón <strong>+</strong> en la esquina superior derecha y selecciona <strong>New repository</strong> (o accede directamente a <a href="https://github.com/new" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); text-decoration: underline">github.com/new</a>).
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">2</span> Asignar el Nombre Coincidente (El Secreto de GitHub)
+          </div>
+          <p>
+            En el campo <em>Repository name</em>, escribe exactamente tu nombre de usuario de GitHub (por ejemplo, si tu usuario es <code>tu-usuario</code>, el repositorio se debe llamar <code>tu-usuario</code>). Verás un mensaje especial con un ícono de estrellas indicando que has descubierto el repositorio secreto.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">3</span> Configurar Visibilidad Pública
+          </div>
+          <p>
+            Marca la opción <strong>Public</strong> para que tu perfil sea visible para toda la comunidad y reclutadores que visiten tu perfil.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">4</span> Inicializar con un Archivo README.md
+          </div>
+          <p>
+            Marca la casilla <strong>Add a README file</strong> para crear el archivo de presentación inicial automáticamente.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">5</span> Crear el Repositorio
+          </div>
+          <p>
+            Presiona el botón <strong>Create repository</strong> al final de la página.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">6</span> Pegar tus Tarjetas o el README de Ejemplo
+          </div>
+          <p>
+            Abre el archivo <code>README.md</code> en tu nuevo repositorio, presiona el ícono del lápiz (Editar) y pega la plantilla de <strong>README.md de Ejemplo</strong> que copiaste desde GitHub Helpers o los códigos Markdown individuales de cada tarjeta.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-title">
+            <span class="step-badge">7</span> Guardar Cambios (Commit)
+          </div>
+          <p>
+            Haz clic en el botón <strong>Commit changes...</strong>. ¡Al visitar tu perfil público en <code>github.com/tu-usuario</code> verás tu nuevo perfil estético con métricas actualizadas en caliente!
+          </p>
+        </li>
+      </ol>
+
+      <div class="highlight-box">
+        💡 <strong>Consejo Pro:</strong> Puedes usar nuestro botón <strong>"Copiar README.md Completo"</strong> en el generador de la pantalla principal para copiar con un solo clic una estructura ya organizada con todas las tarjetas que hayas generado.
+      </div>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px;">
+      <a href="/help" class="btn-back">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver al Centro de Ayuda
+      </a>
+      <a href="/" class="btn-primary-link">
+        Ir al Generador de Tarjetas →
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .help-content {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+  .breadcrumb a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  .breadcrumb .separator {
+    color: var(--text-secondary);
+  }
+  .breadcrumb .current {
+    color: var(--text-secondary);
+  }
+  .help-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+  }
+  .help-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .help-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .help-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+  .steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .step-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .step-badge {
+    background: var(--accent-color);
+    color: #000;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .highlight-box {
+    background: rgba(56, 189, 248, 0.05);
+    border-left: 4px solid var(--accent-color);
+    padding: 16px;
+    border-radius: 4px 12px 12px 4px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #f1f5f9;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+  }
+  .btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+  }
+  .btn-primary-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+  }
+  .btn-primary-link:hover {
+    background: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+</style>

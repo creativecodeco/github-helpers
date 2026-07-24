@@ -262,7 +262,7 @@ app.get('/admin/metrics', adminLimiter, (_req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../../../../public/admin/metrics.html'));
 });
 
-app.use(express.static(path.join(__dirname, '../../../../public')));
+app.use(express.static(path.join(__dirname, '../../../../public'), { extensions: ['html'] }));
 
 function checkMetricsKey(req: Request, res: Response, next: () => void) {
   const expectedKey = process.env.METRICS_KEY;
@@ -330,12 +330,22 @@ const fallbackFileLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Serve index.html as fallback only for page routes, returning a standard 404 for missing static files
+// Serve static HTML pages or index.html fallback for client routing
 app.get(
   /^\/(?!api|_astro|.*\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml)$).*$/,
   fallbackFileLimiter,
-  (_req, res) => {
-    res.sendFile(path.join(__dirname, '../../../../public/index.html'));
+  (req: Request, res: Response) => {
+    const cleanPath = req.path.replace(/\/$/, '');
+    const htmlFilePath = path.join(__dirname, '../../../../public', `${cleanPath}.html`);
+    const indexFilePath = path.join(__dirname, '../../../../public', cleanPath, 'index.html');
+
+    if (cleanPath && fs.existsSync(htmlFilePath)) {
+      res.sendFile(htmlFilePath);
+    } else if (cleanPath && fs.existsSync(indexFilePath)) {
+      res.sendFile(indexFilePath);
+    } else {
+      res.sendFile(path.join(__dirname, '../../../../public/index.html'));
+    }
   }
 );
 

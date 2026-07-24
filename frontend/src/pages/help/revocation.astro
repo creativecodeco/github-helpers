@@ -1,0 +1,249 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Revocación y Purgado de Datos | GitHub Helpers"
+  description="Aprende cómo revocar tu token personal de acceso o purgar tus datos de forma definitiva en GitHub Helpers."
+>
+  <header class="app-header">
+    <div class="header-top-row">
+      <a href="/" class="logo" style="text-decoration: none">
+        <svg
+          class="logo-icon"
+          viewBox="0 0 24 24"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="url(#logo-grad)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <h1 style="margin: 0">GitHub <span class="accent-text">Helpers</span></h1>
+      </a>
+    </div>
+  </header>
+
+  <main class="help-content">
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/help">Centro de Ayuda</a>
+      <span class="separator">/</span>
+      <span class="current">Revocación y Purgado</span>
+    </nav>
+
+    <div class="help-header">
+      <h2>¿Cómo Puedo Revocar o Eliminar mi Token Almacenado?</h2>
+      <p style="color: var(--text-secondary); margin-top: 10px">
+        Tienes el control absoluto sobre tus datos en todo momento. Ofrecemos tres métodos sencillos para revocar o borrar tus registros.
+      </p>
+    </div>
+
+    <section class="help-section">
+      <div class="method-box">
+        <div class="method-header">
+          <span class="method-number">1</span>
+          <h3>Revocación Rápida desde la Web (Navegador Activo)</h3>
+        </div>
+        <p>
+          Si estás utilizando el mismo navegador desde el cual registraste tu token, abre la sección de Estadísticas Privadas y simplemente haz clic en el botón <strong>Revocar Token</strong>. El servidor eliminará tu token cifrado de la base de datos de manera inmediata.
+        </p>
+      </div>
+
+      <div class="method-box">
+        <div class="method-header">
+          <span class="method-number">2</span>
+          <h3>Revocación mediante Token de Verificación (Si Extraviaste el Token)</h3>
+        </div>
+        <p>
+          Si has perdido el token original o deseas borrar tus datos desde un navegador diferente:
+        </p>
+        <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <li>Genera un token temporal rápido en GitHub (incluso sin otorgarle ningún permiso).</li>
+          <li>En la sección "Eliminar Token" del panel web, escribe tu usuario de GitHub y pega el token temporal.</li>
+          <li>El backend consultará a la API de GitHub para autenticar la propiedad de la cuenta. Al confirmar que coinciden, eliminará tu registro cifrado de nuestros servidores inmediatamente.</li>
+          <li>Elimina o desecha el token temporal en GitHub.</li>
+        </ol>
+      </div>
+
+      <div class="method-box">
+        <div class="method-header">
+          <span class="method-number">3</span>
+          <h3>Desactivación Remota Inmediata desde GitHub</h3>
+        </div>
+        <p>
+          Puedes invalidar el acceso de forma remota en cualquier momento. Ve a tu lista de tokens en la configuración de GitHub y haz clic en <strong>Revoke</strong> o <strong>Delete</strong> al lado del token. A partir de ese milisegundo, cualquier consulta enviada a nuestro servidor fallará por parte de GitHub y tus estadísticas privadas dejarán de mostrarse automáticamente.
+        </p>
+      </div>
+
+      <div class="method-box danger-box">
+        <div class="method-header">
+          <span class="method-number danger-number">GDPR</span>
+          <h3>Eliminación Definitiva y Purga Total de Datos</h3>
+        </div>
+        <p>
+          Si deseas borrar de forma permanente tu token cifrado, tu historial de estadísticas, tus registros de consumo de métricas y todos los logs asociados de tu usuario, presiona el botón <strong>"Eliminar todos mis datos"</strong> en el modal de la aplicación e introduce tu token para autorizar la purga irreversibles.
+        </p>
+      </div>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px;">
+      <a href="/help" class="btn-back">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver al Centro de Ayuda
+      </a>
+      <a href="/" class="btn-primary-link">
+        Ir al Generador de Tarjetas →
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .help-content {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+  .breadcrumb a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  .breadcrumb .separator {
+    color: var(--text-secondary);
+  }
+  .breadcrumb .current {
+    color: var(--text-secondary);
+  }
+  .help-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+  }
+  .help-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .help-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .method-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .method-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .method-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: #000;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .method-box h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  .method-box p, .method-box li {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .danger-box {
+    background: rgba(248, 81, 73, 0.03);
+    border-color: rgba(248, 81, 73, 0.25);
+  }
+  .danger-number {
+    background: var(--error-color);
+    color: #fff;
+    font-size: 0.7rem;
+    border-radius: 8px;
+    width: auto;
+    padding: 2px 8px;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+  }
+  .btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+  }
+  .btn-primary-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+  }
+  .btn-primary-link:hover {
+    background: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+</style>

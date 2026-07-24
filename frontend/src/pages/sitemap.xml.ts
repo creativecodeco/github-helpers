@@ -3,7 +3,11 @@ export async function GET() {
   const lastmod = '2026-07-20';
   const pages = [
     { loc: '/', changefreq: 'monthly', priority: '1.0' },
-    { loc: '/help.html', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/help', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/help/github-profile', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/help/tokens', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/help/security', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/help/revocation', changefreq: 'monthly', priority: '0.8' },
     { loc: '/privacy.html', changefreq: 'monthly', priority: '0.7' }
   ];
 

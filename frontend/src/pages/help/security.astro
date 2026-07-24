@@ -1,0 +1,244 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Seguridad y Cifrado de Datos | GitHub Helpers"
+  description="Conoce cómo se cifran y protegen tus datos con el estándar AES-256-GCM y clave única en el servidor."
+>
+  <header class="app-header">
+    <div class="header-top-row">
+      <a href="/" class="logo" style="text-decoration: none">
+        <svg
+          class="logo-icon"
+          viewBox="0 0 24 24"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="url(#logo-grad)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <h1 style="margin: 0">GitHub <span class="accent-text">Helpers</span></h1>
+      </a>
+    </div>
+  </header>
+
+  <main class="help-content">
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/help">Centro de Ayuda</a>
+      <span class="separator">/</span>
+      <span class="current">Seguridad y Cifrado</span>
+    </nav>
+
+    <div class="help-header">
+      <h2>¿Cómo se Almacenan y Protegen mis Datos?</h2>
+      <p style="color: var(--text-secondary); margin-top: 10px">
+        Tu privacidad y la seguridad de tu cuenta son nuestra máxima prioridad. Conoce la arquitectura de seguridad aplicada en GitHub Helpers.
+      </p>
+    </div>
+
+    <section class="help-section">
+      <p>
+        Cuando decides registrar un Personal Access Token (PAT) para sumar tus estadísticas privadas, nuestro servidor aplica automáticamente estrictas capas de protección bajo los estándares de OWASP:
+      </p>
+
+      <div class="security-cards-grid">
+        <div class="security-card">
+          <div class="card-badge">Cifrado de Alto Nivel</div>
+          <h3>Cifrado Simétrico Fuerte (AES-256-GCM)</h3>
+          <p>
+            Tu token nunca se almacena en texto plano. Se cifra inmediatamente en memoria en el servidor utilizando el algoritmo de cifrado estándar militar <strong>AES-256-GCM</strong> con vector de inicialización único (IV) e identificador de autenticación (Auth Tag).
+          </p>
+        </div>
+
+        <div class="security-card">
+          <div class="card-badge">Aislamiento de Claves</div>
+          <h3>Clave Secreta Exclusiva del Servidor</h3>
+          <p>
+            La llave de descifrado habita únicamente en las variables de entorno aisladas del servidor de producción. Nadie (ni siquiera los administradores de la base de datos) puede leer o descifrar tu token sin esa clave maestra.
+          </p>
+        </div>
+
+        <div class="security-card">
+          <div class="card-badge">Auditoría GDPR</div>
+          <h3>Registro de Consentimiento Explícito</h3>
+          <p>
+            Registramos que has aceptado explícitamente el almacenamiento junto con una marca de tiempo (timestamp) y una firma hash de auditoría para garantizar el cumplimiento normativo.
+          </p>
+        </div>
+
+        <div class="security-card">
+          <div class="card-badge">Validación de Permisos</div>
+          <h3>Rechazo de Permisos Elevados</h3>
+          <p>
+            Al recibir un token, el servidor consulta directamente a la API de GitHub para verificar sus scopes. Si detecta permisos de escritura o administración, lo rechaza al instante y no guarda ningún registro.
+          </p>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        🔒 <strong>Garantía de Control Total:</strong> Puedes revocar o eliminar de forma permanente tu token cifrado de nuestros servidores en cualquier momento a través del panel o desde la propia interfaz de GitHub.
+      </div>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px;">
+      <a href="/help" class="btn-back">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver al Centro de Ayuda
+      </a>
+      <a href="/help/revocation" class="btn-secondary-link">
+        Ver Opciones de Revocación y Purgado →
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .help-content {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+  }
+  .breadcrumb a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  .breadcrumb .separator {
+    color: var(--text-secondary);
+  }
+  .breadcrumb .current {
+    color: var(--text-secondary);
+  }
+  .help-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+  }
+  .help-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .help-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .help-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+  .security-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+  }
+  .security-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-badge {
+    align-self: flex-start;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(74, 222, 128, 0.12);
+    color: #4ade80;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+  .security-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  .security-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .highlight-box {
+    background: rgba(56, 189, 248, 0.05);
+    border-left: 4px solid var(--accent-color);
+    padding: 16px;
+    border-radius: 4px 12px 12px 4px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+  }
+  .btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+  }
+  .btn-secondary-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+  }
+  .btn-secondary-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-color);
+  }
+</style>

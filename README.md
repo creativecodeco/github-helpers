@@ -21,8 +21,10 @@ Accede a la herramienta lista para usar y genera tus tarjetas personalizadas en:
    - **Lenguajes más Usados:** Gráfica de distribución de lenguajes (calculada por peso de bytes) con leyenda estructurada.
 6. **Múltiples Temas Estéticos:** Dark, Light, Neon, Solarized, Radical, Tokyonight y Glassmorphism.
 7. **Panel Web Premium (Glassmorphism):** Una interfaz web elegante construida en CSS puro con vista previa en tiempo real y copiador de enlaces Markdown automático.
-8. **Pruebas Unitarias Integradas:** Implementadas utilizando **Vitest** con inyección de dependencias.
-9. **Listo para Docker y Coolify:** Dockerfile de construcción en múltiples etapas (multi-stage) optimizado para producción.
+8. **Generador de README.md de Ejemplo:** Genera automáticamente una plantilla Markdown completa con el saludo al usuario y todas las tarjetas cargadas con éxito.
+9. **Guía Integrada para Perfil de GitHub:** Tutorial paso a paso en `/help#github-profile` para crear el repositorio especial `username/username` y desplegar las métricas.
+10. **Pruebas Unitarias Integradas:** Implementadas utilizando **Vitest** con inyección de dependencias.
+11. **Listo para Docker y Coolify:** Dockerfile de construcción en múltiples etapas (multi-stage) optimizado para producción.
 
 ---
 
