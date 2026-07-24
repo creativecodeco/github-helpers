@@ -41,19 +41,19 @@ COPY backend/package.json ./backend/
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
-# Copy build output and public directory
-COPY --from=builder /usr/src/app/backend/dist ./backend/dist
-COPY --from=builder /usr/src/app/public ./public
-
-# Ensure the app files are owned by the node user
-RUN chown -R node:node /usr/src/app
+# Copy build output with ownership already assigned
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY --chown=node:node frontend/package.json ./frontend/
+COPY --chown=node:node backend/package.json ./backend/
+COPY --chown=node:node --from=builder /usr/src/app/backend/dist ./backend/dist
+COPY --chown=node:node --from=builder /usr/src/app/public ./public
 
 # Drop privileges to non-root 'node' user
 USER node
 
 # Health check — uses wget (built into Alpine) to probe the /health endpoint.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+#HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+#  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 EXPOSE 3000
 
