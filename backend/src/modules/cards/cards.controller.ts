@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { logger } from '@/infrastructure/logging/logger';
+import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { FastifyRequest, FastifyReply } from 'fastify';
 import { GetUserStatsCardUseCase } from '@/use-cases/cards/GetUserStatsCardUseCase';
 import { GetUserLanguagesCardUseCase } from '@/use-cases/cards/GetUserLanguagesCardUseCase';
 import { GetFeaturedRepoCardUseCase } from '@/use-cases/cards/GetFeaturedRepoCardUseCase';
@@ -11,6 +11,7 @@ import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewU
 import { renderViewsBadge } from '@/adapters/presenters/viewsBadge';
 import { escapeXml } from '@/utils/escape';
 import { GITHUB_USERNAME_REGEX, GITHUB_REPO_REGEX } from '@/domain/entities/Validation';
+import { logger } from '@/infrastructure/logging/logger';
 
 function renderErrorCard(message: string): string {
   const escapedMessage = escapeXml(message);
@@ -52,7 +53,6 @@ function extractThemeOverrides(query: Record<string, any>): Record<string, strin
     }
   }
 
-  // Extract locale (es or en, default es)
   const loc = query.locale || query.lang;
   if (typeof loc === 'string') {
     const norm = loc.toLowerCase().trim();
@@ -74,7 +74,8 @@ function extractCardWidth(query: Record<string, any>): string | undefined {
   return undefined;
 }
 
-export class CardController {
+@Controller('api')
+export class CardsController {
   constructor(
     private readonly statsCardUseCase: GetUserStatsCardUseCase,
     private readonly languagesCardUseCase: GetUserLanguagesCardUseCase,
@@ -86,24 +87,24 @@ export class CardController {
     private readonly topReposCardUseCase: GetUserTopReposCardUseCase
   ) {}
 
-  private readonly handleCardRequest = async (
-    req: Request,
-    res: Response,
+  private async handleCardRequest(
+    req: FastifyRequest,
+    res: FastifyReply,
     cardName: string,
     executeUseCase: (username: string, theme: string, overrides: Record<string, string>, hitContext?: any) => Promise<string>
-  ): Promise<void> => {
-    const { username, theme } = req.query;
+  ): Promise<void> {
+    const query = (req.query as Record<string, any>) || {};
+    const { username, theme } = query;
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+      res.type('image/svg+xml').status(400).send(renderErrorCard('Usuario de GitHub inválido'));
       return;
     }
 
     try {
-      const cardWidth = extractCardWidth(req.query);
+      const cardWidth = extractCardWidth(query);
       const overrides = {
-        ...extractThemeOverrides(req.query),
+        ...extractThemeOverrides(query),
         ...(cardWidth ? { cardWidth } : {})
       };
       const hitContext = {
@@ -113,72 +114,75 @@ export class CardController {
         ip: req.ip
       };
 
-      const svg = await executeUseCase(
-        username,
-        theme as string,
-        overrides,
-        hitContext
-      );
+      const svg = await executeUseCase(username, theme as string, overrides, hitContext);
 
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'public, max-age=7200');
-      res.status(200).send(svg);
+      res
+        .type('image/svg+xml')
+        .header('Cache-Control', 'public, max-age=7200')
+        .status(200)
+        .send(svg);
     } catch (error: any) {
       logger.error(`Error rendering card ${cardName} for user ${username}`, { cardName, username, error });
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+      res.type('image/svg+xml').status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
     }
-  };
+  }
 
-  getStats = async (req: Request, res: Response): Promise<void> => {
+  @Get('stats')
+  async getStats(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'Stats', (u, t, o, h) =>
       this.statsCardUseCase.execute(u, t, o, h)
     );
-  };
+  }
 
-  getLanguages = async (req: Request, res: Response): Promise<void> => {
+  @Get('languages')
+  async getLanguages(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'Languages', (u, t, o, h) =>
       this.languagesCardUseCase.execute(u, t, o, h)
     );
-  };
+  }
 
-  getRepo = async (req: Request, res: Response): Promise<void> => {
-    const { repo } = req.query;
+  @Get('repo')
+  async getRepo(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
+    const query = (req.query as Record<string, any>) || {};
+    const { repo } = query;
     if (repo && (typeof repo !== 'string' || !GITHUB_REPO_REGEX.test(repo))) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Repositorio de GitHub inválido'));
+      res.type('image/svg+xml').status(400).send(renderErrorCard('Repositorio de GitHub inválido'));
       return;
     }
 
     await this.handleCardRequest(req, res, 'Repo', (u, t, o, h) =>
       this.repoCardUseCase.execute(u, repo as string | undefined, t, o, h)
     );
-  };
+  }
 
-  getRank = async (req: Request, res: Response): Promise<void> => {
+  @Get('rank')
+  async getRank(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'Rank', (u, t, o, h) =>
       this.rankCardUseCase.execute(u, t, o, h)
     );
-  };
+  }
 
-  getStreak = async (req: Request, res: Response): Promise<void> => {
+  @Get('streak')
+  async getStreak(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'Streak', (u, t, o, h) =>
       this.streakCardUseCase.execute(u, t, o, h)
     );
-  };
+  }
 
-  getTrophies = async (req: Request, res: Response): Promise<void> => {
+  @Get('trophies')
+  async getTrophies(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'Trophies', (u, t, o, h) =>
       this.trophiesCardUseCase.execute(u, t, o, h)
     );
-  };
+  }
 
-  getProfileViews = async (req: Request, res: Response): Promise<void> => {
-    const { username, theme, color, label, style } = req.query;
+  @Get('views')
+  async getProfileViews(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
+    const query = (req.query as Record<string, any>) || {};
+    const { username, theme, color, label, style } = query;
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(400).send(renderErrorCard('Usuario de GitHub inválido'));
+      res.type('image/svg+xml').status(400).send(renderErrorCard('Usuario de GitHub inválido'));
       return;
     }
 
@@ -201,21 +205,23 @@ export class CardController {
         cleanStyle
       );
 
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.status(200).send(svg);
+      res
+        .type('image/svg+xml')
+        .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        .header('Pragma', 'no-cache')
+        .header('Expires', '0')
+        .status(200)
+        .send(svg);
     } catch (error: any) {
       logger.error(`Error in getProfileViews for user ${username}`, { username, error });
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
+      res.type('image/svg+xml').status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
     }
-  };
+  }
 
-  getTopRepos = async (req: Request, res: Response): Promise<void> => {
+  @Get('top-repos')
+  async getTopRepos(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
     await this.handleCardRequest(req, res, 'TopRepos', (u, t, o) =>
       this.topReposCardUseCase.execute(u, t, o)
     );
-  };
+  }
 }

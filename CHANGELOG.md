@@ -4,6 +4,13 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ## [1.4.0] - 2026-07-24
 
+### ⚡ Migración de Framework Backend a NestJS + Fastify
+- **Adopción de NestJS Framework & Adaptador HTTP Fastify**:
+  - Sustitución de Express.js por **NestJS (`@nestjs/core`, `@nestjs/common`)** utilizando **Fastify (`@nestjs/platform-fastify`, `fastify`)** para multiplicar el rendimiento de peticiones HTTP (2x–4x más rápido en entrega de tarjetas SVG y endpoints JSON).
+  - Reestructuración de controladores en módulos fuertemente tipados con Inyección de Dependencias (DI): `AppModule`, `CardsModule`, `TokensModule`, `MetricsModule` y `RootModule`.
+  - Integración de seguridad OWASP mediante `@fastify/helmet`, `@fastify/cors` y `@fastify/static`.
+  - Inclusión de cabeceras estáticas de control de caché (`Cache-Control: public, max-age=31536000, immutable` para assets `/_astro/`) y manejo de errores 404 estáticos para garantizar compatibilidad estricta con MIME checking en navegadores.
+
 ### 🚀 Nuevas Funcionalidades
 - **Integración con GitHub GraphQL API v4 (`https://api.github.com/graphql`)**:
   - Migración de consultas de datos de usuarios, lenguajes, repositorios top y rachas de contribución a la API v4 de GraphQL en una sola petición POST.

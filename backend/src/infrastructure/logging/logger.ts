@@ -1,5 +1,3 @@
-import type { Request, Response, NextFunction } from 'express';
-
 export type LogLevel = 'info' | 'warn' | 'error';
 
 interface LogPayload {
@@ -85,11 +83,11 @@ export const logger = {
 };
 
 /**
- * Express middleware to record structured HTTP access logs for API endpoints.
+ * Middleware helper to record structured HTTP access logs.
  */
-export function requestLoggerMiddleware(req: Request, res: Response, next: NextFunction) {
-  // Only log API routes and health endpoints to prevent cluttering static file requests
-  if (!req.originalUrl.startsWith('/api') && req.originalUrl !== '/health') {
+export function requestLoggerMiddleware(req: any, res: any, next: () => void) {
+  const url = req.originalUrl || req.url || '';
+  if (!url.startsWith('/api') && url !== '/health') {
     return next();
   }
 
@@ -101,18 +99,18 @@ export function requestLoggerMiddleware(req: Request, res: Response, next: NextF
 
     const logMeta = {
       method: req.method,
-      url: req.originalUrl,
+      url,
       status: statusCode,
       duration_ms: durationMs,
-      user_agent: req.get('user-agent') || 'unknown'
+      user_agent: (typeof req.get === 'function' ? req.get('user-agent') : req.headers?.['user-agent']) || 'unknown'
     };
 
     if (statusCode >= 500) {
-      logger.error(`HTTP ${req.method} ${req.originalUrl} ${statusCode}`, logMeta);
+      logger.error(`HTTP ${req.method} ${url} ${statusCode}`, logMeta);
     } else if (statusCode >= 400) {
-      logger.warn(`HTTP ${req.method} ${req.originalUrl} ${statusCode}`, logMeta);
+      logger.warn(`HTTP ${req.method} ${url} ${statusCode}`, logMeta);
     } else {
-      logger.info(`HTTP ${req.method} ${req.originalUrl} ${statusCode}`, logMeta);
+      logger.info(`HTTP ${req.method} ${url} ${statusCode}`, logMeta);
     }
   });
 
