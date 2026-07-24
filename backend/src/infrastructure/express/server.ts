@@ -195,8 +195,8 @@ const adminLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 
 app.get('/', (req: Request, res: Response) => {
-  const userParam = req.query.user || req.query.username;
-  const { theme } = req.query;
+  const userQuery = typeof req.query.user === 'string' ? req.query.user : (typeof req.query.username === 'string' ? req.query.username : '');
+  const themeQuery = typeof req.query.theme === 'string' ? req.query.theme : '';
   const indexPath = path.join(__dirname, '../../../../public/index.html');
 
   if (!fs.existsSync(indexPath)) {
@@ -215,58 +215,87 @@ app.get('/', (req: Request, res: Response) => {
   let targetUsername = 'creativecode';
   let targetTheme = 'radical';
 
-  if (typeof userParam === 'string' && /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(userParam)) {
-    targetUsername = userParam;
+  if (userQuery && /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(userQuery)) {
+    targetUsername = userQuery;
   }
-  if (typeof theme === 'string' && /^[a-z\d_]{1,50}$/i.test(theme)) {
-    targetTheme = theme;
+  if (themeQuery && /^[a-z\d_]{1,50}$/i.test(themeQuery)) {
+    targetTheme = themeQuery;
   }
 
-  const safeImageUrl = escapeXml(`${baseUrl}/api/stats?username=${encodeURIComponent(targetUsername)}&theme=${encodeURIComponent(targetTheme)}`);
+  const encodedUser = encodeURIComponent(targetUsername);
+  const encodedTheme = encodeURIComponent(targetTheme);
+
+  const safeImageUrl = escapeXml(`${baseUrl}/api/stats?username=${encodedUser}&theme=${encodedTheme}`);
   const safeTitle = escapeXml(`Tarjetas de estadísticas para @${targetUsername} | GitHub Helpers`);
   const safeDescription = escapeXml(`Mira las estadísticas, lenguajes más usados y trofeos de GitHub para @${targetUsername} generados dinámicamente.`);
 
-  // Dynamically replace SEO / OpenGraph tags safely
+  // Dynamically replace SEO / OpenGraph tags safely using replacer functions
   html = html
     .replace(
       /<meta property="og:image" content="[^"]*"\/?>/gi,
-      `<meta property="og:image" content="${safeImageUrl}" />`
+      () => `<meta property="og:image" content="${safeImageUrl}" />`
     )
     .replace(
       /<meta property="twitter:image" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:image" content="${safeImageUrl}" />`
+      () => `<meta property="twitter:image" content="${safeImageUrl}" />`
     )
     .replace(
       /<meta property="og:title" content="[^"]*"\/?>/gi,
-      `<meta property="og:title" content="${safeTitle}" />`
+      () => `<meta property="og:title" content="${safeTitle}" />`
     )
     .replace(
       /<meta property="twitter:title" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:title" content="${safeTitle}" />`
+      () => `<meta property="twitter:title" content="${safeTitle}" />`
     )
     .replace(
       /<meta property="og:description" content="[^"]*"\/?>/gi,
-      `<meta property="og:description" content="${safeDescription}" />`
+      () => `<meta property="og:description" content="${safeDescription}" />`
     )
     .replace(
       /<meta property="twitter:description" content="[^"]*"\/?>/gi,
-      `<meta property="twitter:description" content="${safeDescription}" />`
+      () => `<meta property="twitter:description" content="${safeDescription}" />`
     )
     .replace(
       /<meta name="description" content="[^"]*"\/?>/gi,
-      `<meta name="description" content="${safeDescription}" />`
+      () => `<meta name="description" content="${safeDescription}" />`
     )
-    .replace(/<title>[^<]*<\/title>/gi, `<title>${safeTitle}</title>`);
+    .replace(/<title>[^<]*<\/title>/gi, () => `<title>${safeTitle}</title>`);
 
   res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   res.status(200).send(html);
 });
 
 app.get('/admin/metrics', adminLimiter, (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   res.sendFile(path.join(__dirname, '../../../../public/admin/metrics.html'));
 });
 
-app.use(express.static(path.join(__dirname, '../../../../public'), { extensions: ['html'] }));
+app.use(
+  express.static(path.join(__dirname, '../../../../public'), {
+    extensions: ['html'],
+    setHeaders: (res, filePath) => {
+      if (filePath.includes('/_astro/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      }
+    }
+  })
+);
+
+// Explicit 404 handler for missing static assets to prevent default Express HTML error pages from breaking MIME checks in browsers
+app.use('/_astro', (_req: Request, res: Response) => {
+  res.status(404).type('text/plain').send('Asset not found');
+});
+
+app.use((req: Request, res: Response, next: () => void) => {
+  if (/\.(?:css|js|png|jpg|jpeg|gif|svg|ico|txt|xml|woff2?)$/i.test(req.path)) {
+    res.status(404).type('text/plain').send('File not found');
+    return;
+  }
+  next();
+});
 
 function checkMetricsKey(req: Request, res: Response, next: () => void) {
   const expectedKey = process.env.METRICS_KEY;
