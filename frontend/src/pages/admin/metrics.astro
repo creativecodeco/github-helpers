@@ -514,7 +514,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       values.push(dayMatch ? dayMatch.count : 0);
     }
 
-    // @ts-ignore
+    // @ts-expect-error (Loaded from CDN)
     historyChart = new Chart(canvas, {
       type: 'line',
       data: {
@@ -561,7 +561,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       distChart.destroy();
     }
 
-    // @ts-ignore (Loaded from CDN)
+    // @ts-expect-error (Loaded from CDN)
     distChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
@@ -665,7 +665,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       trophiesGithub
     ];
 
-    // @ts-ignore
+    // @ts-expect-error (Loaded from CDN)
     sourceChart = new Chart(canvas, {
       type: 'bar',
       data: {
