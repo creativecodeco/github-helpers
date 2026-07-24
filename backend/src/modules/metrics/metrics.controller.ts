@@ -1,82 +1,94 @@
-import { Controller, Get, Req, Res } from '@nestjs/common';
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { TypeORMMetricsRepository } from '@/adapters/repositories/TypeORMMetricsRepository';
-
-function checkMetricsKey(req: FastifyRequest, res: FastifyReply): boolean {
-  const expectedKey = process.env.METRICS_KEY;
-  if (!expectedKey) {
-    res.status(403).send({ error: 'Las métricas no están configuradas o el acceso está deshabilitado.' });
-    return false;
-  }
-
-  const query = (req.query as Record<string, any>) || {};
-  const providedKey =
-    query.key ||
-    req.headers['x-api-key'] ||
-    (typeof req.headers['authorization'] === 'string' && req.headers['authorization'].startsWith('Bearer ')
-      ? req.headers['authorization'].slice(7)
-      : undefined);
-
-  if (providedKey !== expectedKey) {
-    res.status(401).send({ error: 'Acceso no autorizado. Se requiere una clave de métrica válida.' });
-    return false;
-  }
-
-  return true;
-}
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Headers,
+  Inject,
+  InternalServerErrorException,
+  Query,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { IMetricsRepository } from '@/domain/repositories/IMetricsRepository';
+import { safeTimingEqual } from '@/infrastructure/security/security';
+import { logger } from '@/infrastructure/logging/logger';
+import { getMessages, resolveLocale, SupportedLocale } from '@/infrastructure/i18n/backendI18n';
+import { MetricsHistoryQueryDto, MetricsKeyQueryDto } from './dto/metrics.dto';
 
 @Controller('api')
 export class MetricsController {
-  private readonly metricsRepo: TypeORMMetricsRepository;
+  constructor(
+    @Inject('IMetricsRepository') private readonly metricsRepo: IMetricsRepository
+  ) {}
 
-  constructor() {
-    this.metricsRepo = new TypeORMMetricsRepository();
+  private validateMetricsKey(queryKey?: string, headerKey?: string, locale?: SupportedLocale): void {
+    const m = getMessages(resolveLocale(locale));
+    const expectedKey = process.env.METRICS_KEY;
+
+    if (!expectedKey) {
+      throw new ForbiddenException(m.metricsDisabled);
+    }
+
+    const providedKey = headerKey ?? queryKey;
+
+    if (typeof providedKey !== 'string' || !safeTimingEqual(providedKey, expectedKey)) {
+      throw new UnauthorizedException(m.metricsUnauthorized);
+    }
   }
 
   @Get('metrics')
-  async getMetrics(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
-    if (!checkMetricsKey(req, res)) return;
-    res.status(200).send(this.metricsRepo.getMetrics());
+  getMetrics(
+    @Query() query: MetricsKeyQueryDto,
+    @Headers('x-api-key') headerKey?: string
+  ): unknown {
+    this.validateMetricsKey(query.key, headerKey, query.locale);
+    return this.metricsRepo.getMetrics();
   }
 
   @Get('metrics/history')
-  async getRendersHistory(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
-    if (!checkMetricsKey(req, res)) return;
+  async getRendersHistory(
+    @Query() query: MetricsHistoryQueryDto,
+    @Headers('x-api-key') headerKey?: string
+  ): Promise<unknown> {
+    this.validateMetricsKey(query.key, headerKey, query.locale);
+
     try {
-      const query = (req.query as Record<string, any>) || {};
-      const days = Number.parseInt(query.days as string, 10) || 7;
-      const history = await this.metricsRepo.getRendersHistory(days);
-      res.status(200).send(history);
-    } catch (error: any) {
-      res.status(500).send({ error: error.message || 'Error al obtener historial' });
+      const days = query.days ?? 7;
+      return await this.metricsRepo.getRendersHistory(days);
+    } catch (error: unknown) {
+      logger.error('Error in getRendersHistory endpoint', { error });
+      throw new InternalServerErrorException(getMessages('es').metricsHistoryError);
     }
   }
 
   @Get('metrics/users')
-  async getUserMetrics(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
-    if (!checkMetricsKey(req, res)) return;
+  async getUserMetrics(
+    @Query() query: MetricsKeyQueryDto,
+    @Headers('x-api-key') headerKey?: string
+  ): Promise<unknown> {
+    this.validateMetricsKey(query.key, headerKey, query.locale);
+
     try {
-      const userMetrics = await this.metricsRepo.getAllUserMetrics();
-      res.status(200).send(userMetrics);
-    } catch (error: any) {
-      res.status(500).send({ error: error.message || 'Error desconocido' });
+      return await this.metricsRepo.getAllUserMetrics();
+    } catch (error: unknown) {
+      logger.error('Error in getUserMetrics endpoint', { error });
+      throw new InternalServerErrorException(getMessages('es').userMetricsError);
     }
   }
 
   @Get('metrics/users/count')
-  async getUniqueUsersCount(@Res() res: FastifyReply): Promise<void> {
+  async getUniqueUsersCount(): Promise<unknown> {
     try {
-      const count = await this.metricsRepo.getUniqueUsersCount();
-      res.status(200).send(count);
-    } catch (error: any) {
-      res.status(500).send({ error: error.message || 'Error desconocido' });
+      return await this.metricsRepo.getUniqueUsersCount();
+    } catch (error: unknown) {
+      logger.error('Error in getUniqueUsersCount endpoint', { error });
+      throw new InternalServerErrorException(getMessages('es').userCountError);
     }
   }
 
   @Get('config')
   getConfig(): { privateStatsComingSoon: boolean } {
     return {
-      privateStatsComingSoon: process.env.PRIVATE_STATS_COMING_SOON !== 'false'
+      privateStatsComingSoon: process.env.PRIVATE_STATS_COMING_SOON !== 'false',
     };
   }
 }

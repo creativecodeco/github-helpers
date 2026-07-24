@@ -103,15 +103,15 @@ export class TypeORMMetricsRepository implements IMetricsRepository {
         .where('username = :username', { username: username.toLowerCase() })
         .execute();
 
-      // 4. Log the request
+      // 4. Log the request (safely truncated to fit DB column constraints)
       const requestLogRepo = transactionalEntityManager.getRepository(RequestLog);
       const log = new RequestLog();
-      log.username = username.toLowerCase();
+      log.username = username.toLowerCase().slice(0, 39);
       log.card_type = type;
       log.source = source;
-      log.user_agent = userAgent;
-      log.referer = referer;
-      log.ip_address = ip;
+      log.user_agent = userAgent.slice(0, 500);
+      log.referer = referer.slice(0, 500);
+      log.ip_address = ip.slice(0, 45);
       await requestLogRepo.save(log);
     })
       .then(() => {

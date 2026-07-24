@@ -11,8 +11,11 @@ import { AppModule } from './app.module';
 import { initDatabase } from '@/infrastructure/database/database';
 import { logger } from '@/infrastructure/logging/logger';
 import { TypeORMMetricsRepository } from '@/adapters/repositories/TypeORMMetricsRepository';
+import { validateEnvConfig } from '@/infrastructure/config/env.config';
+import { AllExceptionsFilter } from '@/infrastructure/filters/all-exceptions.filter';
 
 dotenv.config();
+validateEnvConfig();
 
 const PORT = process.env.PORT || 3000;
 
@@ -63,12 +66,15 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
     }
   });
 
+  // Global exception filter: centralize error logging, prevent stack trace leaks
+  app.useGlobalFilters(new AllExceptionsFilter());
+
   // Global pipe for runtime DTO validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: false
+      forbidNonWhitelisted: true,
     })
   );
 

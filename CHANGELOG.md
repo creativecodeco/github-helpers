@@ -2,6 +2,25 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.4.2] - 2026-07-24
+
+### ♻️ Arquitectura NestJS — Controladores Estándar, DI e i18n Backend
+- **Controladores NestJS Estándar (sin `@Req/@Res`)**: Refactorizados `TokensController` y `MetricsController` para eliminar el uso innecesario de objetos de bajo nivel de Fastify (`FastifyRequest`, `FastifyReply`). Los métodos retornan objetos/promesas directamente y lanzan excepciones idiomáticas de NestJS (`BadRequestException`, `UnauthorizedException`, `ForbiddenException`, `InternalServerErrorException`).
+- **DTOs con `class-validator` y `class-transformer`**: Creados `RegisterTokenDto`, `RevokeTokenDto`, `PurgeUserDto`, `MetricsHistoryQueryDto` y `MetricsKeyQueryDto` con validación declarativa y coerción automática de tipos. El `ValidationPipe` global ahora usa `forbidNonWhitelisted: true` para rechazar campos desconocidos.
+- **Validación de Entorno en Bootstrap** (`env.config.ts`): Al iniciar el servidor, se validan todas las variables de entorno requeridas (`GITHUB_TOKEN`, `DATABASE_URL`, `ENCRYPTION_KEY`, `METRICS_KEY`) con `class-validator`. El proceso falla inmediatamente si falta alguna variable crítica.
+- **Sistema de i18n Backend** (`backendI18n.ts`): Diccionario bilingüe (`es`/`en`) con interfaz tipada `BackendMessages`. Los controladores de tokens y métricas responden en el idioma del cliente según el campo `locale` del DTO o query.
+- **Inyección de Dependencias Correcta en `MetricsController`**: Eliminada la instancia directa `new TypeORMMetricsRepository()` del constructor. Ahora se inyecta via el token `IMetricsRepository` del contenedor de NestJS. `MetricsModule` actualizado para registrar el provider correctamente.
+- **`HtmlFileService`** (`html-file.service.ts`): Servicio NestJS inyectable que encapsula todo acceso a `fs` para servir archivos HTML. `RootController` ya no importa `fs`/`path` directamente. El parámetro de slug ahora usa `@Param('slug')` en lugar de `@Req()`.
+- **`renderErrorCard` Presenter Compartido** (`errorCard.ts`): Extraída la función `renderErrorCard` de `CardsController` a `@/adapters/presenters/errorCard` — reusable e independientemente testeable.
+- **Helpers de Query de Tarjetas** (`card-query.helpers.ts`): Funciones `extractThemeOverrides()` y `extractCardWidth()` extraídas de `CardsController` a un módulo dedicado. Query tipado como `Record<string, unknown>` en todo el controlador.
+- **`GlobalExceptionsFilter`** (`all-exceptions.filter.ts`): Filtro global `@Catch()` registrado en `main.ts` que captura excepciones no manejadas, las loguea con contexto completo de request y nunca filtra stack traces al cliente.
+- **IP Segura en Registro de Tokens**: Reemplazado el uso de `x-forwarded-for` (falsificable por el cliente) por el decorador `@Ip()` de NestJS, que obtiene la IP real desde el socket de Fastify.
+
+### 🧪 Tests Unitarios de Controladores (25 nuevos tests)
+- **`tokens.controller.spec.ts`** (11 tests): Guard clauses, error paths, i18n en respuestas (`locale=en`), flujos exitosos de registro, revocación y purga.
+- **`metrics.controller.spec.ts`** (14 tests): Validación de clave de métricas, cobertura completa de endpoints, mock de `IMetricsRepository` via DI.
+- Total de tests: **76 tests** pasando (51 anteriores + 25 nuevos).
+
 ## [1.4.1] - 2026-07-24
 
 ### 🛠️ Refactorización y Buenas Prácticas (Clean Code)
@@ -189,4 +208,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.4.1
+**Versión actualmente expuesta / en producción:** v1.4.2

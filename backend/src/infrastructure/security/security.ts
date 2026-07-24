@@ -4,11 +4,32 @@ import { logger } from '@/infrastructure/logging/logger';
 
 const ALGORITHM = 'aes-256-gcm';
 
-// Derive a secure 32-byte key from the environment variable (robust fallback to hash to ensure correct length)
+/**
+ * Compare two strings in constant time to prevent timing attacks
+ */
+export function safeTimingEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+
+  if (bufA.length !== bufB.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// Derive a secure 32-byte key from the environment variable
 function getEncryptionKey(): Buffer {
-  const rawKey =
-    process.env.ENCRYPTION_KEY || 'default-fallback-key-change-me-in-production-creativecode';
-  return crypto.createHash('sha256').update(rawKey).digest();
+  const rawKey = process.env.ENCRYPTION_KEY;
+  if (!rawKey || rawKey === 'default-fallback-key-change-me-in-production-creativecode') {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'CRITICAL SECURITY ERROR: ENCRYPTION_KEY environment variable is not defined or is using default fallback in production mode.'
+      );
+    }
+  }
+  const keyToUse = rawKey || 'default-fallback-key-change-me-in-production-creativecode';
+  return crypto.createHash('sha256').update(keyToUse).digest();
 }
 
 /**

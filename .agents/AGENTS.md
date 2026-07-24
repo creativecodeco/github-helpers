@@ -5,7 +5,7 @@ This file documents workspace-specific rules, patterns, and guidelines that all 
 ## MCP Tools & Discovery
 
 - **Codebase Memory**: This project uses `codebase-memory-mcp`. Always prefer using MCP graph tools (`search_graph`, `trace_path`, `get_code_snippet`, etc.) over raw grep/find commands for exploring the codebase.
-- **Keep indexed**: If new modules or extensive changes are introduced, re-index the repository using `index_repository`.
+- **Mandatory Re-indexation**: After completing any task that creates, modifies, or deletes source files, you MUST re-index the repository by calling `index_repository` via `codebase-memory-mcp`. This keeps the knowledge graph in sync with the current codebase and ensures future graph queries remain accurate. Do this as the last step of every task before reporting completion.
 
 ## Security Rules (OWASP Compliance)
 

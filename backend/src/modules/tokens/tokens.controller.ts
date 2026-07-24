@@ -1,23 +1,29 @@
-import { Controller, Post, Delete, Body, Req, Res } from '@nestjs/common';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Headers,
+  InternalServerErrorException,
+  Ip,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterUserTokenUseCase } from '@/use-cases/tokens/RegisterUserTokenUseCase';
 import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCase';
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
-import { GITHUB_USERNAME_REGEX } from '@/domain/entities/Validation';
 import { logger } from '@/infrastructure/logging/logger';
 import { escapeXml } from '@/utils/escape';
+import { getMessages, resolveLocale } from '@/infrastructure/i18n/backendI18n';
+import { RegisterTokenDto, RevokeTokenDto, PurgeUserDto } from './dto/tokens.dto';
 
-function extractBearerToken(req: FastifyRequest, bodyToken?: string): string | undefined {
-  const authHeader = req.headers['authorization'];
-  let token = authHeader || bodyToken;
-  if (typeof token !== 'string') return undefined;
-  if (token.startsWith('Bearer ')) {
-    return token.slice(7);
-  }
-  if (token.startsWith('token ')) {
-    return token.slice(6);
-  }
-  return token;
+function extractBearerToken(authHeader?: string, bodyToken?: string): string | undefined {
+  const raw = authHeader ?? bodyToken;
+  if (typeof raw !== 'string') return undefined;
+  if (raw.startsWith('Bearer ')) return raw.slice(7);
+  if (raw.startsWith('token ')) return raw.slice(6);
+  return raw;
 }
 
 @Controller('api')
@@ -30,158 +36,91 @@ export class TokensController {
 
   @Post('tokens/register')
   async register(
-    @Body() body: Record<string, any>,
-    @Req() req: FastifyRequest,
-    @Res() res: FastifyReply
-  ): Promise<void> {
-    const { username, token, consentAccepted } = body || {};
+    @Body() dto: RegisterTokenDto,
+    @Headers('authorization') authHeader?: string,
+    @Headers('user-agent') userAgent?: string,
+    @Ip() clientIp?: string
+  ): Promise<Record<string, unknown>> {
+    const m = getMessages(resolveLocale(dto.locale));
 
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
-      return;
-    }
-
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      res.type('application/json').status(400).send({ error: 'Token de GitHub no proporcionado.' });
-      return;
-    }
-
-    if (consentAccepted !== true) {
-      res
-        .type('application/json')
-        .status(400)
-        .send({ error: 'Debes aceptar los términos y condiciones de almacenamiento de datos.' });
-      return;
+    if (!dto.consentAccepted) {
+      throw new BadRequestException(m.consentRequired);
     }
 
     try {
-      const ip = req.ip || '';
-      const userAgent = (req.headers['user-agent'] as string) || '';
-
-      const result = await this.registerUseCase.execute(
-        username,
-        token,
-        consentAccepted,
-        ip,
-        userAgent
-      );
-      logger.info(`Token registered successfully for user ${username}`, { username });
-      res.type('application/json').status(200).send(result);
-    } catch (error: any) {
-      logger.error(`Error registering token for user ${username}`, { username, error });
-      const safeErrorMessage = escapeXml(
-        error?.message || 'Error interno del servidor al registrar el token.'
-      );
-      res.type('application/json').status(500).send({ error: safeErrorMessage });
+      // Fastify's @Ip() decorator resolves the IP from the underlying socket,
+      // which is the authoritative source and cannot be spoofed by client headers.
+      const ip = clientIp ?? '';
+      const agent = userAgent ?? '';
+      const result = await this.registerUseCase.execute(dto.username, dto.token, dto.consentAccepted, ip, agent);
+      logger.info(`Token registered successfully for user ${dto.username}`, { username: dto.username });
+      return result as Record<string, unknown>;
+    } catch (error: unknown) {
+      logger.error(`Error registering token for user ${dto.username}`, { username: dto.username, error });
+      throw new InternalServerErrorException(m.tokenRegisterError);
     }
   }
 
   @Delete('tokens/revoke')
   async revoke(
-    @Body() body: Record<string, any>,
-    @Req() req: FastifyRequest,
-    @Res() res: FastifyReply
-  ): Promise<void> {
-    const { username, token: bodyToken } = body || {};
-    const providedToken = extractBearerToken(req, bodyToken);
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
-      return;
-    }
+    @Body() dto: RevokeTokenDto,
+    @Headers('authorization') authHeader?: string
+  ): Promise<Record<string, unknown>> {
+    const m = getMessages(resolveLocale(dto.locale));
+    const providedToken = extractBearerToken(authHeader, dto.token);
 
     if (!providedToken || providedToken.trim() === '') {
-      res
-        .type('application/json')
-        .status(400)
-        .send({
-          error: 'Se requiere proveer un token de GitHub válido para confirmar tu identidad.'
-        });
-      return;
+      throw new BadRequestException(m.tokenIdentityRequired);
     }
 
     try {
-      const result = await this.revokeUseCase.execute(username, providedToken);
-      logger.info(`Token revoked successfully for user ${username}`, { username });
-      res.type('application/json').status(200).send(result);
-    } catch (error: any) {
-      logger.error(`Error revoking token for user ${username}`, { username, error });
-      const safeErrorMessage = escapeXml(
-        error?.message || 'Error interno del servidor al revocar el token.'
-      );
-      res.type('application/json').status(500).send({ error: safeErrorMessage });
+      const result = await this.revokeUseCase.execute(dto.username, providedToken);
+      logger.info(`Token revoked successfully for user ${dto.username}`, { username: dto.username });
+      return result as Record<string, unknown>;
+    } catch (error: unknown) {
+      logger.error(`Error revoking token for user ${dto.username}`, { username: dto.username, error });
+      throw new InternalServerErrorException(m.tokenRevokeError);
     }
   }
 
   @Delete('users/purge')
   async purge(
-    @Body() body: Record<string, any>,
-    @Req() req: FastifyRequest,
-    @Res() res: FastifyReply
-  ): Promise<void> {
-    const { username, token: bodyToken } = body || {};
-    const providedToken = extractBearerToken(req, bodyToken);
-
-    if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
-      return;
-    }
+    @Body() dto: PurgeUserDto,
+    @Headers('authorization') authHeader?: string
+  ): Promise<{ message: string }> {
+    const m = getMessages(resolveLocale(dto.locale));
+    const providedToken = extractBearerToken(authHeader, dto.token);
 
     if (!providedToken || providedToken.trim() === '') {
-      res.type('application/json').status(400).send({
-        error:
-          'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'
-      });
-      return;
+      throw new BadRequestException(m.purgeTokenRequired);
+    }
+
+    const profileRes = await fetch('https://api.github.com/user', {
+      headers: {
+        'User-Agent': 'github-helpers-security',
+        Accept: 'application/vnd.github.v3+json',
+        Authorization: `token ${providedToken}`,
+      },
+    });
+
+    if (!profileRes.ok) {
+      throw new UnauthorizedException(m.tokenExpiredOrInvalid);
+    }
+
+    const githubUser = (await profileRes.json()) as { login: string };
+    const tokenOwner = githubUser.login;
+
+    if (tokenOwner.toLowerCase() !== dto.username.toLowerCase()) {
+      throw new ForbiddenException(m.accessDenied(escapeXml(tokenOwner), escapeXml(dto.username)));
     }
 
     try {
-      const profileRes = await fetch('https://api.github.com/user', {
-        headers: {
-          'User-Agent': 'github-helpers-security',
-          Accept: 'application/vnd.github.v3+json',
-          Authorization: `token ${providedToken}`
-        }
-      });
-
-      if (!profileRes.ok) {
-        res
-          .type('application/json')
-          .status(401)
-          .send({ error: 'El token de GitHub provisto no es válido o ha expirado.' });
-        return;
-      }
-
-      const githubUser = (await profileRes.json()) as { login: string };
-      const tokenOwner = githubUser.login;
-
-      if (tokenOwner.toLowerCase() !== username.toLowerCase()) {
-        const safeOwner = escapeXml(tokenOwner);
-        const safeUsername = escapeXml(username);
-        res
-          .type('application/json')
-          .status(403)
-          .send({
-            error: `Acceso denegado. El token proporcionado pertenece al usuario '${safeOwner}', pero estás intentando purgar los datos de '${safeUsername}'.`
-          });
-        return;
-      }
-
-      await this.purgeUseCase.execute(username);
-      logger.info(`GDPR data purge completed for user ${username}`, { username });
-
-      res.type('application/json').status(200).send({
-        message:
-          'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
-      });
-    } catch (error: any) {
-      logger.error(`Error purging data for user ${username}`, { username, error });
-      const safeErrorMessage = escapeXml(
-        error?.message || 'Error interno del servidor al procesar la purga de datos.'
-      );
-      res.type('application/json').status(500).send({
-        error: safeErrorMessage
-      });
+      await this.purgeUseCase.execute(dto.username);
+      logger.info(`GDPR data purge completed for user ${dto.username}`, { username: dto.username });
+      return { message: m.purgeSuccess };
+    } catch (error: unknown) {
+      logger.error(`Error purging data for user ${dto.username}`, { username: dto.username, error });
+      throw new InternalServerErrorException(m.purgeDataError);
     }
   }
 }

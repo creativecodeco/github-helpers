@@ -9,70 +9,11 @@ import { GetUserTrophiesCardUseCase } from '@/use-cases/cards/GetUserTrophiesCar
 import { GetUserTopReposCardUseCase } from '@/use-cases/cards/GetUserTopReposCardUseCase';
 import { RecordProfileViewUseCase } from '@/use-cases/metrics/RecordProfileViewUseCase';
 import { renderViewsBadge } from '@/adapters/presenters/viewsBadge';
-import { escapeXml } from '@/utils/escape';
+import { renderErrorCard } from '@/adapters/presenters/errorCard';
 import { GITHUB_USERNAME_REGEX, GITHUB_REPO_REGEX } from '@/domain/entities/Validation';
+import { HitContext } from '@/domain/entities/Metrics';
 import { logger } from '@/infrastructure/logging/logger';
-
-function renderErrorCard(message: string): string {
-  const escapedMessage = escapeXml(message);
-  return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195">
-      <rect width="495" height="195" rx="12" fill="#0d1117" stroke="#f85149" stroke-width="2" />
-      <g transform="translate(25, 45)">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#f85149" transform="scale(1.5)"/>
-        <text x="45" y="18" font-family="'Segoe UI', Ubuntu, sans-serif" font-weight="bold" font-size="18" fill="#f85149">Error en GitHub Helpers</text>
-        <text x="45" y="42" font-family="'Segoe UI', Ubuntu, sans-serif" font-size="14" fill="#c9d1d9">${escapedMessage}</text>
-        <text x="0" y="95" font-family="'Segoe UI', Ubuntu, sans-serif" font-size="11" fill="#8b949e">Verifica el nombre de usuario o intenta más tarde.</text>
-      </g>
-      <text x="470" y="25" text-anchor="end" font-family="'Segoe UI', Ubuntu, sans-serif" font-weight="600" font-size="9px" fill="#8b949e" opacity="0.6">
-        CreativeCode.com.co
-      </text>
-    </svg>
-  `.trim();
-}
-
-function extractThemeOverrides(query: Record<string, any>): Record<string, string> {
-  const overrides: Record<string, string> = {};
-  const mappings: Record<string, string[]> = {
-    bg: ['bg', 'bg_color'],
-    text: ['text', 'text_color'],
-    title: ['title', 'title_color'],
-    accent: ['accent', 'icon_color', 'accent_color'],
-    secondary: ['secondary', 'secondary_color'],
-    border: ['border', 'border_color'],
-    bgGradient: ['bgGradient', 'bg_gradient']
-  };
-
-  for (const [targetKey, paramKeys] of Object.entries(mappings)) {
-    for (const key of paramKeys) {
-      const val = query[key];
-      if (typeof val === 'string' && val.trim() !== '') {
-        overrides[targetKey] = val;
-        break;
-      }
-    }
-  }
-
-  const loc = query.locale || query.lang;
-  if (typeof loc === 'string') {
-    const norm = loc.toLowerCase().trim();
-    if (norm === 'en' || norm === 'es') {
-      overrides.locale = norm;
-    }
-  }
-
-  return overrides;
-}
-
-function extractCardWidth(query: Record<string, any>): string | undefined {
-  const fullWidth = query.full_width === 'true' || query.full_width === '1';
-  if (fullWidth) return '100%';
-  const widthVal = query.card_width || query.width;
-  if (typeof widthVal === 'string' && widthVal.trim() !== '') {
-    return widthVal.trim();
-  }
-  return undefined;
-}
+import { extractThemeOverrides, extractCardWidth } from './card-query.helpers';
 
 @Controller('api')
 export class CardsController {
@@ -95,11 +36,12 @@ export class CardsController {
       username: string,
       theme: string,
       overrides: Record<string, string>,
-      hitContext?: any
+      hitContext?: HitContext
     ) => Promise<string>
   ): Promise<void> {
-    const query = (req.query as Record<string, any>) || {};
-    const { username, theme } = query;
+    const query = (req.query as Record<string, unknown>) ?? {};
+    const username = query.username;
+    const theme = query.theme;
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
       res.type('image/svg+xml').status(400).send(renderErrorCard('Usuario de GitHub inválido'));
@@ -110,13 +52,13 @@ export class CardsController {
       const cardWidth = extractCardWidth(query);
       const overrides = {
         ...extractThemeOverrides(query),
-        ...(cardWidth ? { cardWidth } : {})
+        ...(cardWidth ? { cardWidth } : {}),
       };
-      const hitContext = {
+      const hitContext: HitContext = {
         username,
         userAgent: req.headers['user-agent'],
-        referer: req.headers['referer'],
-        ip: req.ip
+        referer: req.headers['referer'] as string | undefined,
+        ip: req.ip,
       };
 
       const svg = await executeUseCase(username, theme as string, overrides, hitContext);
@@ -126,16 +68,10 @@ export class CardsController {
         .header('Cache-Control', 'public, max-age=7200')
         .status(200)
         .send(svg);
-    } catch (error: any) {
-      logger.error(`Error rendering card ${cardName} for user ${username}`, {
-        cardName,
-        username,
-        error
-      });
-      res
-        .type('image/svg+xml')
-        .status(500)
-        .send(renderErrorCard(error.message || 'Error al obtener datos'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al obtener datos';
+      logger.error(`Error rendering card ${cardName} for user ${username}`, { cardName, username, error });
+      res.type('image/svg+xml').status(500).send(renderErrorCard(message));
     }
   }
 
@@ -155,8 +91,9 @@ export class CardsController {
 
   @Get('repo')
   async getRepo(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
-    const query = (req.query as Record<string, any>) || {};
-    const { repo } = query;
+    const query = (req.query as Record<string, unknown>) ?? {};
+    const repo = query.repo;
+
     if (repo && (typeof repo !== 'string' || !GITHUB_REPO_REGEX.test(repo))) {
       res.type('image/svg+xml').status(400).send(renderErrorCard('Repositorio de GitHub inválido'));
       return;
@@ -190,7 +127,7 @@ export class CardsController {
 
   @Get('views')
   async getProfileViews(@Req() req: FastifyRequest, @Res() res: FastifyReply): Promise<void> {
-    const query = (req.query as Record<string, any>) || {};
+    const query = (req.query as Record<string, unknown>) ?? {};
     const { username, theme, color, label, style } = query;
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
@@ -218,12 +155,10 @@ export class CardsController {
         .header('Expires', '0')
         .status(200)
         .send(svg);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error al obtener visitas';
       logger.error(`Error in getProfileViews for user ${username}`, { username, error });
-      res
-        .type('image/svg+xml')
-        .status(500)
-        .send(renderErrorCard(error.message || 'Error al obtener visitas'));
+      res.type('image/svg+xml').status(500).send(renderErrorCard(message));
     }
   }
 
