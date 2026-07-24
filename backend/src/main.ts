@@ -42,6 +42,7 @@ export async function bootstrap(): Promise<NestFastifyApplication> {
   await app.register(fastifyStatic, {
     root: publicDir,
     prefix: '/',
+    extensions: ['html'],
     decorateReply: true,
     setHeaders: (res: any, filePath: string) => {
       const setHeader = (key: string, val: string) => {

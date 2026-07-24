@@ -2,6 +2,14 @@
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
+## [1.4.1] - 2026-07-24
+
+### 🛠️ Refactorización y Buenas Prácticas (Clean Code)
+- **Eliminación de Operadores Ternarios Anidados**: Extraída la ternaria anidada en `RootController` ([root.controller.ts](file:///Users/joaltoroc/Code/creativecodeco/github-helpers/backend/src/modules/root/root.controller.ts)) a sentencias `if / else if` independientes para evitar problemas de mantenibilidad (`no-nested-ternary`).
+- **Remoción de Usuario por Defecto**: Removido el valor fallback por defecto `'creativecode'` en `targetUsername`. Ahora la vista previa solo reemplaza metadatos sociales si la petición incluye un parámetro `user`/`username` válido.
+- **Uso de Guard Clauses (Negación Primero)**: Refactorizado el flujo de control en `RootController` para utilizar guard clauses con negación primero (`if (!targetUsername) { return; }`), evitando anidar la lógica principal dentro de bloques condicionales `if` positivos.
+- **Directrices de Desarrollo en `.agents/AGENTS.md`**: Actualizado el archivo de reglas del proyecto incorporando explícitamente los principios de Clean Code y el patrón Guard Clauses con negación al inicio.
+
 ## [1.4.0] - 2026-07-24
 
 ### ⚡ Migración de Framework Backend a NestJS + Fastify
@@ -181,4 +189,4 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 ---
 
-**Versión actualmente expuesta / en producción:** v1.4.0
+**Versión actualmente expuesta / en producción:** v1.4.1

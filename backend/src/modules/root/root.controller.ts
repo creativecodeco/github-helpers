@@ -16,7 +16,12 @@ export class RootController {
     @Req() req?: FastifyRequest,
     @Res() res?: FastifyReply
   ): void {
-    const userQuery = typeof userQueryParam === 'string' ? userQueryParam : (typeof usernameQueryParam === 'string' ? usernameQueryParam : '');
+    let userQuery = '';
+    if (typeof userQueryParam === 'string') {
+      userQuery = userQueryParam;
+    } else if (typeof usernameQueryParam === 'string') {
+      userQuery = usernameQueryParam;
+    }
     const themeQuery = typeof themeQueryParam === 'string' ? themeQueryParam : '';
     const indexPath = path.resolve(__dirname, '../../../../public/index.html');
 
@@ -33,7 +38,7 @@ export class RootController {
     const protocol = req?.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
     const baseUrl = `${protocol}://${safeHost}`;
 
-    let targetUsername = 'creativecode';
+    let targetUsername = '';
     let targetTheme = 'radical';
 
     if (userQuery && /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(userQuery)) {
@@ -41,6 +46,11 @@ export class RootController {
     }
     if (themeQuery && /^[a-z\d_]{1,50}$/i.test(themeQuery)) {
       targetTheme = themeQuery;
+    }
+
+    if (!targetUsername) {
+      res?.status(200).header('Content-Type', 'text/html').header('Cache-Control', 'no-cache, must-revalidate').send(html);
+      return;
     }
 
     const encodedUser = encodeURIComponent(targetUsername);
@@ -76,11 +86,44 @@ export class RootController {
   @Get('admin/metrics')
   @Header('Cache-Control', 'no-cache, must-revalidate')
   getAdminMetrics(@Res() res: FastifyReply): void {
-    const metricsPath = path.resolve(__dirname, '../../../../public/admin/metrics.html');
-    if (fs.existsSync(metricsPath)) {
-      res.type('text/html').send(fs.readFileSync(metricsPath, 'utf-8'));
+    this.serveHtmlFile('admin/metrics.html', res);
+  }
+
+  @Get('help')
+  @Header('Cache-Control', 'no-cache, must-revalidate')
+  getHelp(@Res() res: FastifyReply): void {
+    this.serveHtmlFile('help.html', res);
+  }
+
+  @Get('privacy')
+  @Header('Cache-Control', 'no-cache, must-revalidate')
+  getPrivacy(@Res() res: FastifyReply): void {
+    this.serveHtmlFile('privacy.html', res);
+  }
+
+  @Get('help/:slug')
+  @Header('Cache-Control', 'no-cache, must-revalidate')
+  getHelpSubPage(@Req() req: FastifyRequest, @Res() res: FastifyReply): void {
+    const params = (req.params as Record<string, string>) || {};
+    const rawSlug = typeof params.slug === 'string' ? params.slug : '';
+    const safeSlug = rawSlug.replace(/[^a-z0-9-]/gi, '');
+    if (!safeSlug) {
+      res.status(404).header('Content-Type', 'text/plain').send('Page not found.');
+      return;
+    }
+    this.serveHtmlFile(`help/${safeSlug}.html`, res);
+  }
+
+  private serveHtmlFile(relativePath: string, res: FastifyReply): void {
+    const filePath = path.resolve(__dirname, '../../../../public', relativePath);
+    if (fs.existsSync(filePath)) {
+      res
+        .status(200)
+        .header('Content-Type', 'text/html; charset=utf-8')
+        .header('Cache-Control', 'no-cache, must-revalidate')
+        .send(fs.readFileSync(filePath, 'utf-8'));
     } else {
-      res.status(404).type('text/plain').send('admin/metrics.html not found.');
+      res.status(404).header('Content-Type', 'text/plain').send('Page not found.');
     }
   }
 }
