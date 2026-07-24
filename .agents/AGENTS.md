@@ -8,6 +8,7 @@ This file documents workspace-specific rules, patterns, and guidelines that all 
 
 ## Security Rules (OWASP Compliance)
 * **Secure by Default**: Never disable authorization or validation checks.
+* **XSS & Security Vulnerability Prevention**: No code must contain Cross-Site Scripting (XSS), Path Traversal, SQL Injection, or other OWASP vulnerabilities. Unsanitized user inputs or query parameters must NEVER be directly injected into HTML, SVG, metadata, or template responses. All inputs rendered in client-facing outputs must be strictly sanitized or HTML/XML-escaped.
 * **Input Validation**: 
   * Every endpoint receiving user parameters (`username`, `repo`, etc.) must strictly validate them using regular expressions before processing or forwarding.
   * Username Regex: `/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i`
@@ -37,6 +38,7 @@ This file documents workspace-specific rules, patterns, and guidelines that all 
 ## Code Quality & Sonar Guidelines
 * **Avoid Code Duplication**: Do not duplicate common utility functions, helper methods, or business logic (e.g. XML/HTML escaping, URL parsing, custom rate limiting). Consolidate them into reusable modules or helper classes where possible.
 * **TypeScript Best Practices**:
+  * **No Unused Variables or Imports**: Never leave unused variables, parameters, types, functions, or imports (`@typescript-eslint/no-unused-vars`). Clean up all unused symbols before finishing any task.
   * **Readonly Members**: Mark all class properties, private fields, and methods that are initialized and never reassigned as `readonly` (e.g. `private readonly handleCardRequest`).
   * **Strict Parameter Types**: Ensure all inputs (especially query parameters from Express `req.query`) are strictly type-checked at runtime using `typeof` and validated before passing them to internal functions to avoid type confusion.
 * **OWASP & Sonar Compliance**: Keep code clean and free of Sonar issues. Avoid raw `.includes()` checks for security-sensitive domains/referers. Sanitization of user inputs for XSS prevention and validation of dynamic request target hosts to prevent SSRF are required.

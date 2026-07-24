@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Controller, Get, Req, Res } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { GetUserStatsCardUseCase } from '@/use-cases/cards/GetUserStatsCardUseCase';
 import { GetUserLanguagesCardUseCase } from '@/use-cases/cards/GetUserLanguagesCardUseCase';
@@ -91,7 +91,12 @@ export class CardsController {
     req: FastifyRequest,
     res: FastifyReply,
     cardName: string,
-    executeUseCase: (username: string, theme: string, overrides: Record<string, string>, hitContext?: any) => Promise<string>
+    executeUseCase: (
+      username: string,
+      theme: string,
+      overrides: Record<string, string>,
+      hitContext?: any
+    ) => Promise<string>
   ): Promise<void> {
     const query = (req.query as Record<string, any>) || {};
     const { username, theme } = query;
@@ -122,8 +127,15 @@ export class CardsController {
         .status(200)
         .send(svg);
     } catch (error: any) {
-      logger.error(`Error rendering card ${cardName} for user ${username}`, { cardName, username, error });
-      res.type('image/svg+xml').status(500).send(renderErrorCard(error.message || 'Error al obtener datos'));
+      logger.error(`Error rendering card ${cardName} for user ${username}`, {
+        cardName,
+        username,
+        error
+      });
+      res
+        .type('image/svg+xml')
+        .status(500)
+        .send(renderErrorCard(error.message || 'Error al obtener datos'));
     }
   }
 
@@ -197,13 +209,7 @@ export class CardsController {
       const cleanTheme = typeof theme === 'string' ? theme : undefined;
       const cleanStyle = typeof style === 'string' ? style : undefined;
 
-      const svg = renderViewsBadge(
-        viewsCount,
-        cleanLabel,
-        cleanColor,
-        cleanTheme,
-        cleanStyle
-      );
+      const svg = renderViewsBadge(viewsCount, cleanLabel, cleanColor, cleanTheme, cleanStyle);
 
       res
         .type('image/svg+xml')
@@ -214,7 +220,10 @@ export class CardsController {
         .send(svg);
     } catch (error: any) {
       logger.error(`Error in getProfileViews for user ${username}`, { username, error });
-      res.type('image/svg+xml').status(500).send(renderErrorCard(error.message || 'Error al obtener visitas'));
+      res
+        .type('image/svg+xml')
+        .status(500)
+        .send(renderErrorCard(error.message || 'Error al obtener visitas'));
     }
   }
 

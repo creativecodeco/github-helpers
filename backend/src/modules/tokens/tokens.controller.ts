@@ -5,6 +5,7 @@ import { RevokeUserTokenUseCase } from '@/use-cases/tokens/RevokeUserTokenUseCas
 import { PurgeUserDataUseCase } from '@/use-cases/users/PurgeUserDataUseCase';
 import { GITHUB_USERNAME_REGEX } from '@/domain/entities/Validation';
 import { logger } from '@/infrastructure/logging/logger';
+import { escapeXml } from '@/utils/escape';
 
 function extractBearerToken(req: FastifyRequest, bodyToken?: string): string | undefined {
   const authHeader = req.headers['authorization'];
@@ -36,17 +37,20 @@ export class TokensController {
     const { username, token, consentAccepted } = body || {};
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.status(400).send({ error: 'Usuario de GitHub inválido.' });
+      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
       return;
     }
 
     if (!token || typeof token !== 'string' || token.trim() === '') {
-      res.status(400).send({ error: 'Token de GitHub no proporcionado.' });
+      res.type('application/json').status(400).send({ error: 'Token de GitHub no proporcionado.' });
       return;
     }
 
     if (consentAccepted !== true) {
-      res.status(400).send({ error: 'Debes aceptar los términos y condiciones de almacenamiento de datos.' });
+      res
+        .type('application/json')
+        .status(400)
+        .send({ error: 'Debes aceptar los términos y condiciones de almacenamiento de datos.' });
       return;
     }
 
@@ -54,12 +58,21 @@ export class TokensController {
       const ip = req.ip || '';
       const userAgent = (req.headers['user-agent'] as string) || '';
 
-      const result = await this.registerUseCase.execute(username, token, consentAccepted, ip, userAgent);
+      const result = await this.registerUseCase.execute(
+        username,
+        token,
+        consentAccepted,
+        ip,
+        userAgent
+      );
       logger.info(`Token registered successfully for user ${username}`, { username });
-      res.status(200).send(result);
+      res.type('application/json').status(200).send(result);
     } catch (error: any) {
       logger.error(`Error registering token for user ${username}`, { username, error });
-      res.status(500).send({ error: error.message || 'Error interno del servidor al registrar el token.' });
+      const safeErrorMessage = escapeXml(
+        error?.message || 'Error interno del servidor al registrar el token.'
+      );
+      res.type('application/json').status(500).send({ error: safeErrorMessage });
     }
   }
 
@@ -73,22 +86,30 @@ export class TokensController {
     const providedToken = extractBearerToken(req, bodyToken);
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.status(400).send({ error: 'Usuario de GitHub inválido.' });
+      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
       return;
     }
 
     if (!providedToken || providedToken.trim() === '') {
-      res.status(400).send({ error: 'Se requiere proveer un token de GitHub válido para confirmar tu identidad.' });
+      res
+        .type('application/json')
+        .status(400)
+        .send({
+          error: 'Se requiere proveer un token de GitHub válido para confirmar tu identidad.'
+        });
       return;
     }
 
     try {
       const result = await this.revokeUseCase.execute(username, providedToken);
       logger.info(`Token revoked successfully for user ${username}`, { username });
-      res.status(200).send(result);
+      res.type('application/json').status(200).send(result);
     } catch (error: any) {
       logger.error(`Error revoking token for user ${username}`, { username, error });
-      res.status(500).send({ error: error.message || 'Error interno del servidor al revocar el token.' });
+      const safeErrorMessage = escapeXml(
+        error?.message || 'Error interno del servidor al revocar el token.'
+      );
+      res.type('application/json').status(500).send({ error: safeErrorMessage });
     }
   }
 
@@ -102,13 +123,14 @@ export class TokensController {
     const providedToken = extractBearerToken(req, bodyToken);
 
     if (!username || typeof username !== 'string' || !GITHUB_USERNAME_REGEX.test(username)) {
-      res.status(400).send({ error: 'Usuario de GitHub inválido.' });
+      res.type('application/json').status(400).send({ error: 'Usuario de GitHub inválido.' });
       return;
     }
 
     if (!providedToken || providedToken.trim() === '') {
-      res.status(400).send({
-        error: 'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'
+      res.type('application/json').status(400).send({
+        error:
+          'Se requiere proveer tu token de GitHub válido para confirmar y autorizar la purga de datos.'
       });
       return;
     }
@@ -123,7 +145,10 @@ export class TokensController {
       });
 
       if (!profileRes.ok) {
-        res.status(401).send({ error: 'El token de GitHub provisto no es válido o ha expirado.' });
+        res
+          .type('application/json')
+          .status(401)
+          .send({ error: 'El token de GitHub provisto no es válido o ha expirado.' });
         return;
       }
 
@@ -131,22 +156,31 @@ export class TokensController {
       const tokenOwner = githubUser.login;
 
       if (tokenOwner.toLowerCase() !== username.toLowerCase()) {
-        res.status(403).send({
-          error: `Acceso denegado. El token proporcionado pertenece al usuario '${tokenOwner}', pero estás intentando purgar los datos de '${username}'.`
-        });
+        const safeOwner = escapeXml(tokenOwner);
+        const safeUsername = escapeXml(username);
+        res
+          .type('application/json')
+          .status(403)
+          .send({
+            error: `Acceso denegado. El token proporcionado pertenece al usuario '${safeOwner}', pero estás intentando purgar los datos de '${safeUsername}'.`
+          });
         return;
       }
 
       await this.purgeUseCase.execute(username);
       logger.info(`GDPR data purge completed for user ${username}`, { username });
 
-      res.status(200).send({
-        message: 'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
+      res.type('application/json').status(200).send({
+        message:
+          'Todos tus datos (token, historial, métricas de uso y logs) han sido eliminados de forma definitiva.'
       });
     } catch (error: any) {
       logger.error(`Error purging data for user ${username}`, { username, error });
-      res.status(500).send({
-        error: error.message || 'Error interno del servidor al procesar la purga de datos.'
+      const safeErrorMessage = escapeXml(
+        error?.message || 'Error interno del servidor al procesar la purga de datos.'
+      );
+      res.type('application/json').status(500).send({
+        error: safeErrorMessage
       });
     }
   }
