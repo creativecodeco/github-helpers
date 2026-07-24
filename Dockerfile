@@ -52,8 +52,8 @@ COPY --chown=node:node --from=builder /usr/src/app/public ./public
 USER node
 
 # Health check — uses wget (built into Alpine) to probe the /health endpoint.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/health || exit 1
 
 EXPOSE 3000
 
